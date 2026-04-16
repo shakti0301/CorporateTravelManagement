@@ -18,11 +18,11 @@ A full-stack Travel Management System for managing employee travel requests, app
 
 ### 🔹 Flowchart
 
-👉 https://your-eraser-link-here
+👉 https://app.eraser.io/workspace/H2MSPMWFprI2kpUjjxyp?origin=share
 
 ### 🔹 ER Diagram
 
-👉 https://dbdiagram.io/d/your-diagram-link
+👉 https://dbdiagram.io/d/TravelManagement-69e11f4d0f7c9ef2c01743a8
 
 ---
 
@@ -31,7 +31,7 @@ A full-stack Travel Management System for managing employee travel requests, app
 SQL schema available in:
 
 ```
-database/schema.sql
+database/TravelManagement.sql
 ```
 
 ---
@@ -68,7 +68,7 @@ git clone <your-repo-link>
 ### 2. Setup Database
 
 * Open SQL Server
-* Run `schema.sql`
+* Run `TravelManagemant.sql`
 
 ### 3. Run Angular App
 
