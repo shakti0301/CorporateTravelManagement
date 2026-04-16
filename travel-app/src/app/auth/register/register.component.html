@@ -1,0 +1,54 @@
+<div class="row justify-content-center mt-5">
+  <div class="col-md-5">
+    <div class="card shadow-sm border-0">
+      <div class="card-body p-4">
+        <h3 class="text-center mb-4"><i class="bi bi-person-plus text-primary me-2"></i>Register</h3>
+        
+        <div *ngIf="errorMessage" class="alert alert-danger py-2">{{ errorMessage }}</div>
+        <div *ngIf="successMessage" class="alert alert-success py-2">{{ successMessage }}</div>
+
+        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+          <div class="mb-3">
+            <label class="form-label text-muted fw-semibold">Email address</label>
+            <input type="email" class="form-control" formControlName="email" placeholder="name@example.com">
+            <div *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched" class="text-danger small mt-1">
+              <span *ngIf="registerForm.get('email')?.errors?.['required']">Email is required.</span>
+              <span *ngIf="registerForm.get('email')?.errors?.['email']">Must be a valid email.</span>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label text-muted fw-semibold">Role</label>
+            <select class="form-select" formControlName="role">
+              <option value="" disabled selected>Select a role</option>
+              <option value="Employee">Employee</option>
+              <option value="Manager">Manager</option>
+              <option value="Finance">Finance</option>
+            </select>
+            <div *ngIf="registerForm.get('role')?.invalid && registerForm.get('role')?.touched" class="text-danger small mt-1">
+              <span *ngIf="registerForm.get('role')?.errors?.['required']">Role is required.</span>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label text-muted fw-semibold">Password</label>
+            <input type="password" class="form-control" formControlName="password" placeholder="At least 6 characters">
+            <div *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched" class="text-danger small mt-1">
+              <span *ngIf="registerForm.get('password')?.errors?.['required']">Password is required.</span>
+              <span *ngIf="registerForm.get('password')?.errors?.['minlength']">Password must be at least 6 characters.</span>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100 mb-3 py-2 fw-semibold" [disabled]="registerForm.invalid">
+            Create Account
+          </button>
+        </form>
+        
+        <div class="text-center mt-3">
+          <span class="text-muted">Already have an account? </span>
+          <a routerLink="/auth/login" class="text-decoration-none fw-semibold">Login here</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
