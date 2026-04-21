@@ -1,2 +1,124 @@
-<p>register works!</p>
-<a routerLink="/login">Back to Login</a>
+<section
+  class="container-fluid min-vh-100 d-flex align-items-center py-5"
+  style="
+    background: linear-gradient(145deg, #f6fbff 0%, #ecf7ff 40%, #eef9f2 100%);
+  "
+>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12 col-sm-11 col-md-9 col-lg-6 col-xl-5">
+        <div class="card border-0 shadow-lg rounded-4">
+          <div class="card-body p-4 p-md-5">
+            <span class="badge rounded-pill text-bg-primary mb-3"
+              >Get Started</span
+            >
+            <h2 class="h3 fw-bold mb-1">Register</h2>
+            <p class="text-secondary mb-4">Set up your profile in a minute</p>
+
+            <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
+              <div class="mb-3">
+                <label for="name" class="form-label fw-semibold">Name</label>
+                <input
+                  type="text"
+                  id="name"
+                  formControlName="name"
+                  class="form-control form-control-lg"
+                  placeholder="Enter your full name"
+                />
+                <small
+                  class="text-danger d-block mt-1"
+                  *ngIf="
+                    registerForm.get('name')?.invalid &&
+                    registerForm.get('name')?.touched
+                  "
+                >
+                  Name is required
+                </small>
+              </div>
+
+              <div class="mb-3">
+                <label for="email" class="form-label fw-semibold">Email</label>
+                <input
+                  type="email"
+                  id="email"
+                  formControlName="email"
+                  class="form-control form-control-lg"
+                  placeholder="name@company.com"
+                />
+                <small
+                  class="text-danger d-block mt-1"
+                  *ngIf="
+                    registerForm.get('email')?.invalid &&
+                    registerForm.get('email')?.touched
+                  "
+                >
+                  Valid email is required
+                </small>
+              </div>
+
+              <div class="mb-3">
+                <label for="password" class="form-label fw-semibold"
+                  >Password</label
+                >
+                <input
+                  type="password"
+                  id="password"
+                  formControlName="password"
+                  class="form-control form-control-lg"
+                  placeholder="At least 8 characters"
+                />
+                <small
+                  class="text-danger d-block mt-1"
+                  *ngIf="
+                    registerForm.get('password')?.invalid &&
+                    registerForm.get('password')?.touched
+                  "
+                >
+                  Password must be at least 8 characters long
+                </small>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-semibold" for="role">Role</label>
+                <select
+                  class="form-select form-select-lg"
+                  formControlName="role"
+                  id="role"
+                >
+                  <option value="">Select Role</option>
+                  <option value="employee">Employee</option>
+                  <option value="manager">Manager</option>
+                  <option value="finance">Finance</option>
+                </select>
+                <small
+                  class="text-danger d-block mt-1"
+                  *ngIf="
+                    registerForm.get('role')?.invalid &&
+                    registerForm.get('role')?.touched
+                  "
+                >
+                  Role is required
+                </small>
+              </div>
+
+              <button
+                class="btn btn-primary btn-lg w-100 mt-2"
+                type="submit"
+                [disabled]="registerForm.invalid"
+              >
+                Register
+              </button>
+
+              <p class="text-center text-secondary mt-4 mb-0">
+                Already have account?
+                <a class="fw-semibold text-decoration-none" routerLink="/"
+                  >Login</a
+                >
+              </p>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
