@@ -28,11 +28,20 @@
                 <small
                   class="text-danger d-block mt-1"
                   *ngIf="
-                    loginForm.get('email')?.invalid &&
-                    loginForm.get('email')?.touched
+                    (loginForm.get('email')?.touched || submitted) &&
+                    loginForm.get('email')?.errors?.['required']
                   "
                 >
-                  Invalid email
+                  Email is required
+                </small>
+                <small
+                  class="text-danger d-block mt-1"
+                  *ngIf="
+                    (loginForm.get('email')?.touched || submitted) &&
+                    loginForm.get('email')?.errors?.['email']
+                  "
+                >
+                  Please enter a valid email address
                 </small>
               </div>
 
@@ -50,11 +59,29 @@
                 <small
                   class="text-danger d-block mt-1"
                   *ngIf="
-                    loginForm.get('password')?.invalid &&
-                    loginForm.get('password')?.touched
+                    (loginForm.get('password')?.touched || submitted) &&
+                    loginForm.get('password')?.errors?.['required']
                   "
                 >
                   Password is required
+                </small>
+                <small
+                  class="text-danger d-block mt-1"
+                  *ngIf="
+                    (loginForm.get('password')?.touched || submitted) &&
+                    loginForm.get('password')?.errors?.['minlength']
+                  "
+                >
+                  Password must be at least 8 characters
+                </small>
+                <small
+                  class="text-danger d-block mt-1"
+                  *ngIf="
+                    (loginForm.get('password')?.touched || submitted) &&
+                    loginForm.get('password')?.errors?.['maxlength']
+                  "
+                >
+                  Password cannot exceed 64 characters
                 </small>
               </div>
 
