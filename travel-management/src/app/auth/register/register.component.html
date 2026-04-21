@@ -28,11 +28,38 @@
                 <small
                   class="text-danger d-block mt-1"
                   *ngIf="
-                    registerForm.get('name')?.invalid &&
-                    registerForm.get('name')?.touched
+                    (registerForm.get('name')?.touched || submitted) &&
+                    registerForm.get('name')?.errors?.['required']
                   "
                 >
                   Name is required
+                </small>
+                <small
+                  class="text-danger d-block mt-1"
+                  *ngIf="
+                    (registerForm.get('name')?.touched || submitted) &&
+                    registerForm.get('name')?.errors?.['minlength']
+                  "
+                >
+                  Name must be at least 2 characters
+                </small>
+                <small
+                  class="text-danger d-block mt-1"
+                  *ngIf="
+                    (registerForm.get('name')?.touched || submitted) &&
+                    registerForm.get('name')?.errors?.['maxlength']
+                  "
+                >
+                  Name cannot exceed 50 characters
+                </small>
+                <small
+                  class="text-danger d-block mt-1"
+                  *ngIf="
+                    (registerForm.get('name')?.touched || submitted) &&
+                    registerForm.get('name')?.errors?.['pattern']
+                  "
+                >
+                  Name can contain only letters and spaces
                 </small>
               </div>
 
@@ -48,11 +75,29 @@
                 <small
                   class="text-danger d-block mt-1"
                   *ngIf="
-                    registerForm.get('email')?.invalid &&
-                    registerForm.get('email')?.touched
+                    (registerForm.get('email')?.touched || submitted) &&
+                    registerForm.get('email')?.errors?.['required']
                   "
                 >
-                  Valid email is required
+                  Email is required
+                </small>
+                <small
+                  class="text-danger d-block mt-1"
+                  *ngIf="
+                    (registerForm.get('email')?.touched || submitted) &&
+                    registerForm.get('email')?.errors?.['email']
+                  "
+                >
+                  Please enter a valid email
+                </small>
+                <small
+                  class="text-danger d-block mt-1"
+                  *ngIf="
+                    (registerForm.get('email')?.touched || submitted) &&
+                    registerForm.get('email')?.errors?.['maxlength']
+                  "
+                >
+                  Email cannot exceed 100 characters
                 </small>
               </div>
 
@@ -70,11 +115,72 @@
                 <small
                   class="text-danger d-block mt-1"
                   *ngIf="
-                    registerForm.get('password')?.invalid &&
-                    registerForm.get('password')?.touched
+                    (registerForm.get('password')?.touched || submitted) &&
+                    registerForm.get('password')?.errors?.['required']
+                  "
+                >
+                  Password is required
+                </small>
+                <small
+                  class="text-danger d-block mt-1"
+                  *ngIf="
+                    (registerForm.get('password')?.touched || submitted) &&
+                    registerForm.get('password')?.errors?.['minlength']
                   "
                 >
                   Password must be at least 8 characters long
+                </small>
+                <small
+                  class="text-danger d-block mt-1"
+                  *ngIf="
+                    (registerForm.get('password')?.touched || submitted) &&
+                    registerForm.get('password')?.errors?.['maxlength']
+                  "
+                >
+                  Password cannot exceed 64 characters
+                </small>
+                <small
+                  class="text-danger d-block mt-1"
+                  *ngIf="
+                    (registerForm.get('password')?.touched || submitted) &&
+                    registerForm.get('password')?.errors?.['pattern']
+                  "
+                >
+                  Use at least one uppercase, one lowercase, one number, and one
+                  special character
+                </small>
+              </div>
+
+              <div class="mb-3">
+                <label for="confirmPassword" class="form-label fw-semibold"
+                  >Confirm Password</label
+                >
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  formControlName="confirmPassword"
+                  class="form-control form-control-lg"
+                  placeholder="Re-enter password"
+                />
+                <small
+                  class="text-danger d-block mt-1"
+                  *ngIf="
+                    (registerForm.get('confirmPassword')?.touched ||
+                      submitted) &&
+                    registerForm.get('confirmPassword')?.errors?.['required']
+                  "
+                >
+                  Confirm password is required
+                </small>
+                <small
+                  class="text-danger d-block mt-1"
+                  *ngIf="
+                    (registerForm.get('confirmPassword')?.touched ||
+                      submitted) &&
+                    registerForm.errors?.['passwordMismatch']
+                  "
+                >
+                  Password and confirm password must match
                 </small>
               </div>
 
@@ -93,8 +199,8 @@
                 <small
                   class="text-danger d-block mt-1"
                   *ngIf="
-                    registerForm.get('role')?.invalid &&
-                    registerForm.get('role')?.touched
+                    (registerForm.get('role')?.touched || submitted) &&
+                    registerForm.get('role')?.errors?.['required']
                   "
                 >
                   Role is required
