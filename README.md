@@ -1,85 +1,27 @@
-# Travel Management System
+# TravelManagement
 
-## 📌 Project Overview
+This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.21.
 
-A full-stack Travel Management System for managing employee travel requests, approvals, expenses, and policies.
+## Development server
 
----
+Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
 
-## 🛠️ Tech Stack
+## Code scaffolding
 
-* Frontend: Angular
-* Backend: .NET Core (planned)
-* Database: MS SQL Server
+Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
 
----
+## Build
 
-## 📊 System Design
+Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
 
-### 🔹 Flowchart
+## Running unit tests
 
-👉 https://app.eraser.io/workspace/H2MSPMWFprI2kpUjjxyp?origin=share
+Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
 
-### 🔹 ER Diagram
+## Running end-to-end tests
 
-👉 https://dbdiagram.io/d/TravelManagement-69e11f4d0f7c9ef2c01743a8
+Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
 
----
+## Further help
 
-## 🗄️ Database
-
-SQL schema available in:
-
-```
-database/TravelManagement.sql
-```
-
----
-
-## 🚀 Features
-
-* Travel request creation
-* Multi-level approval workflow
-* Expense tracking
-* Policy enforcement
-* Notifications system
-
----
-
-## 📁 Project Structure
-
-```
-docs/
-database/
-frontend/
-backend/
-```
-
----
-
-## 📌 Setup Instructions
-
-### 1. Clone Repo
-
-```
-git clone <your-repo-link>
-```
-
-### 2. Setup Database
-
-* Open SQL Server
-* Run `TravelManagemant.sql`
-
-### 3. Run Angular App
-
-```
-cd frontend/angular-app
-npm install
-ng serve
-```
-
----
-
-## 👨‍💻 Author
-
-Shaktisinh Raolji
+To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
