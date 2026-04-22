@@ -19,8 +19,6 @@ export class AuthService {
     users.push(userData);
 
     localStorage.setItem('users', JSON.stringify(users));
-
-    alert('Registration successful');
   }
 
   login(email: string, password: string) {
