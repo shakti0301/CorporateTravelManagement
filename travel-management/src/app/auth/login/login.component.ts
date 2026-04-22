@@ -7,6 +7,8 @@ import {
   Validators,
 } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -16,6 +18,11 @@ import { RouterLink } from '@angular/router';
   styleUrl: './login.component.css',
 })
 export class LoginComponent {
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+  ) {}
+
   submitted = false;
 
   loginForm = new FormGroup({
@@ -30,11 +37,22 @@ export class LoginComponent {
   onSubmit() {
     this.submitted = true;
 
-    if (this.loginForm.invalid) {
-      this.loginForm.markAllAsTouched();
-      return;
-    }
+    if (this.loginForm.valid) {
+      const { email, password } = this.loginForm.value;
+      const user = this.authService.login(email!, password!);
+      if (user) {
+        // alert('Login Successful');
 
-    console.log(this.loginForm.value);
+        if (user.role === 'employee') {
+          this.router.navigate(['/employee']);
+        } else if (user.role === 'manager') {
+          this.router.navigate(['/manager']);
+        } else if (user.role === 'finance') {
+          this.router.navigate(['/finance']);
+        }
+      } else {
+        alert('Invalid Credentials');
+      }
+    }
   }
 }

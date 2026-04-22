@@ -10,6 +10,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 const passwordStrengthPattern =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).+$/;
@@ -35,6 +36,8 @@ const passwordMatchValidator: ValidatorFn = (
   styleUrl: './register.component.css',
 })
 export class RegisterComponent {
+  constructor(private authService: AuthService) {}
+
   submitted = false;
 
   registerForm = new FormGroup(
@@ -65,11 +68,11 @@ export class RegisterComponent {
   onSubmit() {
     this.submitted = true;
 
-    if (this.registerForm.invalid) {
-      this.registerForm.markAllAsTouched();
+    if (this.registerForm.valid) {
+      this.authService.register(this.registerForm.value);
+      console.log('User Registered');
       return;
     }
-
-    console.log(this.registerForm.value);
+    this.registerForm.markAllAsTouched();
   }
 }
