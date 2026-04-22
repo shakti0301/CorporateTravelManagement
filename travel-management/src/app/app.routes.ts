@@ -1,10 +1,6 @@
 import { Routes } from '@angular/router';
 import { authRoutes } from './auth/auth.routes';
 
-import { DashboardComponent as EmployeeDashboard } from './dashboards/employee/dashboard/dashboard.component';
-import { DashboardComponent as ManagerDashboard } from './dashboards/manager/dashboard/dashboard.component';
-import { DashboardComponent as FinanceDashboard } from './dashboards/finance/dashboard/dashboard.component';
-
 export const routes: Routes = [
   {
     path: '',
@@ -12,16 +8,26 @@ export const routes: Routes = [
   },
   {
     path: 'employee',
-    component: EmployeeDashboard,
+    loadChildren: () =>
+      import('./dashboards/employee/employee.routes').then(
+        (m) => m.employeeRoutes,
+      ),
   },
   {
     path: 'manager',
-    component: ManagerDashboard,
+    loadChildren: () =>
+      import('./dashboards/manager/manager.routes').then(
+        (m) => m.managerRoutes,
+      ),
   },
   {
     path: 'finance',
-    component: FinanceDashboard,
+    loadChildren: () =>
+      import('./dashboards/finance/finance.routes').then(
+        (m) => m.financeRoutes,
+      ),
   },
+
   {
     path: '**',
     redirectTo: '',
