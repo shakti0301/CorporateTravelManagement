@@ -1,0 +1,9 @@
+<nav class="navbar navbar-dark bg-dark px-3">
+  <span class="navbar-brand">Travel Management</span>
+
+  <div class="d-flex align-items-center text-white">
+    <span class="me-3"> {{ user?.name }} ({{ user?.role }}) </span>
+
+    <button class="btn btn-danger btn-sm" (click)="logout()">Logout</button>
+  </div>
+</nav>
