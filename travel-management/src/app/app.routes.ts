@@ -12,27 +12,21 @@ export const routes: Routes = [
     canActivate: [authGuard],
     data: { role: 'employee' },
     loadChildren: () =>
-      import('./dashboards/employee/employee.routes').then(
-        (m) => m.employeeRoutes,
-      ),
+      import('./portal/employee/employee.routes').then((m) => m.employeeRoutes),
   },
   {
     path: 'manager',
     canActivate: [authGuard],
     data: { role: 'manager' },
     loadChildren: () =>
-      import('./dashboards/manager/manager.routes').then(
-        (m) => m.managerRoutes,
-      ),
+      import('./portal/manager/manager.routes').then((m) => m.managerRoutes),
   },
   {
     path: 'finance',
     canActivate: [authGuard],
     data: { role: 'finance' },
     loadChildren: () =>
-      import('./dashboards/finance/finance.routes').then(
-        (m) => m.financeRoutes,
-      ),
+      import('./portal/finance/finance.routes').then((m) => m.financeRoutes),
   },
 
   {
