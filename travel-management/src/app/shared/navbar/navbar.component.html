@@ -1,9 +1,56 @@
-<nav class="navbar navbar-dark bg-dark px-3">
-  <span class="navbar-brand">Travel Management</span>
-
-  <div class="d-flex align-items-center text-white">
-    <span class="me-3"> {{ user?.name }} ({{ user?.role }}) </span>
-
-    <button class="btn btn-danger btn-sm" (click)="logout()">Logout</button>
+<nav class="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Travel Management</a>
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarScroll"
+      aria-controls="navbarScroll"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarScroll">
+      <ul
+        class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll"
+        style="--bs-scroll-height: 100px"
+      >
+        <li class="nav-item">
+          <a
+            *ngIf="user?.role === 'employee'"
+            routerLink="/employee/request"
+            class="nav-link active"
+            aria-current="page"
+            >Create Request</a
+          >
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Link</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a
+            class="nav-link dropdown-toggle"
+            href="#"
+            role="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
+            Link
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="#">Action</a></li>
+            <li><a class="dropdown-item" href="#">Another action</a></li>
+            <li><hr class="dropdown-divider" /></li>
+            <li><a class="dropdown-item" href="#">Something else here</a></li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link disabled" aria-disabled="true">Link</a>
+        </li>
+      </ul>
+      <button class="btn btn-danger btn-sm" (click)="logout()">Logout</button>
+    </div>
   </div>
 </nav>
