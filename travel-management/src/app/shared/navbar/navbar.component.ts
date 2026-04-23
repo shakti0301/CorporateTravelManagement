@@ -11,7 +11,6 @@ import { RouterLink } from '@angular/router';
 })
 export class NavbarComponent implements OnInit {
   user: any;
-
   ngOnInit(): void {
     const data = localStorage.getItem('currentUser');
     this.user = data ? JSON.parse(data) : null;

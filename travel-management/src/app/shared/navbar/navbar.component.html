@@ -27,7 +27,7 @@
           >
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#">Link</a>
+          <a class="nav-link" href="#">History</a>
         </li>
         <li class="nav-item dropdown">
           <a
@@ -50,6 +50,7 @@
           <a class="nav-link disabled" aria-disabled="true">Link</a>
         </li>
       </ul>
+      <span class="me-3 text-white"> {{ user?.name }} ({{ user?.role }}) </span>
       <button class="btn btn-danger btn-sm" (click)="logout()">Logout</button>
     </div>
   </div>
