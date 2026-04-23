@@ -1,3 +1,29 @@
 <app-navbar></app-navbar>
+<div class="container mt-4">
+  <h3>My Travel Requests</h3>
 
-<h2 class="m-3">Employee Dashboard</h2>
+  <table class="table table-bordered mt-3" *ngIf="requests.length > 0">
+    <thead>
+      <tr>
+        <th>Destination</th>
+        <th>From</th>
+        <th>To</th>
+        <th>Purpose</th>
+        <th>Cost</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let req of requests">
+        <td>{{ req.destination }}</td>
+        <td>{{ req.fromDate }}</td>
+        <td>{{ req.toDate }}</td>
+        <td>{{ req.purpose }}</td>
+        <td>{{ req.cost }}</td>
+      </tr>
+    </tbody>
+  </table>
+  <div *ngIf="requests.length === 0" class="alert alert-info">
+    No travel requests found.
+  </div>
+</div>

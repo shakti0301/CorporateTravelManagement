@@ -10,6 +10,8 @@ import {
   Validators,
 } from '@angular/forms';
 import { NavbarComponent } from '../../../shared/navbar/navbar.component';
+import { RequestService } from '../../../services/request.service';
+import { Router } from '@angular/router';
 
 const travelDateRangeValidator: ValidatorFn = (
   control: AbstractControl,
@@ -34,6 +36,10 @@ const travelDateRangeValidator: ValidatorFn = (
   styleUrl: './travel-request.component.css',
 })
 export class TravelRequestComponent {
+  constructor(
+    private requestService: RequestService,
+    private router: Router,
+  ) {}
   submitted = false;
 
   requestForm = new FormGroup(
@@ -81,15 +87,12 @@ export class TravelRequestComponent {
   }
 
   onSubmit() {
-    this.submitted = true;
-
-    if (this.requestForm.invalid) {
-      this.requestForm.markAllAsTouched();
-      return;
-    }
-
     if (this.requestForm.valid) {
-      console.log('Travel Request Submitted', this.requestForm.value);
+      this.requestService.createRequest(this.requestForm.value);
+
+      alert('Travel request submitted successfully!');
+      this.requestForm.reset();
+      this.router.navigate(['/employee']);
     }
   }
 }
