@@ -21,16 +21,18 @@ export class DashboardComponent implements OnInit {
 
   loadRequests() {
     const allRequests = this.requestService.getAllRequests();
-    this.requests = allRequests.filter((req: any) => req.status === 'pending');
+    this.requests = allRequests.filter(
+      (req: any) => req.managerStatus === 'pending',
+    );
   }
 
   approve(id: number) {
-    this.requestService.updateRequestStatus(id, 'approved');
+    this.requestService.updateManagerStatus(id, 'approved');
     this.loadRequests();
   }
 
   reject(id: number) {
-    this.requestService.updateRequestStatus(id, 'rejected');
+    this.requestService.updateManagerStatus(id, 'rejected');
     this.loadRequests();
   }
 }
