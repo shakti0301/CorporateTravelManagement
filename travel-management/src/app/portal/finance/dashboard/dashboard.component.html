@@ -1,3 +1,41 @@
 <app-navbar></app-navbar>
 
-<h2 class="m-3">Employee Dashboard</h2>
+<div class="container mt-4">
+  <h3>Finance Aproval Requests</h3>
+
+  <table class="table table-bordered mt-3" *ngIf="requests.length > 0">
+    <thead>
+      <tr>
+        <th>User</th>
+        <th>Destination</th>
+        <th>Dates</th>
+        <th>Purpose</th>
+        <th>Cost</th>
+        <th>Manager Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let req of requests">
+        <td>{{ req.userEmail }}</td>
+        <td>{{ req.destination }}</td>
+        <td>{{ req.fromDate }} -> {{ req.toDate }}</td>
+        <td>{{ req.purpose }}</td>
+        <td>{{ req.cost }}</td>
+        <td>
+          <span class="badge bg-success">{{ req.managerStatus }}</span>
+        </td>
+        <td>
+          <button class="btn btn-success btn-sm me-2" (click)="approve(req.id)">
+            Approve
+          </button>
+
+          <button class="btn btn-danger btn-sm" (click)="reject(req.id)">
+            Reject
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <p *ngIf="requests.length === 0">No requests for finance approval.</p>
+</div>
