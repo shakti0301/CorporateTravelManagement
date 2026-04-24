@@ -1,29 +1,140 @@
 <app-navbar></app-navbar>
-<div class="container mt-4">
-  <h3>My Travel Requests</h3>
+<section class="employee-dashboard">
+  <div class="dashboard-shell">
+    <header class="hero">
+      <p class="eyebrow">Travel center</p>
+      <h1>My Travel Requests</h1>
+      <p class="subtitle">
+        View your submitted requests and track approval updates from manager and
+        finance in one place.
+      </p>
+    </header>
 
-  <table class="table table-bordered mt-3" *ngIf="requests.length > 0">
-    <thead>
-      <tr>
-        <th>Destination</th>
-        <th>From</th>
-        <th>To</th>
-        <th>Purpose</th>
-        <th>Cost</th>
-        <th>Status</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let req of requests">
-        <td>{{ req.destination }}</td>
-        <td>{{ req.fromDate }}</td>
-        <td>{{ req.toDate }}</td>
-        <td>{{ req.purpose }}</td>
-        <td>{{ req.cost }}</td>
-      </tr>
-    </tbody>
-  </table>
-  <div *ngIf="requests.length === 0" class="alert alert-info">
-    No travel requests found.
+    <div class="stats-grid" *ngIf="requests.length > 0">
+      <article class="stat-card">
+        <h2>{{ totalRequests }}</h2>
+        <p>Total requests</p>
+      </article>
+      <article class="stat-card">
+        <h2>{{ approvedRequests }}</h2>
+        <p>Approved</p>
+      </article>
+      <article class="stat-card">
+        <h2>{{ pendingRequests }}</h2>
+        <p>Pending</p>
+      </article>
+    </div>
+
+    <div class="requests-card" *ngIf="requests.length > 0; else emptyState">
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Destination</th>
+              <th>From</th>
+              <th>To</th>
+              <th>Purpose</th>
+              <th>Cost</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let req of requests">
+              <td>{{ req.destination }}</td>
+              <td>{{ req.fromDate }}</td>
+              <td>{{ req.toDate }}</td>
+              <td>{{ req.purpose }}</td>
+              <td>{{ req.cost | currency: "INR" : "symbol" : "1.0-0" }}</td>
+              <td class="status-column">
+                <div class="status-stack">
+                  <div class="status-row">
+                    <span class="status-key">Manager</span>
+                    <span
+                      class="status-pill"
+                      [class.status-approved]="
+                        (req.managerStatus || '').toLowerCase() === 'approved'
+                      "
+                      [class.status-rejected]="
+                        (req.managerStatus || '').toLowerCase() === 'rejected'
+                      "
+                      [class.status-neutral]="
+                        (req.managerStatus || '').toLowerCase() ===
+                        'not_applicable'
+                      "
+                      [class.status-pending]="
+                        !req.managerStatus ||
+                        (req.managerStatus || '').toLowerCase() === 'pending'
+                      "
+                    >
+                      {{ formatStatus(req.managerStatus) }}
+                    </span>
+                  </div>
+
+                  <div class="status-row">
+                    <span class="status-key">Finance</span>
+                    <span
+                      class="status-pill"
+                      [class.status-approved]="
+                        (req.financeStatus || '').toLowerCase() === 'approved'
+                      "
+                      [class.status-rejected]="
+                        (req.financeStatus || '').toLowerCase() === 'rejected'
+                      "
+                      [class.status-neutral]="
+                        (req.financeStatus || '').toLowerCase() ===
+                        'not_applicable'
+                      "
+                      [class.status-pending]="
+                        !req.financeStatus ||
+                        (req.financeStatus || '').toLowerCase() === 'pending'
+                      "
+                    >
+                      {{ formatStatus(req.financeStatus) }}
+                    </span>
+                  </div>
+
+                  <div class="status-row">
+                    <span class="status-key">Final</span>
+                    <span
+                      class="status-pill"
+                      [class.status-approved]="
+                        (req.finalStatus || '').toLowerCase() === 'approved'
+                      "
+                      [class.status-rejected]="
+                        (req.finalStatus || '').toLowerCase() === 'rejected'
+                      "
+                      [class.status-neutral]="
+                        (req.finalStatus || '').toLowerCase() ===
+                        'not_applicable'
+                      "
+                      [class.status-pending]="
+                        !req.finalStatus ||
+                        (req.finalStatus || '').toLowerCase() === 'pending'
+                      "
+                    >
+                      {{ formatStatus(req.finalStatus) }}
+                    </span>
+                  </div>
+
+                  <div *ngIf="req.reason" class="status-reason">
+                    Reason: {{ req.reason }}
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <ng-template #emptyState>
+      <section class="empty-state">
+        <h2>No requests yet</h2>
+        <p>
+          Your travel requests will appear here after you submit one from the
+          request page.
+        </p>
+      </section>
+    </ng-template>
   </div>
-</div>
+</section>

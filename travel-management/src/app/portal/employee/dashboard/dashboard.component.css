@@ -1,0 +1,242 @@
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap");
+
+:host {
+  display: block;
+  --bg-soft: #f4f7f2;
+  --surface: #ffffff;
+  --surface-muted: #f8faf6;
+  --text-main: #1f2a1f;
+  --text-subtle: #5d6a5d;
+  --accent: #2f7a5f;
+  --accent-soft: #e7f6ee;
+  --border: #d9e3d8;
+  --pending-bg: #fff6e2;
+  --pending-text: #7c5804;
+  --approved-bg: #e6f7ee;
+  --approved-text: #0c6a3e;
+  --rejected-bg: #fdeaea;
+  --rejected-text: #9f2f2f;
+  --neutral-bg: #ecf1f6;
+  --neutral-text: #3f5670;
+}
+
+.employee-dashboard {
+  min-height: calc(100vh - 64px);
+  padding: 2rem 1rem 2.5rem;
+  background:
+    radial-gradient(circle at 8% 12%, #dcefdc 0%, transparent 35%),
+    radial-gradient(circle at 95% 20%, #d8ede6 0%, transparent 42%),
+    var(--bg-soft);
+  font-family: "Manrope", "Segoe UI", sans-serif;
+}
+
+.dashboard-shell {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.hero {
+  margin-bottom: 1.25rem;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  margin: 0.35rem 0 0.5rem;
+  color: var(--text-main);
+  font-size: clamp(1.35rem, 2vw, 2rem);
+  font-weight: 800;
+}
+
+.subtitle {
+  margin: 0;
+  max-width: 720px;
+  color: var(--text-subtle);
+  line-height: 1.55;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem;
+  margin: 1.2rem 0 1rem;
+}
+
+.stat-card {
+  padding: 1rem 1rem 0.85rem;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: linear-gradient(165deg, #ffffff, var(--surface-muted));
+  box-shadow: 0 10px 24px rgba(26, 44, 31, 0.06);
+}
+
+.stat-card h2 {
+  margin: 0;
+  color: var(--text-main);
+  font-size: 1.45rem;
+  font-weight: 800;
+}
+
+.stat-card p {
+  margin: 0.3rem 0 0;
+  color: var(--text-subtle);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.requests-card {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: 0 14px 30px rgba(26, 44, 31, 0.08);
+  overflow: hidden;
+}
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 860px;
+}
+
+thead {
+  background: var(--accent-soft);
+}
+
+th,
+td {
+  padding: 0.9rem 0.8rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  color: var(--text-main);
+  vertical-align: top;
+}
+
+th {
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+td {
+  font-size: 0.92rem;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.status-column {
+  min-width: 230px;
+}
+
+.status-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.42rem;
+}
+
+.status-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.status-key {
+  min-width: 60px;
+  color: var(--text-subtle);
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  margin: 0;
+  padding: 0.3rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.status-pending {
+  background: var(--pending-bg);
+  color: var(--pending-text);
+}
+
+.status-approved {
+  background: var(--approved-bg);
+  color: var(--approved-text);
+}
+
+.status-rejected {
+  background: var(--rejected-bg);
+  color: var(--rejected-text);
+}
+
+.status-neutral {
+  background: var(--neutral-bg);
+  color: var(--neutral-text);
+}
+
+.status-reason {
+  margin-top: 0.2rem;
+  padding: 0.45rem 0.6rem;
+  border-radius: 10px;
+  background: #fff1f1;
+  color: #a03838;
+  font-size: 0.76rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.empty-state {
+  margin-top: 1rem;
+  border: 1px dashed #aac6b3;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #fbfefb, #f4faf5);
+  padding: 2.2rem 1rem;
+  text-align: center;
+}
+
+.empty-state h2 {
+  margin: 0;
+  color: var(--text-main);
+  font-size: 1.3rem;
+}
+
+.empty-state p {
+  margin: 0.65rem auto 0;
+  max-width: 520px;
+  color: var(--text-subtle);
+}
+
+@media (max-width: 900px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .employee-dashboard {
+    padding: 1.2rem 0.8rem 1.8rem;
+  }
+
+  .hero h1 {
+    font-size: 1.5rem;
+  }
+}
