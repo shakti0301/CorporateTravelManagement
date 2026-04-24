@@ -17,8 +17,9 @@ export class RequestService {
       ...request,
       userEmail: user.email,
       managerStatus: 'pending',
-      financeStatus: 'pending',
+      financeStatus: 'not_applicable',
       finalStatus: 'pending',
+      reason: '',
       id: Date.now(),
     };
 
@@ -37,7 +38,7 @@ export class RequestService {
     return JSON.parse(localStorage.getItem('requests') || '[]');
   }
 
-  updateRequestStatus(id: number, status: string) {
+  updateManagerStatus(id: number, status: string) {
     let requests = JSON.parse(localStorage.getItem('requests') || '[]');
 
     requests = requests.map((req: any) => {
@@ -45,7 +46,13 @@ export class RequestService {
         req.managerStatus = status;
 
         if (status === 'rejected') {
-          req.financeStatus = 'rejected';
+          req.finalStatus = 'rejected';
+          req.financeStatus = 'not_applicable';
+          req.reason = 'Manager rejected the request';
+        }
+
+        if (status === 'approved') {
+          req.financeStatus = 'pending';
         }
       }
       return req;
@@ -62,6 +69,7 @@ export class RequestService {
 
         if (status === 'rejected') {
           req.finalStatus = 'rejected';
+          req.reason = 'Finance rejected the request';
         }
 
         if (req.managerStatus === 'approved' && status === 'approved') {
@@ -70,5 +78,6 @@ export class RequestService {
       }
       return req;
     });
+    localStorage.setItem('requests', JSON.stringify(requests));
   }
 }
