@@ -16,6 +16,20 @@ export class NavbarComponent implements OnInit {
     this.user = data ? JSON.parse(data) : null;
   }
 
+  get dashboardRoute(): string {
+    const role = this.user?.role?.toLowerCase();
+
+    if (role === 'manager') {
+      return '/manager';
+    }
+
+    if (role === 'finance') {
+      return '/finance';
+    }
+
+    return '/employee';
+  }
+
   logout() {
     localStorage.removeItem('currentUser');
     alert('Logged out successfully!');
