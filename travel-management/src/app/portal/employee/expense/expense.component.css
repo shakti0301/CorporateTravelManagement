@@ -1,0 +1,122 @@
+.expense-shell {
+  min-height: calc(100vh - 72px);
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(255, 193, 7, 0.16),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at top right,
+      rgba(13, 110, 253, 0.12),
+      transparent 30%
+    ),
+    linear-gradient(180deg, #fffaf1 0%, #f6fbff 100%);
+}
+
+.expense-card {
+  border-radius: 1.5rem;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(10px);
+}
+
+.expense-card .form-control,
+.expense-card .form-select,
+.expense-card textarea {
+  border-radius: 0.95rem;
+  border-color: #dcdfe6;
+  box-shadow: none;
+}
+
+.expense-card .form-control:focus,
+.expense-card .form-select:focus,
+.expense-card textarea:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.12);
+}
+
+.expense-hint {
+  align-self: flex-start;
+  padding: 0.9rem 1rem;
+  border-radius: 1rem;
+  background: #eef5ff;
+  color: #21406a;
+  max-width: 240px;
+}
+
+.expense-hint span {
+  display: block;
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 0.2rem;
+}
+
+.expense-hint small {
+  display: block;
+  line-height: 1.4;
+}
+
+.upload-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: #5c6470;
+}
+
+.upload-meta span {
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  background: #f1f5f9;
+}
+
+.receipt-preview {
+  margin-top: 0.85rem;
+  padding: 0.85rem 1rem;
+  border-radius: 1rem;
+  border: 1px solid #d9e7f6;
+  background: linear-gradient(135deg, #f7fbff 0%, #eef7f0 100%);
+}
+
+.receipt-preview strong,
+.expense-summary strong {
+  display: block;
+  color: #183b66;
+}
+
+.receipt-preview small {
+  display: block;
+  margin-top: 0.2rem;
+  color: #5d6674;
+}
+
+.expense-summary {
+  padding: 1rem 1.1rem;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, #f4faf6 0%, #eef6ff 100%);
+  border: 1px solid #dfeee5;
+}
+
+.invalid-feedback {
+  font-size: 0.9rem;
+}
+
+@media (max-width: 575.98px) {
+  .expense-shell {
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .expense-card {
+    border-radius: 1.1rem;
+  }
+
+  .expense-hint {
+    width: 100%;
+    max-width: none;
+  }
+
+  .expense-summary {
+    padding: 1rem;
+  }
+}
