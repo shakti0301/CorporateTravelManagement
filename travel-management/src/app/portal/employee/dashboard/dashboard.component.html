@@ -36,6 +36,7 @@
               <th>Purpose</th>
               <th>Cost</th>
               <th>Status</th>
+              <th>Expense</th>
             </tr>
           </thead>
           <tbody>
@@ -120,6 +121,18 @@
                     Reason: {{ req.reason }}
                   </div>
                 </div>
+              </td>
+              <td>
+                <button
+                  class="btn btn-primary btn-sm"
+                  *ngIf="req.finalStatus === 'approved'"
+                  [routerLink]="['/employee/expense', req.id]"
+                >
+                  Add Expense
+                </button>
+                <span *ngIf="req.finalStatus !== 'approved'" class="text-muted"
+                  >Not Allowed</span
+                >
               </td>
             </tr>
           </tbody>
