@@ -12,27 +12,73 @@ import { CommonModule } from '@angular/common';
 })
 export class DashboardComponent implements OnInit {
   requests: any[] = [];
+  allRequests: any[] = [];
 
   constructor(private requestService: RequestService) {}
 
-  ngOnInit(): void {
-    this.loadRequests();
+  ngOnInit() {
+    this.allRequests = this.requestService.getAllRequests();
+
+    this.requests = this.allRequests.filter(
+      (req) => this.normalizeStatus(req.managerStatus) === 'pending',
+    );
   }
 
-  loadRequests() {
-    const allRequests = this.requestService.getAllRequests();
-    this.requests = allRequests.filter(
-      (req: any) => req.managerStatus === 'pending',
-    );
+  get totalRequests(): number {
+    return this.allRequests.length;
+  }
+
+  get pendingRequests(): number {
+    return this.allRequests.filter(
+      (req) => this.normalizeStatus(req.managerStatus) === 'pending',
+    ).length;
+  }
+
+  get approvedRequests(): number {
+    return this.allRequests.filter(
+      (req) => this.normalizeStatus(req.managerStatus) === 'approved',
+    ).length;
+  }
+
+  get rejectedRequests(): number {
+    return this.allRequests.filter(
+      (req) => this.normalizeStatus(req.managerStatus) === 'rejected',
+    ).length;
   }
 
   approve(id: number) {
     this.requestService.updateManagerStatus(id, 'approved');
-    this.loadRequests();
+    this.refresh();
   }
 
   reject(id: number) {
     this.requestService.updateManagerStatus(id, 'rejected');
-    this.loadRequests();
+    this.refresh();
+  }
+
+  refresh() {
+    this.ngOnInit();
+  }
+
+  formatStatus(status: string): string {
+    const normalized = this.normalizeStatus(status);
+
+    if (normalized === 'not_applicable') return 'Not Required';
+
+    return normalized
+
+      .split('_')
+
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+
+      .join(' ');
+  }
+
+  private normalizeStatus(status: string): string {
+    return (status || 'pending').trim().toLowerCase();
+  }
+
+  isHighValue(req: any): boolean {
+    return (Number(req.cost) || 0) >= 50000;
   }
 }

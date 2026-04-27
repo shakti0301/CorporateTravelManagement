@@ -1,36 +1,95 @@
 <app-navbar></app-navbar>
+<section class="manager-dashboard">
+  <div class="dashboard-shell">
+    <header class="hero">
+      <p class="eyebrow">Manager workspace</p>
+      <h1>Travel Request Review Queue</h1>
+      <p class="subtitle">
+        Validate incoming travel requests, check budget impact, and route
+        approvals to finance.
+      </p>
+    </header>
 
-<div class="container mt-4">
-  <h3>Pending Travel Requests</h3>
+    <div class="stats-grid">
+      <article class="stat-card">
+        <p class="stat-label">Total submitted requests</p>
+        <h2>{{ totalRequests }}</h2>
+      </article>
+      <article class="stat-card pending">
+        <p class="stat-label">Pending manager review</p>
+        <h2>{{ pendingRequests }}</h2>
+      </article>
+      <article class="stat-card approved">
+        <p class="stat-label">Approved</p>
+        <h2>{{ approvedRequests }}</h2>
+      </article>
+      <article class="stat-card rejected">
+        <p class="stat-label">Rejected</p>
+        <h2>{{ rejectedRequests }}</h2>
+      </article>
+    </div>
 
-  <table class="table table-bordered mt-3" *ngIf="requests.length > 0">
-    <thead>
-      <tr>
-        <th>User</th>
-        <th>Destination</th>
-        <th>Date</th>
-        <th>Purpose</th>
-        <th>Cost</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let req of requests">
-        <td>{{ req.userEmail }}</td>
-        <td>{{ req.destination }}</td>
-        <td>{{ req.fromDate }} -> {{ req.toDate }}</td>
-        <td>{{ req.purpose }}</td>
-        <td>{{ req.cost }}</td>
-        <td>
-          <button class="btn btn-success btn-sm me-2" (click)="approve(req.id)">
-            Approve
-          </button>
-          <button class="btn btn-danger btn-sm" (click)="reject(req.id)">
-            Reject
-          </button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  <p *ngIf="requests.length === 0">No pending travel requests.</p>
-</div>
+    <div class="requests-card" *ngIf="requests.length > 0; else emptyState">
+      <div class="requests-card-header">
+        <h2>Requests Awaiting Manager Decision</h2>
+        <p>Approved requests move to finance for final budget clearance.</p>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Employee</th>
+              <th>Destination</th>
+              <th>Dates</th>
+              <th>Purpose</th>
+              <th>Amount</th>
+              <th>Priority</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let req of requests">
+              <td>{{ req.userEmail }}</td>
+              <td>{{ req.destination }}</td>
+              <td>{{ req.fromDate }} - {{ req.toDate }}</td>
+              <td>{{ req.purpose }}</td>
+              <td class="amount-cell">
+                {{ req.cost | currency: "INR" : "symbol" : "1.0-0" }}
+              </td>
+              <td>
+                <span
+                  class="priority-pill"
+                  [class.priority-high]="isHighValue(req)"
+                  [class.priority-normal]="!isHighValue(req)"
+                >
+                  {{ isHighValue(req) ? "High Value" : "Standard" }}
+                </span>
+              </td>
+              <td>
+                <div class="actions">
+                  <button class="btn approve" (click)="approve(req.id)">
+                    Approve
+                  </button>
+                  <button class="btn reject" (click)="reject(req.id)">
+                    Reject
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <ng-template #emptyState>
+      <section class="empty-state">
+        <h2>No pending requests</h2>
+        <p>
+          New employee submissions will appear here when manager review is
+          needed.
+        </p>
+      </section>
+    </ng-template>
+  </div>
+</section>
