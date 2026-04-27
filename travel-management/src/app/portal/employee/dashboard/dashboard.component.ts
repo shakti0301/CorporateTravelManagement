@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { NavbarComponent } from '../../../shared/navbar/navbar.component';
-import { RequestService } from '../../../services/request.service';
+import { RequestService } from '../../../services/request/request.service';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
