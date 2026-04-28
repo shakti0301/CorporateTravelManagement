@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class RequestService {
-  createRequest(request: any) {
+  createRequest(request: any, isDraft: boolean = false) {
     let requests = JSON.parse(localStorage.getItem('requests') || '[]');
     let user = JSON.parse(localStorage.getItem('currentUser') || '{}');
 
@@ -20,6 +20,7 @@ export class RequestService {
       financeStatus: 'not_applicable',
       finalStatus: 'pending',
       reason: '',
+      isDraft: isDraft,
       id: Date.now(),
     };
 
