@@ -1,1 +1,278 @@
-<p>edit-request works!</p>
+<app-navbar></app-navbar>
+
+<section class="edit-request-shell py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12 col-lg-9 col-xl-8">
+        <div class="edit-card card border-0 shadow-lg">
+          <div class="card-body p-4 p-md-5">
+            <div class="d-flex flex-wrap justify-content-between gap-3 mb-4">
+              <div>
+                <span
+                  class="badge text-bg-info-subtle text-info rounded-pill mb-2"
+                >
+                  Edit Draft
+                </span>
+                <h1 class="h3 fw-bold mb-1">Update Travel Request</h1>
+                <p class="text-secondary mb-0">
+                  Make necessary changes to your draft request.
+                </p>
+              </div>
+              <div class="request-hint edit-hint">
+                <span>Review & Update</span>
+                <small>Update your draft before final submission.</small>
+              </div>
+            </div>
+
+            <form [formGroup]="requestForm" novalidate>
+              <div class="row g-4">
+                <div class="col-12">
+                  <label for="destination" class="form-label fw-semibold"
+                    >Destination</label
+                  >
+                  <input
+                    type="text"
+                    id="destination"
+                    class="form-control form-control-lg"
+                    placeholder="Example: Vadodara, India"
+                    formControlName="destination"
+                    [class.is-invalid]="
+                      (destination?.touched || submitted) &&
+                      destination?.invalid
+                    "
+                  />
+                  <div
+                    class="invalid-feedback d-block"
+                    *ngIf="
+                      (destination?.touched || submitted) &&
+                      destination?.errors?.['required']
+                    "
+                  >
+                    Destination is required.
+                  </div>
+                  <div
+                    class="invalid-feedback d-block"
+                    *ngIf="
+                      (destination?.touched || submitted) &&
+                      destination?.errors?.['minlength']
+                    "
+                  >
+                    Destination should be at least 3 characters.
+                  </div>
+                  <div
+                    class="invalid-feedback d-block"
+                    *ngIf="
+                      (destination?.touched || submitted) &&
+                      destination?.errors?.['maxlength']
+                    "
+                  >
+                    Destination cannot exceed 80 characters.
+                  </div>
+                  <div
+                    class="invalid-feedback d-block"
+                    *ngIf="
+                      (destination?.touched || submitted) &&
+                      destination?.errors?.['pattern']
+                    "
+                  >
+                    Use letters, numbers, spaces, commas, dots, and hyphens
+                    only.
+                  </div>
+                </div>
+
+                <div class="col-12 col-md-6">
+                  <label for="fromDate" class="form-label fw-semibold"
+                    >From date</label
+                  >
+                  <input
+                    type="date"
+                    id="fromDate"
+                    class="form-control form-control-lg"
+                    formControlName="fromDate"
+                    [attr.min]="today"
+                    [class.is-invalid]="
+                      (fromDate?.touched || submitted) && fromDate?.invalid
+                    "
+                  />
+                  <div
+                    class="invalid-feedback d-block"
+                    *ngIf="
+                      (fromDate?.touched || submitted) &&
+                      fromDate?.errors?.['required']
+                    "
+                  >
+                    Start date is required.
+                  </div>
+                  <div
+                    class="invalid-feedback d-block"
+                    *ngIf="
+                      (fromDate?.touched || submitted) &&
+                      fromDate?.errors?.['pastDateNotAllowed']
+                    "
+                  >
+                    Start date cannot be in the past.
+                  </div>
+                </div>
+
+                <div class="col-12 col-md-6">
+                  <label for="toDate" class="form-label fw-semibold"
+                    >To date</label
+                  >
+                  <input
+                    type="date"
+                    id="toDate"
+                    class="form-control form-control-lg"
+                    formControlName="toDate"
+                    [attr.min]="fromDateMin"
+                    [class.is-invalid]="
+                      (toDate?.touched || submitted) &&
+                      (toDate?.invalid ||
+                        requestForm.errors?.['dateRangeInvalid'])
+                    "
+                  />
+                  <div
+                    class="invalid-feedback d-block"
+                    *ngIf="
+                      (toDate?.touched || submitted) &&
+                      toDate?.errors?.['required']
+                    "
+                  >
+                    End date is required.
+                  </div>
+                  <div
+                    class="invalid-feedback d-block"
+                    *ngIf="
+                      (toDate?.touched || submitted) &&
+                      toDate?.errors?.['pastDateNotAllowed']
+                    "
+                  >
+                    End date cannot be in the past.
+                  </div>
+                  <div
+                    class="invalid-feedback d-block"
+                    *ngIf="
+                      requestForm.errors?.['dateRangeInvalid'] &&
+                      (toDate?.touched || submitted)
+                    "
+                  >
+                    End date should be the same as or after the start date.
+                  </div>
+                </div>
+
+                <div class="col-12">
+                  <label for="purpose" class="form-label fw-semibold"
+                    >Purpose</label
+                  >
+                  <textarea
+                    id="purpose"
+                    rows="4"
+                    class="form-control form-control-lg"
+                    placeholder="Briefly describe the meeting, visit, or assignment"
+                    formControlName="purpose"
+                    [class.is-invalid]="
+                      (purpose?.touched || submitted) && purpose?.invalid
+                    "
+                  ></textarea>
+                  <div
+                    class="invalid-feedback d-block"
+                    *ngIf="
+                      (purpose?.touched || submitted) &&
+                      purpose?.errors?.['required']
+                    "
+                  >
+                    Purpose is required.
+                  </div>
+                  <div
+                    class="invalid-feedback d-block"
+                    *ngIf="
+                      (purpose?.touched || submitted) &&
+                      purpose?.errors?.['minlength']
+                    "
+                  >
+                    Purpose should be at least 10 characters.
+                  </div>
+                  <div
+                    class="invalid-feedback d-block"
+                    *ngIf="
+                      (purpose?.touched || submitted) &&
+                      purpose?.errors?.['maxlength']
+                    "
+                  >
+                    Purpose cannot exceed 250 characters.
+                  </div>
+                </div>
+
+                <div class="col-12 col-md-6">
+                  <label for="cost" class="form-label fw-semibold"
+                    >Estimated cost</label
+                  >
+                  <input
+                    type="number"
+                    id="cost"
+                    class="form-control form-control-lg"
+                    placeholder="Example: 15000"
+                    formControlName="cost"
+                    [class.is-invalid]="
+                      (cost?.touched || submitted) && cost?.invalid
+                    "
+                  />
+                  <div
+                    class="invalid-feedback d-block"
+                    *ngIf="
+                      (cost?.touched || submitted) && cost?.errors?.['required']
+                    "
+                  >
+                    Estimated cost is required.
+                  </div>
+                  <div
+                    class="invalid-feedback d-block"
+                    *ngIf="
+                      (cost?.touched || submitted) && cost?.errors?.['min']
+                    "
+                  >
+                    Cost must be at least 1.
+                  </div>
+                  <div
+                    class="invalid-feedback d-block"
+                    *ngIf="
+                      (cost?.touched || submitted) && cost?.errors?.['max']
+                    "
+                  >
+                    Cost looks too high for a single request.
+                  </div>
+                </div>
+
+                <div class="col-12">
+                  <div class="request-summary">
+                    <div class="mb-3">
+                      <strong>Tip:</strong>
+                      Review all details carefully before submission.
+                    </div>
+                    <div
+                      class="d-flex justify-content-between align-items-center gap-2"
+                    >
+                      <button
+                        class="btn btn-outline-info btn-lg px-4"
+                        type="button"
+                        (click)="updateDraft()"
+                      >
+                        <i class="bi bi-download me-2"></i>Save Draft
+                      </button>
+                      <button
+                        class="btn btn-info btn-lg px-4"
+                        type="button"
+                        (click)="submitRequest()"
+                      >
+                        <i class="bi bi-check-circle me-2"></i>Submit Request
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
