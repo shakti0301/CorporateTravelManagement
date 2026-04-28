@@ -61,32 +61,58 @@ export class ExpenseComponent {
   readonly acceptedReceiptTypes =
     '.jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf';
   readonly maxReceiptSizeInMb = 2;
+  readonly tripDateValidator: ValidatorFn = (
+    control: AbstractControl,
+  ): ValidationErrors | null => {
+    const selectedDate = control.get('date')?.value;
+
+    if (!selectedDate || !this.tripFromDate || !this.tripToDate) {
+      return null;
+    }
+
+    const tripStart = new Date(`${this.tripFromDate}T00:00:00`);
+    const tripEnd = new Date(`${this.tripToDate}T23:59:59`);
+    const expenseDate = new Date(`${selectedDate}T00:00:00`);
+
+    if (expenseDate < tripStart || expenseDate > tripEnd) {
+      return { outsideTripRange: true };
+    }
+
+    return null;
+  };
 
   requestId: any;
+  tripFromDate = '';
+  tripToDate = '';
   submitted = false;
   receiptTouched = false;
   receiptError = '';
   receiptFile: StoredReceipt | null = null;
 
-  expenseForm = new FormGroup({
-    category: new FormControl('', [Validators.required]),
-    amount: new FormControl('', [Validators.required, Validators.min(1)]),
-    date: new FormControl('', [Validators.required]),
-    description: new FormControl('', [
-      Validators.required,
-      Validators.minLength(10),
-      Validators.maxLength(250),
-    ]),
-    receipt: new FormControl<File | null>(null, [
-      Validators.required,
-      receiptUploadValidator,
-    ]),
-  });
+  expenseForm = new FormGroup(
+    {
+      category: new FormControl('', [Validators.required]),
+      amount: new FormControl('', [Validators.required, Validators.min(1)]),
+      date: new FormControl('', [Validators.required]),
+      description: new FormControl('', [
+        Validators.required,
+        Validators.minLength(10),
+        Validators.maxLength(250),
+      ]),
+      receipt: new FormControl<File | null>(null, [
+        Validators.required,
+        receiptUploadValidator,
+      ]),
+    },
+    { validators: this.tripDateValidator },
+  );
 
   constructor(private route: ActivatedRoute) {
     this.requestId =
       this.route.snapshot.paramMap.get('requestId') ??
       this.route.snapshot.paramMap.get('id');
+
+    this.loadTripDates();
   }
 
   get category() {
@@ -107,6 +133,39 @@ export class ExpenseComponent {
 
   get receipt() {
     return this.expenseForm.get('receipt');
+  }
+
+  get tripDateMin() {
+    return this.tripFromDate;
+  }
+
+  get tripDateMax() {
+    return this.tripToDate;
+  }
+
+  get isTripRangeReady() {
+    return Boolean(this.tripFromDate && this.tripToDate);
+  }
+
+  private loadTripDates() {
+    const requests = JSON.parse(localStorage.getItem('requests') || '[]');
+    const request = requests.find((item: any) => item.id == this.requestId);
+
+    if (!request) {
+      alert('Trip details not found.');
+      return;
+    }
+
+    this.tripFromDate = request.fromDate || '';
+    this.tripToDate = request.toDate || '';
+
+    if (!this.tripFromDate || !this.tripToDate) {
+      alert('Trip date range is missing for this request.');
+    }
+  }
+
+  isDateOutsideTripRange() {
+    return this.expenseForm.hasError('outsideTripRange');
   }
 
   private readFileAsDataUrl(file: File): Promise<string> {

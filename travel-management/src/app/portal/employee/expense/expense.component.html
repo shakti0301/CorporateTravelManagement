@@ -28,6 +28,12 @@
               </div>
             </div>
 
+            <div class="trip-range-banner mb-4" *ngIf="isTripRangeReady">
+              <strong>Trip dates:</strong>
+              <span>{{ tripFromDate }} to {{ tripToDate }}</span>
+              <small>Only select an expense date within this range.</small>
+            </div>
+
             <form
               [formGroup]="expenseForm"
               (ngSubmit)="onSubmit(receiptInput)"
@@ -108,6 +114,8 @@
                     id="date"
                     class="form-control form-control-lg"
                     formControlName="date"
+                    [attr.min]="tripDateMin || null"
+                    [attr.max]="tripDateMax || null"
                     [class.is-invalid]="
                       (date?.touched || submitted) && date?.invalid
                     "
@@ -119,6 +127,15 @@
                     "
                   >
                     Date is required.
+                  </div>
+                  <div
+                    class="invalid-feedback d-block"
+                    *ngIf="
+                      (date?.touched || submitted) &&
+                      expenseForm.errors?.['outsideTripRange']
+                    "
+                  >
+                    Select a date within your approved trip range.
                   </div>
                 </div>
 
@@ -159,9 +176,7 @@
                     <strong>{{ receiptFile.name }}</strong>
                     <small
                       >{{ receiptFile.type || "File selected" }} ·
-                      {{
-                        receiptFile.size / 1024 / 1024 | number: "1.0-2"
-                      }}
+                      {{ receiptFile.size / 1024 / 1024 | number: "1.0-2" }}
                       MB</small
                     >
                   </div>

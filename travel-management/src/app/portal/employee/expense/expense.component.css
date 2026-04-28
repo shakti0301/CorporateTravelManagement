@@ -56,6 +56,31 @@
   line-height: 1.4;
 }
 
+.trip-range-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  padding: 0.9rem 1rem;
+  border-radius: 1rem;
+  border: 1px solid #d8e5f2;
+  background: linear-gradient(135deg, #f7fbff 0%, #fff9ec 100%);
+  color: #25405f;
+}
+
+.trip-range-banner strong {
+  color: #17324f;
+}
+
+.trip-range-banner span {
+  font-weight: 700;
+}
+
+.trip-range-banner small {
+  width: 100%;
+  color: #5a6470;
+}
+
 .upload-meta {
   display: flex;
   flex-wrap: wrap;
@@ -114,6 +139,10 @@
   .expense-hint {
     width: 100%;
     max-width: none;
+  }
+
+  .trip-range-banner {
+    align-items: flex-start;
   }
 
   .expense-summary {
