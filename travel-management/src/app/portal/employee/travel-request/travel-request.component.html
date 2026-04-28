@@ -89,6 +89,7 @@
                     id="fromDate"
                     class="form-control form-control-lg"
                     formControlName="fromDate"
+                    [attr.min]="today"
                     [class.is-invalid]="
                       (fromDate?.touched || submitted) && fromDate?.invalid
                     "
@@ -102,6 +103,15 @@
                   >
                     Start date is required.
                   </div>
+                  <div
+                    class="invalid-feedback d-block"
+                    *ngIf="
+                      (fromDate?.touched || submitted) &&
+                      fromDate?.errors?.['pastDateNotAllowed']
+                    "
+                  >
+                    Start date cannot be in the past.
+                  </div>
                 </div>
 
                 <div class="col-12 col-md-6">
@@ -113,6 +123,7 @@
                     id="toDate"
                     class="form-control form-control-lg"
                     formControlName="toDate"
+                    [attr.min]="fromDateMin"
                     [class.is-invalid]="
                       (toDate?.touched || submitted) &&
                       (toDate?.invalid ||
@@ -127,6 +138,15 @@
                     "
                   >
                     End date is required.
+                  </div>
+                  <div
+                    class="invalid-feedback d-block"
+                    *ngIf="
+                      (toDate?.touched || submitted) &&
+                      toDate?.errors?.['pastDateNotAllowed']
+                    "
+                  >
+                    End date cannot be in the past.
                   </div>
                   <div
                     class="invalid-feedback d-block"

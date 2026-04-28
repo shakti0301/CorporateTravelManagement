@@ -28,6 +28,30 @@ const travelDateRangeValidator: ValidatorFn = (
     : { dateRangeInvalid: true };
 };
 
+const noPastDateValidator: ValidatorFn = (
+  control: AbstractControl,
+): ValidationErrors | null => {
+  const dateValue = control.value;
+
+  if (!dateValue) {
+    return null;
+  }
+
+  const selectedDate = new Date(`${dateValue}T00:00:00`);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  return selectedDate < today ? { pastDateNotAllowed: true } : null;
+};
+
+const formatDateForInput = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, '0');
+  const day = `${date.getDate()}`.padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+};
+
 @Component({
   selector: 'app-travel-request',
   standalone: true,
@@ -50,8 +74,8 @@ export class TravelRequestComponent {
         Validators.maxLength(80),
         Validators.pattern(/^[a-zA-Z0-9\s,.-]+$/),
       ]),
-      fromDate: new FormControl('', [Validators.required]),
-      toDate: new FormControl('', [Validators.required]),
+      fromDate: new FormControl('', [Validators.required, noPastDateValidator]),
+      toDate: new FormControl('', [Validators.required, noPastDateValidator]),
       purpose: new FormControl('', [
         Validators.required,
         Validators.minLength(10),
@@ -86,6 +110,28 @@ export class TravelRequestComponent {
     return this.requestForm.get('cost');
   }
 
+  get today() {
+    return formatDateForInput(new Date());
+  }
+
+  get fromDateMin() {
+    const fromDateValue = this.fromDate?.value;
+
+    if (!fromDateValue) {
+      return this.today;
+    }
+
+    return fromDateValue > this.today ? fromDateValue : this.today;
+  }
+
+  hasDateValidationErrors() {
+    return Boolean(
+      this.fromDate?.hasError('pastDateNotAllowed') ||
+      this.toDate?.hasError('pastDateNotAllowed') ||
+      this.requestForm.hasError('dateRangeInvalid'),
+    );
+  }
+
   onSubmit() {
     if (this.requestForm.valid) {
       this.requestService.createRequest(this.requestForm.value, false);
@@ -96,6 +142,11 @@ export class TravelRequestComponent {
     }
   }
   saveDraft() {
+    if (this.hasDateValidationErrors()) {
+      this.requestForm.markAllAsTouched();
+      return;
+    }
+
     this.requestService.createRequest(this.requestForm.value, true);
 
     alert('Travel request saved as draft!');
