@@ -20,29 +20,33 @@ export class DashboardComponent implements OnInit {
     this.allRequests = this.requestService.getAllRequests();
 
     this.requests = this.allRequests.filter(
-      (req) => this.normalizeStatus(req.managerStatus) === 'pending',
+      (req) =>
+        !req.isDraft && this.normalizeStatus(req.managerStatus) === 'pending',
     );
   }
 
   get totalRequests(): number {
-    return this.allRequests.length;
+    return this.allRequests.filter((req) => !req.isDraft).length;
   }
 
   get pendingRequests(): number {
     return this.allRequests.filter(
-      (req) => this.normalizeStatus(req.managerStatus) === 'pending',
+      (req) =>
+        !req.isDraft && this.normalizeStatus(req.managerStatus) === 'pending',
     ).length;
   }
 
   get approvedRequests(): number {
     return this.allRequests.filter(
-      (req) => this.normalizeStatus(req.managerStatus) === 'approved',
+      (req) =>
+        !req.isDraft && this.normalizeStatus(req.managerStatus) === 'approved',
     ).length;
   }
 
   get rejectedRequests(): number {
     return this.allRequests.filter(
-      (req) => this.normalizeStatus(req.managerStatus) === 'rejected',
+      (req) =>
+        !req.isDraft && this.normalizeStatus(req.managerStatus) === 'rejected',
     ).length;
   }
 
