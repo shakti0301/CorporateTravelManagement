@@ -24,18 +24,20 @@ export class DashboardComponent implements OnInit {
 
     this.requests = this.allRequests.filter(
       (req) =>
+        !req.isDraft &&
         this.normalizeStatus(req.managerStatus) === 'approved' &&
         this.normalizeStatus(req.financeStatus) === 'pending',
     );
   }
 
   get totalRequests(): number {
-    return this.allRequests.length;
+    return this.allRequests.filter((req) => !req.isDraft).length;
   }
 
   get pendingRequests(): number {
     return this.allRequests.filter(
       (req) =>
+        !req.isDraft &&
         this.normalizeStatus(req.managerStatus) === 'approved' &&
         this.normalizeStatus(req.financeStatus) === 'pending',
     ).length;
@@ -43,26 +45,45 @@ export class DashboardComponent implements OnInit {
 
   get approvedRequests(): number {
     return this.allRequests.filter(
-      (req) => this.normalizeStatus(req.financeStatus) === 'approved',
+      (req) =>
+        !req.isDraft && this.normalizeStatus(req.financeStatus) === 'approved',
     ).length;
   }
 
   get rejectedRequests(): number {
     return this.allRequests.filter(
-      (req) => this.normalizeStatus(req.financeStatus) === 'rejected',
+      (req) =>
+        !req.isDraft && this.normalizeStatus(req.financeStatus) === 'rejected',
     ).length;
   }
 
   get pendingAmount(): number {
-    return this.requests.reduce((sum, req) => sum + (Number(req.cost) || 0), 0);
+    return this.requests
+      .filter(
+        (req) =>
+          !req.isDraft &&
+          this.normalizeStatus(req.managerStatus) === 'approved' &&
+          this.normalizeStatus(req.financeStatus) === 'pending',
+      )
+      .reduce((sum, req) => sum + (Number(req.cost) || 0), 0);
   }
 
   get averagePendingAmount(): number {
-    if (!this.requests.length) {
-      return 0;
-    }
+    const pending = this.requests.filter(
+      (req) =>
+        !req.isDraft &&
+        this.normalizeStatus(req.managerStatus) === 'approved' &&
+        this.normalizeStatus(req.financeStatus) === 'pending',
+    );
 
-    return this.pendingAmount / this.requests.length;
+    if (!pending.length) return 0;
+
+    const total = pending.reduce(
+      (sum, req) => sum + (Number(req.cost) || 0),
+      0,
+    );
+
+    return Math.round(total / pending.length);
   }
 
   approve(id: number) {
