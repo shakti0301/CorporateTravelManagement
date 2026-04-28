@@ -5,8 +5,8 @@
       <p class="eyebrow">Travel center</p>
       <h1>My Travel Requests</h1>
       <p class="subtitle">
-        View your submitted requests and track approval updates from manager and
-        finance in one place.
+        View your draft and submitted requests and track approval updates from
+        manager and finance in one place.
       </p>
     </header>
 
@@ -36,7 +36,7 @@
               <th>Purpose</th>
               <th>Cost</th>
               <th>Status</th>
-              <th>Expense</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -48,74 +48,84 @@
               <td>{{ req.cost | currency: "INR" : "symbol" : "1.0-0" }}</td>
               <td class="status-column">
                 <div class="status-stack">
-                  <div class="status-row">
-                    <span class="status-key">Manager</span>
-                    <span
-                      class="status-pill"
-                      [class.status-approved]="
-                        (req.managerStatus || '').toLowerCase() === 'approved'
-                      "
-                      [class.status-rejected]="
-                        (req.managerStatus || '').toLowerCase() === 'rejected'
-                      "
-                      [class.status-neutral]="
-                        (req.managerStatus || '').toLowerCase() ===
-                        'not_applicable'
-                      "
-                      [class.status-pending]="
-                        !req.managerStatus ||
-                        (req.managerStatus || '').toLowerCase() === 'pending'
-                      "
-                    >
-                      {{ formatStatus(req.managerStatus) }}
-                    </span>
+                  <div
+                    class="status-row"
+                    *ngIf="req.isDraft; else approvalStatus"
+                  >
+                    <span class="status-key">Draft</span>
+                    <span class="status-pill status-neutral">Draft</span>
                   </div>
 
-                  <div class="status-row">
-                    <span class="status-key">Finance</span>
-                    <span
-                      class="status-pill"
-                      [class.status-approved]="
-                        (req.financeStatus || '').toLowerCase() === 'approved'
-                      "
-                      [class.status-rejected]="
-                        (req.financeStatus || '').toLowerCase() === 'rejected'
-                      "
-                      [class.status-neutral]="
-                        (req.financeStatus || '').toLowerCase() ===
-                        'not_applicable'
-                      "
-                      [class.status-pending]="
-                        !req.financeStatus ||
-                        (req.financeStatus || '').toLowerCase() === 'pending'
-                      "
-                    >
-                      {{ formatStatus(req.financeStatus) }}
-                    </span>
-                  </div>
+                  <ng-template #approvalStatus>
+                    <div class="status-row">
+                      <span class="status-key">Manager</span>
+                      <span
+                        class="status-pill"
+                        [class.status-approved]="
+                          (req.managerStatus || '').toLowerCase() === 'approved'
+                        "
+                        [class.status-rejected]="
+                          (req.managerStatus || '').toLowerCase() === 'rejected'
+                        "
+                        [class.status-neutral]="
+                          (req.managerStatus || '').toLowerCase() ===
+                          'not_applicable'
+                        "
+                        [class.status-pending]="
+                          !req.managerStatus ||
+                          (req.managerStatus || '').toLowerCase() === 'pending'
+                        "
+                      >
+                        {{ formatStatus(req.managerStatus) }}
+                      </span>
+                    </div>
 
-                  <div class="status-row">
-                    <span class="status-key">Final</span>
-                    <span
-                      class="status-pill"
-                      [class.status-approved]="
-                        (req.finalStatus || '').toLowerCase() === 'approved'
-                      "
-                      [class.status-rejected]="
-                        (req.finalStatus || '').toLowerCase() === 'rejected'
-                      "
-                      [class.status-neutral]="
-                        (req.finalStatus || '').toLowerCase() ===
-                        'not_applicable'
-                      "
-                      [class.status-pending]="
-                        !req.finalStatus ||
-                        (req.finalStatus || '').toLowerCase() === 'pending'
-                      "
-                    >
-                      {{ formatStatus(req.finalStatus) }}
-                    </span>
-                  </div>
+                    <div class="status-row">
+                      <span class="status-key">Finance</span>
+                      <span
+                        class="status-pill"
+                        [class.status-approved]="
+                          (req.financeStatus || '').toLowerCase() === 'approved'
+                        "
+                        [class.status-rejected]="
+                          (req.financeStatus || '').toLowerCase() === 'rejected'
+                        "
+                        [class.status-neutral]="
+                          (req.financeStatus || '').toLowerCase() ===
+                          'not_applicable'
+                        "
+                        [class.status-pending]="
+                          !req.financeStatus ||
+                          (req.financeStatus || '').toLowerCase() === 'pending'
+                        "
+                      >
+                        {{ formatStatus(req.financeStatus) }}
+                      </span>
+                    </div>
+
+                    <div class="status-row">
+                      <span class="status-key">Final</span>
+                      <span
+                        class="status-pill"
+                        [class.status-approved]="
+                          (req.finalStatus || '').toLowerCase() === 'approved'
+                        "
+                        [class.status-rejected]="
+                          (req.finalStatus || '').toLowerCase() === 'rejected'
+                        "
+                        [class.status-neutral]="
+                          (req.finalStatus || '').toLowerCase() ===
+                          'not_applicable'
+                        "
+                        [class.status-pending]="
+                          !req.finalStatus ||
+                          (req.finalStatus || '').toLowerCase() === 'pending'
+                        "
+                      >
+                        {{ formatStatus(req.finalStatus) }}
+                      </span>
+                    </div>
+                  </ng-template>
 
                   <div *ngIf="req.reason" class="status-reason">
                     Reason: {{ req.reason }}
@@ -124,15 +134,25 @@
               </td>
               <td>
                 <button
+                  class="btn btn-warning btn-sm me-2"
+                  *ngIf="req.isDraft"
+                  [routerLink]="['/employee/edit', req.id]"
+                >
+                  Edit
+                </button>
+                <button
                   class="btn btn-primary btn-sm"
                   *ngIf="req.finalStatus === 'approved'"
                   [routerLink]="['/employee/expense', req.id]"
                 >
                   Add Expense
                 </button>
-                <span *ngIf="req.finalStatus !== 'approved'" class="text-muted"
-                  >Not Allowed</span
+                <span
+                  *ngIf="!req.isDraft && req.finalStatus !== 'approved'"
+                  class="text-muted"
                 >
+                  Not Allowed
+                </span>
               </td>
             </tr>
           </tbody>
