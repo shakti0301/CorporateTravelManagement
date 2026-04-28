@@ -88,4 +88,13 @@
   .request-summary {
     padding: 1rem;
   }
+
+  .request-summary .d-flex {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  .request-summary .btn {
+    width: 100%;
+  }
 }

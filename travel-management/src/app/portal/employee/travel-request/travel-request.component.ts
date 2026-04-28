@@ -88,11 +88,18 @@ export class TravelRequestComponent {
 
   onSubmit() {
     if (this.requestForm.valid) {
-      this.requestService.createRequest(this.requestForm.value);
+      this.requestService.createRequest(this.requestForm.value, false);
 
       alert('Travel request submitted successfully!');
       this.requestForm.reset();
       this.router.navigate(['/employee']);
     }
+  }
+  saveDraft() {
+    this.requestService.createRequest(this.requestForm.value, true);
+
+    alert('Travel request saved as draft!');
+    this.requestForm.reset();
+    this.router.navigate(['/employee']);
   }
 }
