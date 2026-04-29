@@ -151,11 +151,20 @@
 
                 <button
                   class="btn btn-primary btn-sm"
-                  *ngIf="req.finalStatus === 'approved'"
+                  *ngIf="
+                    req.finalStatus === 'approved' && !req.expenseSubmitted
+                  "
                   [routerLink]="['/employee/expense', req.id]"
                 >
                   Add Expense
                 </button>
+
+                <span
+                  *ngIf="req.finalStatus === 'approved' && req.expenseSubmitted"
+                  class="text-muted fw-semibold"
+                >
+                  Expense Submitted
+                </span>
 
                 <span
                   *ngIf="!canModify(req) && req.finalStatus !== 'approved'"
