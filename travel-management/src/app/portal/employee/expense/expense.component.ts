@@ -268,6 +268,9 @@ export class ExpenseComponent implements OnInit {
           expenseSubmitted: true,
           totalExpense: totalExpense,
           remainingAmount: remainingAmount,
+
+          reimbursementStatus: 'pending',
+          reimbursementRemark: '',
         };
       }
       return r;
