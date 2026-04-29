@@ -53,6 +53,32 @@
             </div>
           </div>
 
+          <!-- Other category input shown only when 'Other' is selected -->
+          <div class="form-group" *ngIf="category?.value === 'Other'">
+            <label for="otherCategory"
+              >Please specify <span class="required">*</span></label
+            >
+            <input
+              id="otherCategory"
+              type="text"
+              class="form-control"
+              formControlName="otherCategory"
+              placeholder="Enter category"
+              [class.is-invalid]="submitted && otherCategory?.invalid"
+            />
+            <div
+              class="invalid-feedback"
+              *ngIf="submitted && otherCategory?.invalid"
+            >
+              <span *ngIf="otherCategory?.hasError('required')"
+                >This field is required</span
+              >
+              <span *ngIf="otherCategory?.hasError('minlength')"
+                >Min 3 characters</span
+              >
+            </div>
+          </div>
+
           <div class="form-group">
             <label for="amount"
               >Amount (₹) <span class="required">*</span></label
@@ -191,7 +217,7 @@
             <th>Date</th>
             <th>Description</th>
             <th>Proof</th>
-            <th></th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
@@ -209,6 +235,12 @@
               <span *ngIf="!exp.proof" class="text-muted">—</span>
             </td>
             <td>
+              <button
+                class="btn btn-warning btn-sm me-2"
+                (click)="editExpense(i)"
+              >
+                Edit
+              </button>
               <button class="btn btn-danger btn-sm" (click)="removeExpense(i)">
                 Delete
               </button>
@@ -220,10 +252,11 @@
   </div>
 
   <!-- Submit Section -->
-  <div *ngIf="expenses.length > 0" class="action-buttons mt-4">
+  <div *ngIf="expenses.length > 0 && !isEditMode" class="action-buttons mt-4">
     <div *ngIf="isOverBudget()" class="budget-warning">
       ⚠️ Expenses exceed budget. Please reduce before submitting.
     </div>
+
     <button
       class="btn btn-success"
       (click)="submitExpenses()"

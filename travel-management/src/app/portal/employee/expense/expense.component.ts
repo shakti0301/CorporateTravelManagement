@@ -11,6 +11,7 @@ import {
   ValidatorFn,
   Validators,
 } from '@angular/forms';
+import { Router } from '@angular/router';
 
 const ALLOWED_CATEGORIES = [
   'Food',
@@ -78,10 +79,16 @@ export class ExpenseComponent implements OnInit {
   submitted: boolean = false;
   categories = ALLOWED_CATEGORIES;
 
+  isEditMode: boolean = false;
+  editIndex: number | null = null;
+
   expenseForm: FormGroup = new FormGroup({});
   fileInput: File | null = null;
 
-  constructor(private route: ActivatedRoute) {
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+  ) {
     this.requestId = this.route.snapshot.paramMap.get('id');
   }
 
@@ -113,6 +120,7 @@ export class ExpenseComponent implements OnInit {
         Validators.required,
         Validators.minLength(3),
       ]),
+      otherCategory: new FormControl(''),
       amount: new FormControl('', [Validators.required, amountValidator]),
       date: new FormControl('', [
         Validators.required,
@@ -127,6 +135,24 @@ export class ExpenseComponent implements OnInit {
         Validators.maxLength(200),
       ]),
     });
+
+    // When category is 'Other', make otherCategory required; otherwise clear validators
+    const catControl = this.expenseForm.get('category');
+    const otherControl = this.expenseForm.get('otherCategory');
+
+    if (catControl && otherControl) {
+      catControl.valueChanges.subscribe((val) => {
+        if (val === 'Other') {
+          otherControl.setValidators([
+            Validators.required,
+            Validators.minLength(3),
+          ]);
+        } else {
+          otherControl.clearValidators();
+        }
+        otherControl.updateValueAndValidity({ onlySelf: true });
+      });
+    }
   }
 
   get category() {
@@ -145,6 +171,10 @@ export class ExpenseComponent implements OnInit {
     return this.expenseForm.get('description');
   }
 
+  get otherCategory() {
+    return this.expenseForm.get('otherCategory');
+  }
+
   get minDate(): string {
     return this.currentRequest?.fromDate || '';
   }
@@ -156,15 +186,23 @@ export class ExpenseComponent implements OnInit {
   openModal() {
     this.showModal = true;
     this.submitted = false;
-    this.expenseForm.reset();
-    this.fileInput = null;
+
+    if (!this.isEditMode) {
+      this.expenseForm.reset();
+      this.fileInput = null;
+    }
+
     this.fileError = '';
   }
 
   closeModal() {
     this.showModal = false;
+
     this.fileError = '';
     this.fileInput = null;
+
+    this.isEditMode = false;
+    this.editIndex = null;
   }
 
   onFileSelected(event: any) {
@@ -204,14 +242,26 @@ export class ExpenseComponent implements OnInit {
 
     const formData = this.expenseForm.value;
 
+    // If user selected 'Other' and provided a value, use that as the category
+    const finalCategory =
+      formData.category === 'Other' && formData.otherCategory
+        ? formData.otherCategory
+        : formData.category;
+
     const newExpense = {
       ...formData,
+      category: finalCategory,
       id: Date.now(),
       proof: this.fileInput ? this.fileInput.name : '',
       proofFile: this.fileInput,
     };
 
-    this.expenses.push(newExpense);
+    if (this.isEditMode && this.editIndex !== null) {
+      this.expenses[this.editIndex] = newExpense;
+    } else {
+      this.expenses.push(newExpense);
+    }
+
     this.closeModal();
     this.submitted = false;
   }
@@ -220,6 +270,24 @@ export class ExpenseComponent implements OnInit {
     if (confirm('Are you sure you want to delete this expense?')) {
       this.expenses.splice(index, 1);
     }
+  }
+
+  editExpense(index: number) {
+    const exp = this.expenses[index];
+
+    this.expenseForm.patchValue({
+      category: this.categories.includes(exp.category) ? exp.category : 'Other',
+      otherCategory: this.categories.includes(exp.category) ? '' : exp.category,
+      amount: exp.amount,
+      date: exp.date,
+      description: exp.description,
+    });
+
+    this.fileInput = exp.proofFile || null;
+    this.editIndex = index;
+
+    this.isEditMode = true;
+    this.showModal = true;
   }
 
   getTotal(): number {
@@ -279,5 +347,7 @@ export class ExpenseComponent implements OnInit {
     localStorage.setItem('requests', JSON.stringify(requests));
     alert('Expenses submitted to Finance successfully!');
     this.expenses = [];
+
+    this.router.navigate(['/employee']);
   }
 }
