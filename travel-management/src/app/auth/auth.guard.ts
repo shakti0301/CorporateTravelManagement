@@ -20,7 +20,7 @@ export const authGuard: CanActivateFn = (
   const userRole = user.role.toLowerCase();
   const expectedRole = route.data?.['role']?.toLowerCase();
 
-  if (expectedRole && user.role !== expectedRole) {
+  if (expectedRole && userRole !== expectedRole) {
     alert('You do not have permission to access this page.');
     window.location.href = '/';
     return false;
