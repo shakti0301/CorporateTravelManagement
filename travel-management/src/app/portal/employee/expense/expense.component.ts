@@ -12,6 +12,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
+import { ExpenseService } from '../../../services/expense/expense.service';
 
 const ALLOWED_CATEGORIES = [
   'Food',
@@ -88,6 +89,7 @@ export class ExpenseComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
+    private expenseService: ExpenseService,
   ) {
     this.requestId = this.route.snapshot.paramMap.get('id');
   }
@@ -98,15 +100,13 @@ export class ExpenseComponent implements OnInit {
   }
 
   loadCurrentRequest() {
-    const requests = JSON.parse(localStorage.getItem('requests') || '[]');
-    this.currentRequest = requests.find((r: any) => r.id == this.requestId);
+    this.currentRequest = this.expenseService.getRequestById(this.requestId);
 
     if (!this.currentRequest) {
       alert('Travel request not found!');
       return;
     }
 
-    // Load existing expenses if any
     if (this.currentRequest.expenses) {
       this.expenses = [...this.currentRequest.expenses];
     }
@@ -316,35 +316,12 @@ export class ExpenseComponent implements OnInit {
     }
 
     if (this.isOverBudget()) {
-      alert(
-        'Total expenses exceed the approved amount. Please reduce expenses.',
-      );
+      alert('Total expenses exceed the approved amount.');
       return;
     }
 
-    let requests = JSON.parse(localStorage.getItem('requests') || '[]');
+    this.expenseService.saveExpenses(this.requestId, this.expenses);
 
-    requests = requests.map((r: any) => {
-      if (r.id == this.requestId) {
-        const totalExpense = this.getTotal();
-        const approvedAmount = Number(r.cost || 0);
-        const remainingAmount = approvedAmount - totalExpense;
-
-        return {
-          ...r,
-          expenses: this.expenses,
-          expenseSubmitted: true,
-          totalExpense: totalExpense,
-          remainingAmount: remainingAmount,
-
-          reimbursementStatus: 'pending',
-          reimbursementRemark: '',
-        };
-      }
-      return r;
-    });
-
-    localStorage.setItem('requests', JSON.stringify(requests));
     alert('Expenses submitted to Finance successfully!');
     this.expenses = [];
 
