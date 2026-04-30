@@ -43,6 +43,7 @@ export class RegisterComponent {
   ) {}
 
   submitted = false;
+  authErrorMessage = '';
 
   registerForm = new FormGroup(
     {
