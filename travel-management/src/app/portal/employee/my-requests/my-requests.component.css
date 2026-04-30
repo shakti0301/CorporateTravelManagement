@@ -140,7 +140,7 @@ tbody tr:last-child td {
 }
 
 .status-column {
-  min-width: 230px;
+  min-width: 280px;
 }
 
 .status-stack {
@@ -162,6 +162,66 @@ tbody tr:last-child td {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.03em;
+}
+
+/* Status Flow - Horizontal Manager -> Finance Layout */
+.status-flow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.status-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 8px;
+  background: var(--accent-soft);
+  border: 1px solid rgba(47, 122, 95, 0.2);
+  min-width: auto;
+  text-align: center;
+}
+
+.status-box--approved {
+  background: var(--approved-bg);
+  border-color: rgba(12, 106, 62, 0.15);
+}
+
+.status-box--rejected {
+  background: var(--rejected-bg);
+  border-color: rgba(159, 47, 47, 0.15);
+}
+
+.status-box--neutral {
+  background: var(--neutral-bg);
+  border-color: rgba(63, 86, 112, 0.15);
+}
+
+.status-box--pending {
+  background: var(--pending-bg);
+  border-color: rgba(124, 88, 4, 0.15);
+}
+
+.box-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+
+.flow-arrow {
+  color: #d1d5db;
+  font-size: 1.4rem;
+  font-weight: 300;
+  line-height: 1;
+  min-width: 24px;
+  text-align: center;
 }
 
 .status-pill {

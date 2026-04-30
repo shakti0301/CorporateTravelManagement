@@ -88,79 +88,101 @@
                     </div>
 
                     <ng-template #requestApprovalStatus>
-                      <div class="status-row">
-                        <span class="status-key">Manager</span>
-                        <span
-                          class="status-pill"
-                          [class.status-approved]="
+                      <div class="status-flow">
+                        <!-- Manager Status Box -->
+                        <div
+                          class="status-box"
+                          [class.status-box--approved]="
                             (req.managerStatus || '').toLowerCase() ===
                             'approved'
                           "
-                          [class.status-rejected]="
+                          [class.status-box--rejected]="
                             (req.managerStatus || '').toLowerCase() ===
                             'rejected'
                           "
-                          [class.status-neutral]="
+                          [class.status-box--neutral]="
                             (req.managerStatus || '').toLowerCase() ===
                             'not_applicable'
                           "
-                          [class.status-pending]="
+                          [class.status-box--pending]="
                             !req.managerStatus ||
                             (req.managerStatus || '').toLowerCase() ===
                               'pending'
                           "
                         >
-                          {{ formatStatus(req.managerStatus) }}
-                        </span>
-                      </div>
+                          <div class="box-label">Mgr</div>
+                          <span
+                            class="status-pill"
+                            [class.status-approved]="
+                              (req.managerStatus || '').toLowerCase() ===
+                              'approved'
+                            "
+                            [class.status-rejected]="
+                              (req.managerStatus || '').toLowerCase() ===
+                              'rejected'
+                            "
+                            [class.status-neutral]="
+                              (req.managerStatus || '').toLowerCase() ===
+                              'not_applicable'
+                            "
+                            [class.status-pending]="
+                              !req.managerStatus ||
+                              (req.managerStatus || '').toLowerCase() ===
+                                'pending'
+                            "
+                          >
+                            {{ formatStatus(req.managerStatus) }}
+                          </span>
+                        </div>
 
-                      <div class="status-row">
-                        <span class="status-key">Finance</span>
-                        <span
-                          class="status-pill"
-                          [class.status-approved]="
+                        <!-- Arrow -->
+                        <div class="flow-arrow">→</div>
+
+                        <!-- Finance Status Box -->
+                        <div
+                          class="status-box"
+                          [class.status-box--approved]="
                             (req.financeStatus || '').toLowerCase() ===
                             'approved'
                           "
-                          [class.status-rejected]="
+                          [class.status-box--rejected]="
                             (req.financeStatus || '').toLowerCase() ===
                             'rejected'
                           "
-                          [class.status-neutral]="
+                          [class.status-box--neutral]="
                             (req.financeStatus || '').toLowerCase() ===
                             'not_applicable'
                           "
-                          [class.status-pending]="
+                          [class.status-box--pending]="
                             !req.financeStatus ||
                             (req.financeStatus || '').toLowerCase() ===
                               'pending'
                           "
                         >
-                          {{ formatStatus(req.financeStatus) }}
-                        </span>
-                      </div>
-
-                      <div class="status-row">
-                        <span class="status-key">Final</span>
-                        <span
-                          class="status-pill"
-                          [class.status-approved]="
-                            (req.finalStatus || '').toLowerCase() === 'approved'
-                          "
-                          [class.status-rejected]="
-                            (req.finalStatus || '').toLowerCase() === 'rejected'
-                          "
-                          [class.status-neutral]="
-                            (req.finalStatus || '').toLowerCase() ===
-                            'not_applicable'
-                          "
-                          [class.status-pending]="
-                            !req.finalStatus ||
-                            (req.finalStatus || '').toLowerCase() === 'pending'
-                          "
-                        >
-                          {{ formatStatus(req.finalStatus) }}
-                        </span>
+                          <div class="box-label">Fin</div>
+                          <span
+                            class="status-pill"
+                            [class.status-approved]="
+                              (req.financeStatus || '').toLowerCase() ===
+                              'approved'
+                            "
+                            [class.status-rejected]="
+                              (req.financeStatus || '').toLowerCase() ===
+                              'rejected'
+                            "
+                            [class.status-neutral]="
+                              (req.financeStatus || '').toLowerCase() ===
+                              'not_applicable'
+                            "
+                            [class.status-pending]="
+                              !req.financeStatus ||
+                              (req.financeStatus || '').toLowerCase() ===
+                                'pending'
+                            "
+                          >
+                            {{ formatStatus(req.financeStatus) }}
+                          </span>
+                        </div>
                       </div>
                     </ng-template>
                   </ng-template>
