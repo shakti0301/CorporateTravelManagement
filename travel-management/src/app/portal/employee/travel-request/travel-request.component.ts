@@ -138,7 +138,7 @@ export class TravelRequestComponent {
 
       alert('Travel request submitted successfully!');
       this.requestForm.reset();
-      this.router.navigate(['/employee']);
+      this.router.navigate(['/employee/myrequests']);
     }
   }
   saveDraft() {
@@ -151,6 +151,6 @@ export class TravelRequestComponent {
 
     alert('Travel request saved as draft!');
     this.requestForm.reset();
-    this.router.navigate(['/employee']);
+    this.router.navigate(['/employee/myrequests']);
   }
 }
