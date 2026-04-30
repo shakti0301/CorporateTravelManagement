@@ -61,11 +61,11 @@
       </li>
       <li *ngIf="user?.role === 'employee'" (click)="closeMobileMenu()">
         <a
-          routerLink="/employee/expenses"
+          routerLink="/employee/request"
           routerLinkActive="nx-link--active"
           class="nx-link"
         >
-          Expenses
+          Create Request
         </a>
       </li>
       <li *ngIf="user?.role === 'employee'" (click)="closeMobileMenu()">
