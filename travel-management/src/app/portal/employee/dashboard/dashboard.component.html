@@ -1,17 +1,89 @@
 <app-navbar></app-navbar>
-<section class="employee-dashboard">
-  <div class="dashboard-shell">
-    <header class="hero">
-      <p class="eyebrow">Travel center</p>
-      <h1>Dashboard</h1>
-      <p class="subtitle">
-        Add your dashboard content here - graphs, charts, analytics, and more.
-      </p>
-    </header>
 
-    <!-- Add your graphs and charts here -->
-    <div class="graphs-container">
-      <!-- Placeholder for graphs -->
+<section class="dashboard">
+  <!-- HEADER -->
+  <div class="dashboard-header">
+    <h1>Dashboard</h1>
+
+    <button class="create-btn" (click)="createRequest()">
+      + Create New Request
+    </button>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-top">
+        <span>Total Requests</span>
+        <span class="icon">📄</span>
+      </div>
+      <div class="stat-value">{{ totalRequests }}</div>
+      <div class="stat-sub success">+2 this month</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-top">
+        <span>Pending Approval</span>
+        <span class="icon">⏳</span>
+      </div>
+      <div class="stat-value">{{ pendingApproval }}</div>
+      <div class="stat-sub warning">Action needed</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-top">
+        <span>Approved Trips</span>
+        <span class="icon">✔️</span>
+      </div>
+      <div class="stat-value">{{ approvedTrips }}</div>
+      <div class="stat-sub info">Ready to book</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-top">
+        <span>Total Reimbursed</span>
+        <span class="icon">💰</span>
+      </div>
+      <div class="stat-value">
+        {{ totalReimbursed | currency: "INR" : "symbol" : "1.0-0" }}
+      </div>
+      <div class="stat-sub muted">YTD {{ currentYear }}</div>
+    </div>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="charts-grid">
+    <!-- BAR -->
+    <div class="chart-card">
+      <h3>Monthly Spending</h3>
+      <div class="chart-container">
+        <canvas id="monthlyChart"></canvas>
+      </div>
+    </div>
+
+    <!-- DONUT -->
+    <div class="chart-card">
+      <h3>Request Status</h3>
+      <div class="chart-container">
+        <canvas id="statusChart"></canvas>
+      </div>
+
+      <div class="status-summary">
+        <div class="status-item green">
+          <span>Approved</span>
+          <strong>{{ approvedTrips }}</strong>
+        </div>
+
+        <div class="status-item orange">
+          <span>Pending</span>
+          <strong>{{ pendingApproval }}</strong>
+        </div>
+
+        <div class="status-item red">
+          <span>Rejected</span>
+          <strong>{{ rejectedRequests }}</strong>
+        </div>
+      </div>
     </div>
   </div>
 </section>
