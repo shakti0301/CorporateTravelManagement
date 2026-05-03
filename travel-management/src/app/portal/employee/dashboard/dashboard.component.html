@@ -4,7 +4,6 @@
   <!-- HEADER -->
   <div class="dashboard-header">
     <h1>Dashboard</h1>
-
     <button class="create-btn" (click)="createRequest()">
       + Create New Request
     </button>
@@ -14,17 +13,44 @@
   <div class="stats-grid">
     <div class="stat-card">
       <div class="stat-top">
-        <span>Total Requests</span>
-        <span class="icon">📄</span>
+        <span class="stat-label">TOTAL REQUESTS</span>
+        <span class="stat-icon"
+          ><svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#94a3b8"
+            stroke-width="1.5"
+          >
+            <rect x="4" y="3" width="16" height="18" rx="2" />
+            <line x1="8" y1="8" x2="16" y2="8" />
+            <line x1="8" y1="12" x2="16" y2="12" />
+            <line x1="8" y1="16" x2="12" y2="16" /></svg
+        ></span>
       </div>
       <div class="stat-value">{{ totalRequests }}</div>
-      <div class="stat-sub success">+2 this month</div>
+      <div class="stat-sub success">
+        <span class="trend-arrow">↗</span> +2 this month
+      </div>
     </div>
 
     <div class="stat-card">
       <div class="stat-top">
-        <span>Pending Approval</span>
-        <span class="icon">⏳</span>
+        <span class="stat-label">PENDING APPROVAL</span>
+        <span class="stat-icon orange-icon"
+          ><svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#f97316"
+            stroke-width="1.5"
+          >
+            <circle cx="12" cy="12" r="9" />
+            <line x1="12" y1="7" x2="12" y2="12" />
+            <line x1="12" y1="15" x2="12" y2="17" /></svg
+        ></span>
       </div>
       <div class="stat-value">{{ pendingApproval }}</div>
       <div class="stat-sub warning">Action needed</div>
@@ -32,8 +58,19 @@
 
     <div class="stat-card">
       <div class="stat-top">
-        <span>Approved Trips</span>
-        <span class="icon">✔️</span>
+        <span class="stat-label">APPROVED TRIPS</span>
+        <span class="stat-icon blue-icon"
+          ><svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#2563eb"
+            stroke-width="1.5"
+          >
+            <circle cx="12" cy="12" r="9" />
+            <polyline points="9 12 11 14 15 10" /></svg
+        ></span>
       </div>
       <div class="stat-value">{{ approvedTrips }}</div>
       <div class="stat-sub info">Ready to book</div>
@@ -41,11 +78,22 @@
 
     <div class="stat-card">
       <div class="stat-top">
-        <span>Total Reimbursed</span>
-        <span class="icon">💰</span>
+        <span class="stat-label">TOTAL REIMBURSED</span>
+        <span class="stat-icon"
+          ><svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#94a3b8"
+            stroke-width="1.5"
+          >
+            <rect x="3" y="5" width="18" height="14" rx="2" />
+            <line x1="3" y1="10" x2="21" y2="10" /></svg
+        ></span>
       </div>
-      <div class="stat-value">
-        {{ totalReimbursed | currency: "INR" : "symbol" : "1.0-0" }}
+      <div class="stat-value reimbursed-value">
+        {{ totalReimbursed | currency: "INR" : "symbol-narrow" : "1.0-0" }}
       </div>
       <div class="stat-sub muted">YTD {{ currentYear }}</div>
     </div>
@@ -53,36 +101,286 @@
 
   <!-- CHARTS -->
   <div class="charts-grid">
-    <!-- BAR -->
+    <!-- BAR CHART -->
     <div class="chart-card">
-      <h3>Monthly Spending</h3>
+      <div class="chart-card-header">
+        <h3>Monthly Spending Trend</h3>
+        <span class="chart-period-badge">Last 6 Months</span>
+      </div>
       <div class="chart-container">
         <canvas id="monthlyChart"></canvas>
       </div>
     </div>
 
-    <!-- DONUT -->
+    <!-- DONUT CHART -->
     <div class="chart-card">
-      <h3>Request Status</h3>
-      <div class="chart-container">
+      <div class="chart-card-header">
+        <h3>Status Distribution</h3>
+      </div>
+      <div class="donut-container">
         <canvas id="statusChart"></canvas>
       </div>
-
-      <div class="status-summary">
-        <div class="status-item green">
-          <span>Approved</span>
-          <strong>{{ approvedTrips }}</strong>
+      <div class="status-legend">
+        <div class="legend-row">
+          <span class="legend-dot green-dot"></span>
+          <span class="legend-label">Approved</span>
+          <span class="legend-value"
+            >{{ approvedTrips }} ({{ approvedPct }}%)</span
+          >
         </div>
-
-        <div class="status-item orange">
-          <span>Pending</span>
-          <strong>{{ pendingApproval }}</strong>
+        <div class="legend-row">
+          <span class="legend-dot orange-dot"></span>
+          <span class="legend-label">Pending</span>
+          <span class="legend-value"
+            >{{ pendingApproval }} ({{ pendingPct }}%)</span
+          >
         </div>
-
-        <div class="status-item red">
-          <span>Rejected</span>
-          <strong>{{ rejectedRequests }}</strong>
+        <div class="legend-row">
+          <span class="legend-dot gray-dot"></span>
+          <span class="legend-label">Rejected/Draft</span>
+          <span class="legend-value"
+            >{{ rejectedRequests }} ({{ rejectedPct }}%)</span
+          >
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM GRID -->
+  <div class="bottom-grid">
+    <!-- CURRENT & UPCOMING TRIPS -->
+    <div class="trips-section">
+      <div class="trips-section-header">
+        <h3>Current &amp; Upcoming Trips</h3>
+        <a class="view-all-link" (click)="viewAllRequests()"
+          >View All Requests →</a
+        >
+      </div>
+
+      <div class="trips-row">
+        <!-- CURRENT TRIPS -->
+        <ng-container *ngIf="currentTrips.length > 0; else noCurrentTrip">
+          <div
+            class="trip-card current-trip-card"
+            *ngFor="let trip of currentTrips"
+          >
+            <div class="trip-badge-top current-badge">CURRENT TRIP</div>
+            <div class="trip-card-body">
+              <div class="trip-icon-wrap">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#2563eb"
+                  stroke-width="1.8"
+                >
+                  <path d="M22 16.5H2l2-9h16l2 9z" />
+                  <path d="M12 7.5V3m-4 4.5V4m8 3.5V4" />
+                </svg>
+              </div>
+              <div class="trip-info">
+                <strong>{{ trip.destination }}</strong>
+                <p class="trip-purpose">
+                  {{ trip.purpose || "Business Trip" }}
+                </p>
+                <p class="trip-dates">
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#94a3b8"
+                    stroke-width="2"
+                  >
+                    <rect x="3" y="4" width="18" height="18" rx="2" />
+                    <line x1="16" y1="2" x2="16" y2="6" />
+                    <line x1="8" y1="2" x2="8" y2="6" />
+                    <line x1="3" y1="10" x2="21" y2="10" />
+                  </svg>
+                  {{ trip.fromDate | date: "MMM dd" }} -
+                  {{ trip.toDate | date: "MMM dd, yyyy" }}
+                </p>
+                <div class="trip-progress-bar">
+                  <div
+                    class="trip-progress-fill"
+                    [style.width]="getTripProgress(trip) + '%'"
+                  ></div>
+                </div>
+                <div class="trip-progress-meta">
+                  <span
+                    >Day {{ getTripDay(trip) }} of
+                    {{ getTripDuration(trip) }}</span
+                  >
+                  <span class="in-progress-tag">In Progress</span>
+                </div>
+              </div>
+            </div>
+            <a class="trip-details-link" (click)="viewTripDetails(trip)"
+              >Trip Details →</a
+            >
+          </div>
+        </ng-container>
+
+        <ng-template #noCurrentTrip>
+          <div class="trip-card empty-trip-card">
+            <p class="empty-msg">No current trips</p>
+          </div>
+        </ng-template>
+
+        <!-- UPCOMING TRIPS -->
+        <ng-container *ngIf="upcomingTrips.length > 0; else noUpcomingTrip">
+          <div
+            class="trip-card upcoming-trip-card"
+            *ngFor="let trip of upcomingTrips"
+          >
+            <div class="trip-badge-top approved-badge">APPROVED</div>
+            <div class="trip-card-body">
+              <div class="trip-icon-wrap briefcase-icon">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#64748b"
+                  stroke-width="1.8"
+                >
+                  <rect x="2" y="7" width="20" height="14" rx="2" />
+                  <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
+                  <line x1="12" y1="12" x2="12" y2="16" />
+                  <line x1="10" y1="14" x2="14" y2="14" />
+                </svg>
+              </div>
+              <div class="trip-info">
+                <strong>{{ trip.destination }}</strong>
+                <p class="trip-purpose">
+                  {{ trip.purpose || "Business Trip" }}
+                </p>
+                <p class="trip-dates">
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#94a3b8"
+                    stroke-width="2"
+                  >
+                    <rect x="3" y="4" width="18" height="18" rx="2" />
+                    <line x1="16" y1="2" x2="16" y2="6" />
+                    <line x1="8" y1="2" x2="8" y2="6" />
+                    <line x1="3" y1="10" x2="21" y2="10" />
+                  </svg>
+                  {{ trip.fromDate | date: "MMM dd" }} -
+                  {{ trip.toDate | date: "MMM dd, yyyy" }}
+                </p>
+                <p class="trip-budget" *ngIf="trip.budget">
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#94a3b8"
+                    stroke-width="2"
+                  >
+                    <rect x="3" y="5" width="18" height="14" rx="2" />
+                    <line x1="3" y1="10" x2="21" y2="10" />
+                  </svg>
+                  Budget:
+                  {{
+                    trip.budget | currency: "INR" : "symbol-narrow" : "1.0-0"
+                  }}
+                </p>
+                <p class="starts-in" *ngIf="getDaysUntil(trip) >= 0">
+                  Starts in {{ getDaysUntil(trip) }} days
+                </p>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-template #noUpcomingTrip>
+          <div class="trip-card empty-trip-card">
+            <p class="empty-msg">No upcoming trips</p>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+
+    <!-- ACTION ITEMS -->
+    <div class="action-card">
+      <h3>Action Items</h3>
+
+      <div class="action-item-row red-action" *ngIf="pendingReimbursements > 0">
+        <div class="action-icon-wrap red-icon-wrap">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="white"
+            stroke-width="2"
+          >
+            <path
+              d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+            />
+            <polyline points="14 2 14 8 20 8" />
+          </svg>
+        </div>
+        <div class="action-text">
+          <strong>Missing Receipts</strong>
+          <p>Submit pending receipts for reimbursement</p>
+        </div>
+      </div>
+
+      <div class="action-item-row blue-action" *ngIf="approvedTrips > 0">
+        <div class="action-icon-wrap blue-icon-wrap">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="white"
+            stroke-width="2"
+          >
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
+        </div>
+        <div class="action-text">
+          <strong>Request Approved</strong>
+          <p>{{ approvedTrips }} trip(s) approved and ready</p>
+        </div>
+      </div>
+
+      <div class="action-item-row gray-action" *ngIf="pendingApproval > 0">
+        <div class="action-icon-wrap gray-icon-wrap">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="white"
+            stroke-width="2"
+          >
+            <circle cx="12" cy="12" r="9" />
+            <line x1="12" y1="7" x2="12" y2="12" />
+            <circle cx="12" cy="16" r="0.5" fill="white" />
+          </svg>
+        </div>
+        <div class="action-text">
+          <strong>Policy Update</strong>
+          <p>{{ pendingApproval }} request(s) awaiting manager approval</p>
+        </div>
+      </div>
+
+      <div
+        *ngIf="
+          pendingApproval === 0 &&
+          rejectedRequests === 0 &&
+          pendingReimbursements === 0
+        "
+      >
+        <div class="empty-action">No actions required 🎉</div>
       </div>
     </div>
   </div>
