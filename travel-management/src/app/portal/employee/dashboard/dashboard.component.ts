@@ -94,6 +94,24 @@ export class DashboardComponent implements OnInit {
       .slice(0, 5);
   }
 
+  getExpenseCostLabel(req: any): string {
+    const totalExpense = Number(req?.totalExpense);
+
+    if (
+      !req?.expenseSubmitted ||
+      !Number.isFinite(totalExpense) ||
+      totalExpense <= 0
+    ) {
+      return 'Not submitted';
+    }
+
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0,
+    }).format(totalExpense);
+  }
+
   // STATUS HELPERS (for table badges)
 
   getStatusClass(req: any): string {

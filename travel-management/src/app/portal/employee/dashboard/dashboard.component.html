@@ -147,10 +147,7 @@
             {{ req.toDate ? (req.toDate | date: "MMM dd, yyyy") : "-" }}
           </td>
           <td class="cost">
-            {{
-              req.totalExpense || req.budget || 0
-                | currency: "INR" : "symbol-narrow" : "1.0-0"
-            }}
+            {{ getExpenseCostLabel(req) }}
           </td>
           <td class="status-cell">
             <span class="status-badge" [ngClass]="getStatusClass(req)">
