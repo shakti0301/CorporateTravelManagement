@@ -1,11 +1,8 @@
-import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { NavbarComponent } from '../../../shared/navbar/navbar.component';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { RequestService } from '../../../services/request/request.service';
 import { Router } from '@angular/router';
-import { Chart, registerables } from 'chart.js/auto';
-
-Chart.register(...registerables);
 
 @Component({
   selector: 'app-dashboard',
@@ -14,13 +11,9 @@ Chart.register(...registerables);
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
 })
-export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
+export class DashboardComponent implements OnInit {
   requests: any[] = [];
   currentYear = new Date().getFullYear();
-
-  monthlyChart: any;
-  statusChart: any;
-  private resizeTimer: any;
 
   constructor(
     private requestService: RequestService,
@@ -31,260 +24,25 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.requests = this.requestService.getRequestsByUser();
   }
 
-  ngAfterViewInit() {
-    setTimeout(() => {
-      this.createCharts();
-      this.setupResizeListener();
-    }, 100);
-  }
+  // STAT GETTERS
 
-  ngOnDestroy() {
-    this.monthlyChart?.destroy();
-    this.statusChart?.destroy();
-    if (this.resizeTimer) clearTimeout(this.resizeTimer);
-    window.removeEventListener('resize', this.onResize);
-  }
-
-  private onResize = () => {
-    if (this.resizeTimer) clearTimeout(this.resizeTimer);
-    this.resizeTimer = setTimeout(() => {
-      this.monthlyChart?.resize();
-      this.statusChart?.resize();
-    }, 250);
-  };
-
-  private setupResizeListener() {
-    window.addEventListener('resize', this.onResize);
-  }
-
-  createCharts() {
-    this.createMonthlyChart();
-    this.createStatusChart();
-  }
-
-  // ---- MONTHLY BAR CHART (last 6 months, dual-dataset: reimbursed vs budgeted) ----
-  createMonthlyChart() {
-    const ctx = document.getElementById('monthlyChart') as HTMLCanvasElement;
-    if (!ctx) return;
-    this.monthlyChart?.destroy();
-
-    const today = new Date();
-    const labels: string[] = [];
-    const reimbursedData: number[] = [];
-    const budgetedData: number[] = [];
-
-    const monthNames = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-
-    for (let i = 5; i >= 0; i--) {
-      const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
-      const m = d.getMonth();
-      const y = d.getFullYear();
-      labels.push(monthNames[m]);
-
-      let reimbursed = 0;
-      let budgeted = 0;
-
-      this.requests.forEach((r) => {
-        const from = new Date(r.fromDate);
-        if (from.getMonth() === m && from.getFullYear() === y) {
-          const total = Number(r.totalExpense || r.budget || 0);
-          if (r.reimbursementStatus === 'approved') {
-            reimbursed += total;
-          } else {
-            budgeted += total;
-          }
-        }
-        // Also include individual expenses
-        if (r.expenses) {
-          r.expenses.forEach((e: any) => {
-            const expDate = new Date(e.date);
-            if (expDate.getMonth() === m && expDate.getFullYear() === y) {
-              if (r.reimbursementStatus === 'approved') {
-                reimbursed += Number(e.amount || 0);
-              } else {
-                budgeted += Number(e.amount || 0);
-              }
-            }
-          });
-        }
-      });
-
-      reimbursedData.push(reimbursed);
-      budgetedData.push(budgeted);
-    }
-
-    this.monthlyChart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [
-          {
-            label: 'Reimbursed',
-            data: reimbursedData,
-            backgroundColor: '#2563eb',
-            borderRadius: 6,
-            barPercentage: 0.55,
-            categoryPercentage: 0.7,
-            order: 1,
-          },
-          {
-            label: 'Budgeted',
-            data: budgetedData,
-            backgroundColor: '#bfdbfe',
-            borderRadius: 6,
-            barPercentage: 0.55,
-            categoryPercentage: 0.7,
-            order: 2,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: true,
-            position: 'bottom',
-            labels: {
-              usePointStyle: true,
-              pointStyle: 'circle',
-              padding: 16,
-              font: { size: 12 },
-              color: '#64748b',
-            },
-          },
-          tooltip: {
-            mode: 'index',
-            intersect: false,
-            backgroundColor: 'rgba(15,23,42,0.9)',
-            padding: 12,
-            titleFont: { size: 12, weight: 'bold' },
-            bodyFont: { size: 11 },
-          },
-        },
-        scales: {
-          x: {
-            grid: { display: false },
-            ticks: { color: '#94a3b8', font: { size: 11 } },
-            stacked: false,
-          },
-          y: {
-            beginAtZero: true,
-            grid: { color: '#f1f5f9' },
-            ticks: { color: '#94a3b8', font: { size: 11 }, padding: 6 },
-          },
-        },
-      },
-    });
-  }
-
-  // ---- DONUT CHART ----
-  createStatusChart() {
-    const ctx = document.getElementById('statusChart') as HTMLCanvasElement;
-    if (!ctx) return;
-    this.statusChart?.destroy();
-
-    const approved = this.approvedTrips;
-    const pending = this.pendingApproval;
-    const rejected = this.rejectedRequests;
-    const total = approved + pending + rejected;
-
-    const centerTextPlugin = {
-      id: 'centerText',
-      beforeDraw: (chart: any) => {
-        const { width, height, ctx: c } = chart;
-        c.save();
-
-        c.font = `700 22px 'Segoe UI', sans-serif`;
-        c.fillStyle = '#0f172a';
-        c.textAlign = 'center';
-        c.textBaseline = 'middle';
-        c.fillText(total.toString(), width / 2, height / 2 - 8);
-
-        c.font = `500 12px 'Segoe UI', sans-serif`;
-        c.fillStyle = '#94a3b8';
-        c.fillText('TOTAL', width / 2, height / 2 + 14);
-        c.restore();
-      },
-    };
-
-    this.statusChart = new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels: ['Approved', 'Pending', 'Rejected/Draft'],
-        datasets: [
-          {
-            data: [approved || 0, pending || 0, rejected || 0],
-            backgroundColor: ['#22c55e', '#f59e0b', '#e2e8f0'],
-            borderColor: '#ffffff',
-            borderWidth: 3,
-            hoverBorderWidth: 4,
-            spacing: 1,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        cutout: '68%',
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: 'rgba(15,23,42,0.9)',
-            padding: 10,
-            titleFont: { size: 12, weight: 'bold' },
-            bodyFont: { size: 11 },
-          },
-        },
-      },
-      plugins: [centerTextPlugin],
-    });
-  }
-
-  // ---- ACTIONS ----
-  createRequest() {
-    this.router.navigate(['/employee/request']);
-  }
-
-  viewAllRequests() {
-    this.router.navigate(['/employee/myrequests']);
-  }
-
-  viewTripDetails(trip: any) {
-    this.router.navigate(['/employee/myrequests', trip.id]);
-  }
-
-  // ---- GETTERS ----
-  get totalRequests() {
+  get totalRequests(): number {
     return this.requests.length;
   }
 
-  get pendingApproval() {
+  get pendingApproval(): number {
     return this.requests.filter(
-      (r) => (r.finalStatus || '').toLowerCase() === 'pending',
+      (r) => (r.managerStatus || '').toLowerCase() === 'pending',
     ).length;
   }
 
-  get approvedTrips() {
+  get approvedTrips(): number {
     return this.requests.filter(
       (r) => (r.finalStatus || '').toLowerCase() === 'approved',
     ).length;
   }
 
-  get rejectedRequests() {
+  get rejectedRequests(): number {
     return this.requests.filter(
       (r) =>
         (r.finalStatus || '').toLowerCase() === 'rejected' ||
@@ -292,7 +50,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     ).length;
   }
 
-  get totalReimbursed() {
+  get totalReimbursed(): number {
     return this.requests.reduce(
       (sum, r) =>
         r.reimbursementStatus === 'approved'
@@ -308,7 +66,105 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     ).length;
   }
 
-  get currentTrips() {
+  // RECENT REQUESTS (last 5, newest first)
+
+  get recentRequests(): any[] {
+    return [...this.requests]
+      .sort((a, b) => {
+        // Sort by creation date or fromDate descending
+        const dateA = new Date(a.createdAt || a.fromDate || 0).getTime();
+        const dateB = new Date(b.createdAt || b.fromDate || 0).getTime();
+        return dateB - dateA;
+      })
+      .slice(0, 5);
+  }
+
+  // STATUS HELPERS (for table badges)
+
+  getStatusClass(req: any): string {
+    // Completed = finance approved the reimbursement
+    if (
+      req.reimbursementStatus === 'approved' ||
+      (req.finalStatus || '').toLowerCase() === 'completed'
+    ) {
+      return 'badge-completed';
+    }
+
+    const final = (req.finalStatus || '').toLowerCase();
+    const manager = (req.managerStatus || '').toLowerCase();
+    const finance = (req.financeStatus || '').toLowerCase();
+
+    const reimbursementStatus = (req.reimbursementStatus || '').toLowerCase();
+
+    if (reimbursementStatus === 'approved') {
+      return 'badge-approved';
+    }
+
+    if (reimbursementStatus === 'rejected') {
+      return 'badge-rejected';
+    }
+
+    if (reimbursementStatus === 'pending') {
+      return 'badge-pending';
+    }
+
+    if (final === 'approved') {
+      return 'badge-approved';
+    }
+
+    if (final === 'rejected') return 'badge-rejected';
+
+    if (manager === 'pending') return 'badge-pending';
+
+    if (finance === 'pending') return 'badge-pending';
+
+    return 'badge-draft';
+  }
+
+  getStatusLabel(req: any): string {
+    // Completed = finance accepted the expense reimbursement
+    if (
+      req.reimbursementStatus === 'approved' ||
+      (req.finalStatus || '').toLowerCase() === 'completed'
+    ) {
+      return 'Completed';
+    }
+
+    const final = (req.finalStatus || '').toLowerCase();
+    const manager = (req.managerStatus || '').toLowerCase();
+    const finance = (req.financeStatus || '').toLowerCase();
+
+    const reimbursementStatus = (req.reimbursementStatus || '').toLowerCase();
+
+    if (reimbursementStatus === 'approved') {
+      return 'Reimbursement Approved';
+    }
+
+    if (reimbursementStatus === 'rejected') {
+      return 'Reimbursement Rejected';
+    }
+
+    if (reimbursementStatus === 'pending') {
+      return 'Reimbursement Pending';
+    }
+
+    if (final === 'approved') {
+      if (req.booked) return 'Booked';
+      return 'Approved';
+    }
+
+    if (final === 'rejected') return 'Rejected';
+
+    if (manager === 'pending') return 'Pending Review by Manager';
+
+    if (finance === 'pending') return 'Pending Review by Finance';
+
+    return 'Draft';
+  }
+
+  // TRIP GETTERS
+
+  get currentTrips(): any[] {
     const today = new Date();
     return this.requests.filter((r) => {
       if ((r.finalStatus || '').toLowerCase() !== 'approved') return false;
@@ -318,7 +174,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  get upcomingTrips() {
+  get upcomingTrips(): any[] {
     const today = new Date();
     return this.requests
       .filter((r) => {
@@ -331,41 +187,47 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       );
   }
 
-  // ---- PERCENTAGE HELPERS ----
-  get approvedPct() {
-    return this._pct(this.approvedTrips);
-  }
-  get pendingPct() {
-    return this._pct(this.pendingApproval);
-  }
-  get rejectedPct() {
-    return this._pct(this.rejectedRequests);
+  // COMPLETED LOGIC
+  // A trip is "Completed" when finance has approved the reimbursement
+  // (reimbursementStatus === 'approved') OR finalStatus === 'completed'
+
+  isTripCompleted(trip: any): boolean {
+    return (
+      trip.reimbursementStatus === 'approved' ||
+      (trip.finalStatus || '').toLowerCase() === 'completed'
+    );
   }
 
-  private _pct(val: number) {
-    const total =
-      this.approvedTrips + this.pendingApproval + this.rejectedRequests;
-    if (!total) return 0;
-    return Math.round((val / total) * 100);
-  }
+  // TRIP PROGRESS HELPERS
 
-  // ---- TRIP PROGRESS HELPERS ----
   getTripDuration(trip: any): number {
     const from = new Date(trip.fromDate);
     const to = new Date(trip.toDate);
-    const diff = Math.ceil(
+    const days = Math.ceil(
       (to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24),
     );
-    return diff + 1;
+    return days + 1; // inclusive
   }
 
   getTripDay(trip: any): number {
     const from = new Date(trip.fromDate);
     const today = new Date();
-    const diff = Math.ceil(
-      (today.getTime() - from.getTime()) / (1000 * 60 * 60 * 24),
+
+    const startOfFrom = new Date(
+      from.getFullYear(),
+      from.getMonth(),
+      from.getDate(),
     );
-    return Math.max(1, diff + 1);
+    const startOfToday = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate(),
+    );
+
+    const days = Math.floor(
+      (startOfToday.getTime() - startOfFrom.getTime()) / (1000 * 60 * 60 * 24),
+    );
+    return Math.max(1, days + 1);
   }
 
   getTripProgress(trip: any): number {
@@ -380,5 +242,19 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     return Math.ceil(
       (from.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
     );
+  }
+
+  // NAVIGATION
+
+  createRequest() {
+    this.router.navigate(['/employee/request']);
+  }
+
+  viewAllRequests() {
+    this.router.navigate(['/employee/myrequests']);
+  }
+
+  viewTripDetails(trip: any) {
+    this.router.navigate(['/employee/myrequests', trip.id]);
   }
 }
