@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { NavbarComponent } from '../../../shared/navbar/navbar.component';
 import { RequestService } from '../../../services/request/request.service';
 import { CommonModule } from '@angular/common';
@@ -12,11 +12,20 @@ import { FormsModule, NgForm } from '@angular/forms';
   templateUrl: './my-requests.component.html',
   styleUrl: './my-requests.component.css',
 })
-export class MyRequestsComponent {
+export class MyRequestsComponent implements OnInit {
   requests: any[] = [];
   selectedRequest: any = null;
   showModal: boolean = false;
   modalSubmitted: boolean = false;
+
+  // FILTER STATE
+  searchQuery: string = '';
+  statusFilter: string = 'all';
+  dateFilter: string = '';
+
+  // PAGINATION
+  currentPage: number = 1;
+  pageSize: number = 5;
 
   constructor(private requestService: RequestService) {}
 
@@ -24,6 +33,7 @@ export class MyRequestsComponent {
     this.requests = this.requestService.getRequestsByUser();
   }
 
+  // STATS
   get totalRequests(): number {
     return this.requests.length;
   }
@@ -40,13 +50,88 @@ export class MyRequestsComponent {
     ).length;
   }
 
-  formatStatus(status: string): string {
-    const normalized = this.normalizeStatus(status);
+  // FILTERING
+  get filteredRequests(): any[] {
+    let result = [...this.requests];
 
-    if (normalized === 'not_applicable') {
-      return 'Not Required';
+    // Search — matches destination or purpose
+    if (this.searchQuery.trim()) {
+      const q = this.searchQuery.trim().toLowerCase();
+      result = result.filter(
+        (r) =>
+          (r.destination || '').toLowerCase().includes(q) ||
+          (r.purpose || '').toLowerCase().includes(q),
+      );
     }
 
+    // Status filter
+    if (this.statusFilter !== 'all') {
+      result = result.filter((r) => {
+        if (this.statusFilter === 'draft') return r.isDraft;
+        if (this.statusFilter === 'pending')
+          return (
+            !r.isDraft && this.normalizeStatus(r.managerStatus) === 'pending'
+          );
+        if (this.statusFilter === 'approved')
+          return this.normalizeStatus(r.finalStatus) === 'approved';
+        if (this.statusFilter === 'rejected')
+          return this.normalizeStatus(r.finalStatus) === 'rejected';
+        return true;
+      });
+    }
+
+    // Date filter — matches requests whose fromDate >= selected date
+    if (this.dateFilter) {
+      result = result.filter((r) => r.fromDate >= this.dateFilter);
+    }
+
+    return result;
+  }
+
+  // PAGINATION
+  get totalPages(): number {
+    return Math.ceil(this.filteredRequests.length / this.pageSize);
+  }
+
+  get paginatedRequests(): any[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.filteredRequests.slice(start, start + this.pageSize);
+  }
+
+  get showingFrom(): number {
+    if (this.filteredRequests.length === 0) return 0;
+    return (this.currentPage - 1) * this.pageSize + 1;
+  }
+
+  get showingTo(): number {
+    return Math.min(
+      this.currentPage * this.pageSize,
+      this.filteredRequests.length,
+    );
+  }
+
+  goToPage(page: number) {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+    }
+  }
+
+  // Reset to page 1 when filters change
+  onFilterChange() {
+    this.currentPage = 1;
+  }
+
+  clearFilters() {
+    this.searchQuery = '';
+    this.statusFilter = 'all';
+    this.dateFilter = '';
+    this.currentPage = 1;
+  }
+
+  // STATUS HELPERS
+  formatStatus(status: string): string {
+    const normalized = this.normalizeStatus(status);
+    if (normalized === 'not_applicable') return 'Not Required';
     return normalized
       .split('_')
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
@@ -57,84 +142,46 @@ export class MyRequestsComponent {
     return (status || 'pending').trim().toLowerCase();
   }
 
+  getManagerPillClass(req: any): string {
+    const s = this.normalizeStatus(req.managerStatus);
+    if (s === 'approved') return 'pill-approved';
+    if (s === 'rejected') return 'pill-rejected';
+    if (s === 'not_applicable') return 'pill-neutral';
+    return 'pill-pending';
+  }
+
+  getFinancePillClass(req: any): string {
+    const s = this.normalizeStatus(req.financeStatus);
+    if (s === 'approved') return 'pill-approved';
+    if (s === 'rejected') return 'pill-rejected';
+    if (s === 'not_applicable') return 'pill-neutral';
+    return 'pill-pending';
+  }
+
+  // DATE HELPERS
   get today(): string {
     return this.formatDateForInput(new Date());
   }
 
   get toDateMin(): string {
     const fromDate = this.selectedRequest?.fromDate;
-
-    if (!fromDate) {
-      return this.today;
-    }
-
+    if (!fromDate) return this.today;
     return fromDate > this.today ? fromDate : this.today;
   }
 
-  openEditModal(request: any) {
-    this.selectedRequest = request;
-    this.modalSubmitted = false;
-    this.showModal = true;
+  private formatDateForInput(date: Date): string {
+    const year = date.getFullYear();
+    const month = `${date.getMonth() + 1}`.padStart(2, '0');
+    const day = `${date.getDate()}`.padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
-  closeModal() {
-    this.showModal = false;
-    this.selectedRequest = null;
-    this.modalSubmitted = false;
-  }
-
-  saveDraft(editForm: NgForm) {
-    this.modalSubmitted = true;
-
-    if (this.hasDateValidationErrors()) {
-      editForm.form.markAllAsTouched();
-      return;
-    }
-
-    let requests = JSON.parse(localStorage.getItem('requests') || '[]');
-
-    requests = requests.map((r: any) => {
-      if (r.id === this.selectedRequest.id) {
-        return {
-          ...this.selectedRequest,
-          isDraft: true,
-        };
-      }
-      return r;
-    });
-
-    localStorage.setItem('requests', JSON.stringify(requests));
-
-    this.closeModal();
-    this.ngOnInit();
-  }
-
-  submitFromModal(editForm: NgForm) {
-    this.modalSubmitted = true;
-
-    if (editForm.invalid || this.hasDateValidationErrors()) {
-      editForm.form.markAllAsTouched();
-      return;
-    }
-
-    let requests = JSON.parse(localStorage.getItem('requests') || '[]');
-
-    requests = requests.map((r: any) => {
-      if (r.id === this.selectedRequest.id) {
-        return {
-          ...this.selectedRequest,
-          isDraft: false,
-          managerStatus: 'pending',
-          financeStatus: 'not_applicable',
-          finalStatus: 'pending',
-        };
-      }
-      return r;
-    });
-    localStorage.setItem('requests', JSON.stringify(requests));
-
-    this.closeModal();
-    this.ngOnInit();
+  private isPastDate(dateValue: string): boolean {
+    if (!dateValue) return false;
+    const selected = new Date(`${dateValue}T00:00:00`);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return selected < today;
   }
 
   private hasDateValidationErrors(): boolean {
@@ -148,27 +195,61 @@ export class MyRequestsComponent {
     );
   }
 
-  private isPastDate(dateValue: string): boolean {
-    if (!dateValue) {
-      return false;
+  // MODAL
+  openEditModal(request: any) {
+    this.selectedRequest = { ...request };
+    this.modalSubmitted = false;
+    this.showModal = true;
+  }
+
+  closeModal() {
+    this.showModal = false;
+    this.selectedRequest = null;
+    this.modalSubmitted = false;
+  }
+
+  saveDraft(editForm: NgForm) {
+    this.modalSubmitted = true;
+    if (this.hasDateValidationErrors()) {
+      editForm.form.markAllAsTouched();
+      return;
     }
-
-    const selectedDate = new Date(`${dateValue}T00:00:00`);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    return selectedDate < today;
+    let requests = JSON.parse(localStorage.getItem('requests') || '[]');
+    requests = requests.map((r: any) =>
+      r.id === this.selectedRequest.id
+        ? { ...this.selectedRequest, isDraft: true }
+        : r,
+    );
+    localStorage.setItem('requests', JSON.stringify(requests));
+    this.closeModal();
+    this.ngOnInit();
   }
 
-  private formatDateForInput(date: Date): string {
-    const year = date.getFullYear();
-    const month = `${date.getMonth() + 1}`.padStart(2, '0');
-    const day = `${date.getDate()}`.padStart(2, '0');
-
-    return `${year}-${month}-${day}`;
+  submitFromModal(editForm: NgForm) {
+    this.modalSubmitted = true;
+    if (editForm.invalid || this.hasDateValidationErrors()) {
+      editForm.form.markAllAsTouched();
+      return;
+    }
+    let requests = JSON.parse(localStorage.getItem('requests') || '[]');
+    requests = requests.map((r: any) =>
+      r.id === this.selectedRequest.id
+        ? {
+            ...this.selectedRequest,
+            isDraft: false,
+            managerStatus: 'pending',
+            financeStatus: 'not_applicable',
+            finalStatus: 'pending',
+          }
+        : r,
+    );
+    localStorage.setItem('requests', JSON.stringify(requests));
+    this.closeModal();
+    this.ngOnInit();
   }
 
-  canModify(req: any) {
+  // ACTIONS
+  canModify(req: any): boolean {
     return req.isDraft || this.normalizeStatus(req.managerStatus) === 'pending';
   }
 
@@ -177,10 +258,8 @@ export class MyRequestsComponent {
       'Are you sure you want to delete/cancel this request?',
     );
     if (!confirmDelete) return;
-
     let requests = JSON.parse(localStorage.getItem('requests') || '[]');
-    requests = requests.filter((r: any) => r.id != id);
-
+    requests = requests.filter((r: any) => r.id !== id);
     localStorage.setItem('requests', JSON.stringify(requests));
     this.ngOnInit();
   }

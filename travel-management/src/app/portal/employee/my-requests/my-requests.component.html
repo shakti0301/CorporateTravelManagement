@@ -1,268 +1,322 @@
 <app-navbar></app-navbar>
-<section class="employee-dashboard">
-  <div class="dashboard-shell">
-    <header class="hero">
-      <p class="eyebrow">Travel center</p>
-      <h1>My Travel Requests</h1>
-      <p class="subtitle">
-        View your draft and submitted requests and track approval updates from
-        manager and finance in one place.
-      </p>
-    </header>
 
-    <div class="stats-grid" *ngIf="requests.length > 0">
-      <article class="stat-card">
-        <h2>{{ totalRequests }}</h2>
-        <p>Total requests</p>
-      </article>
-      <article class="stat-card">
-        <h2>{{ approvedRequests }}</h2>
-        <p>Approved</p>
-      </article>
-      <article class="stat-card">
-        <h2>{{ pendingRequests }}</h2>
-        <p>Pending</p>
-      </article>
+<section class="page">
+  <div class="page-shell">
+    <!-- ── HEADER ── -->
+    <div class="page-header">
+      <div>
+        <h1>My Travel Requests</h1>
+        <p class="page-subtitle">
+          Manage your upcoming and past travel itineraries.
+        </p>
+      </div>
+      <button class="create-btn" routerLink="/employee/request">
+        + Create Request
+      </button>
     </div>
 
-    <div class="requests-card" *ngIf="requests.length > 0; else emptyState">
-      <div class="table-wrapper">
+    <!-- ── FILTERS ── -->
+    <div class="filters-bar">
+      <div class="filter-group search-group">
+        <label class="filter-label">SEARCH</label>
+        <div class="search-input-wrap">
+          <svg
+            class="search-icon"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#94a3b8"
+            stroke-width="2"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input
+            type="text"
+            class="filter-input"
+            placeholder="Destination, Purpose..."
+            [(ngModel)]="searchQuery"
+            (ngModelChange)="onFilterChange()"
+          />
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">STATUS</label>
+        <select
+          class="filter-select"
+          [(ngModel)]="statusFilter"
+          (ngModelChange)="onFilterChange()"
+        >
+          <option value="all">All Statuses</option>
+          <option value="draft">Draft</option>
+          <option value="pending">Pending</option>
+          <option value="approved">Approved</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">DATE RANGE</label>
+        <input
+          type="date"
+          class="filter-input date-input"
+          [(ngModel)]="dateFilter"
+          (ngModelChange)="onFilterChange()"
+        />
+      </div>
+
+      <button class="filter-btn" (click)="clearFilters()">
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+        >
+          <line x1="4" y1="6" x2="20" y2="6" />
+          <line x1="8" y1="12" x2="16" y2="12" />
+          <line x1="11" y1="18" x2="13" y2="18" />
+        </svg>
+        Filter
+      </button>
+    </div>
+
+    <!-- ── TABLE ── -->
+    <div class="table-card" *ngIf="requests.length > 0; else emptyState">
+      <div class="table-wrap">
         <table>
           <thead>
             <tr>
-              <th>Destination</th>
-              <th>From</th>
-              <th>To</th>
-              <th>Purpose</th>
-              <th>Cost</th>
-              <th>Status</th>
-              <th>Action</th>
+              <th>DESTINATION</th>
+              <th>PURPOSE</th>
+              <th>DATES</th>
+              <th>BUDGET</th>
+              <th>STATUS</th>
+              <th>ACTIONS</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let req of requests">
-              <td>{{ req.destination }}</td>
-              <td>{{ req.fromDate }}</td>
-              <td>{{ req.toDate }}</td>
-              <td>{{ req.purpose }}</td>
-              <td>{{ req.cost | currency: "INR" : "symbol" : "1.0-0" }}</td>
-              <td class="status-column">
-                <div class="status-stack">
-                  <div
-                    class="status-row"
-                    *ngIf="req.isDraft; else approvalStatus"
-                  >
-                    <span class="status-key">Draft</span>
-                    <span class="status-pill status-neutral">Draft</span>
-                  </div>
-
-                  <ng-template #approvalStatus>
-                    <div
-                      *ngIf="req.expenseSubmitted; else requestApprovalStatus"
-                    >
-                      <div class="status-row">
-                        <span class="status-key">Reimbursement</span>
-                        <span
-                          class="status-pill"
-                          [class.status-approved]="
-                            (req.reimbursementStatus || '').toLowerCase() ===
-                            'approved'
-                          "
-                          [class.status-rejected]="
-                            (req.reimbursementStatus || '').toLowerCase() ===
-                            'rejected'
-                          "
-                          [class.status-neutral]="
-                            (req.reimbursementStatus || '').toLowerCase() ===
-                            'not_applicable'
-                          "
-                          [class.status-pending]="
-                            !req.reimbursementStatus ||
-                            (req.reimbursementStatus || '').toLowerCase() ===
-                              'pending'
-                          "
-                        >
-                          {{ formatStatus(req.reimbursementStatus) }}
-                        </span>
-                      </div>
-                    </div>
-
-                    <ng-template #requestApprovalStatus>
-                      <div class="status-flow">
-                        <!-- Manager Status Box -->
-                        <div
-                          class="status-box"
-                          [class.status-box--approved]="
-                            (req.managerStatus || '').toLowerCase() ===
-                            'approved'
-                          "
-                          [class.status-box--rejected]="
-                            (req.managerStatus || '').toLowerCase() ===
-                            'rejected'
-                          "
-                          [class.status-box--neutral]="
-                            (req.managerStatus || '').toLowerCase() ===
-                            'not_applicable'
-                          "
-                          [class.status-box--pending]="
-                            !req.managerStatus ||
-                            (req.managerStatus || '').toLowerCase() ===
-                              'pending'
-                          "
-                        >
-                          <div class="box-label">Mgr</div>
-                          <span
-                            class="status-pill"
-                            [class.status-approved]="
-                              (req.managerStatus || '').toLowerCase() ===
-                              'approved'
-                            "
-                            [class.status-rejected]="
-                              (req.managerStatus || '').toLowerCase() ===
-                              'rejected'
-                            "
-                            [class.status-neutral]="
-                              (req.managerStatus || '').toLowerCase() ===
-                              'not_applicable'
-                            "
-                            [class.status-pending]="
-                              !req.managerStatus ||
-                              (req.managerStatus || '').toLowerCase() ===
-                                'pending'
-                            "
-                          >
-                            {{ formatStatus(req.managerStatus) }}
-                          </span>
-                        </div>
-
-                        <!-- Arrow -->
-                        <div class="flow-arrow">→</div>
-
-                        <!-- Finance Status Box -->
-                        <div
-                          class="status-box"
-                          [class.status-box--approved]="
-                            (req.financeStatus || '').toLowerCase() ===
-                            'approved'
-                          "
-                          [class.status-box--rejected]="
-                            (req.financeStatus || '').toLowerCase() ===
-                            'rejected'
-                          "
-                          [class.status-box--neutral]="
-                            (req.financeStatus || '').toLowerCase() ===
-                            'not_applicable'
-                          "
-                          [class.status-box--pending]="
-                            !req.financeStatus ||
-                            (req.financeStatus || '').toLowerCase() ===
-                              'pending'
-                          "
-                        >
-                          <div class="box-label">Fin</div>
-                          <span
-                            class="status-pill"
-                            [class.status-approved]="
-                              (req.financeStatus || '').toLowerCase() ===
-                              'approved'
-                            "
-                            [class.status-rejected]="
-                              (req.financeStatus || '').toLowerCase() ===
-                              'rejected'
-                            "
-                            [class.status-neutral]="
-                              (req.financeStatus || '').toLowerCase() ===
-                              'not_applicable'
-                            "
-                            [class.status-pending]="
-                              !req.financeStatus ||
-                              (req.financeStatus || '').toLowerCase() ===
-                                'pending'
-                            "
-                          >
-                            {{ formatStatus(req.financeStatus) }}
-                          </span>
-                        </div>
-                      </div>
-                    </ng-template>
-                  </ng-template>
-
-                  <div *ngIf="req.reason" class="status-reason">
-                    Reason: {{ req.reason }}
-                  </div>
+            <tr *ngFor="let req of paginatedRequests">
+              <!-- DESTINATION + TRIP ID -->
+              <td>
+                <div class="dest-name">{{ req.destination }}</div>
+                <div class="trip-id-sub">
+                  {{ req.tripId || "REQ-" + req.id }}
                 </div>
               </td>
-              <td>
+
+              <!-- PURPOSE -->
+              <td class="purpose-cell">{{ req.purpose }}</td>
+
+              <!-- DATES -->
+              <td class="dates-cell">
+                {{ req.fromDate | date: "MMM dd" }} –
+                {{ req.toDate | date: "MMM dd, yyyy" }}
+              </td>
+
+              <!-- BUDGET -->
+              <td class="budget-cell">
+                {{
+                  req.cost || req.budget || req.totalExpense || 0
+                    | currency: "INR" : "symbol-narrow" : "1.0-0"
+                }}
+              </td>
+
+              <!-- STATUS -->
+              <td class="status-cell">
+                <!-- DRAFT -->
+                <ng-container *ngIf="req.isDraft">
+                  <span class="pill pill-neutral">Draft</span>
+                </ng-container>
+
+                <!-- REIMBURSEMENT STATUS (expense already submitted) -->
+                <ng-container *ngIf="!req.isDraft && req.expenseSubmitted">
+                  <div class="status-flow">
+                    <span class="pill pill-approved">Approved</span>
+                    <span class="flow-arrow">→</span>
+                    <span class="pill" [ngClass]="getFinancePillClass(req)">
+                      {{ formatStatus(req.reimbursementStatus) }}
+                    </span>
+                  </div>
+                </ng-container>
+
+                <!-- NORMAL APPROVAL FLOW (manager → finance) -->
+                <ng-container *ngIf="!req.isDraft && !req.expenseSubmitted">
+                  <div class="status-flow">
+                    <span class="pill" [ngClass]="getManagerPillClass(req)">
+                      {{ formatStatus(req.managerStatus) }}
+                    </span>
+                    <span class="flow-arrow">→</span>
+                    <span class="pill" [ngClass]="getFinancePillClass(req)">
+                      {{ formatStatus(req.financeStatus) }}
+                    </span>
+                  </div>
+                </ng-container>
+
+                <!-- REJECTION REASON -->
+                <div *ngIf="req.reason" class="reason-text">
+                  {{ req.reason }}
+                </div>
+              </td>
+
+              <!-- ACTIONS -->
+              <td class="actions-cell">
+                <!-- View icon -->
                 <button
-                  class="btn btn-warning btn-sm me-2"
+                  class="icon-btn"
+                  title="View details"
+                  [routerLink]="['/employee/request', req.id]"
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                </button>
+
+                <!-- Edit -->
+                <button
+                  class="action-btn btn-edit"
                   *ngIf="canModify(req)"
                   (click)="openEditModal(req)"
                 >
                   Edit
                 </button>
 
+                <!-- Delete / Cancel -->
                 <button
-                  class="btn btn-danger btn-sm me-2"
+                  class="action-btn btn-danger"
                   *ngIf="canModify(req)"
                   (click)="deleteRequest(req.id)"
                 >
                   {{ req.isDraft ? "Delete" : "Cancel" }}
                 </button>
 
+                <!-- Add Expense -->
                 <button
-                  class="btn btn-primary btn-sm"
+                  class="action-btn btn-primary"
                   *ngIf="
                     req.finalStatus === 'approved' && !req.expenseSubmitted
                   "
                   [routerLink]="['/employee/expense', req.tripId]"
                 >
+                  <svg
+                    width="13"
+                    height="13"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <rect x="3" y="5" width="18" height="14" rx="2" />
+                    <line x1="3" y1="10" x2="21" y2="10" />
+                  </svg>
                   Add Expense
                 </button>
 
+                <!-- Expense submitted -->
                 <span
+                  class="submitted-tag"
                   *ngIf="req.finalStatus === 'approved' && req.expenseSubmitted"
-                  class="text-muted fw-semibold"
                 >
                   Expense Submitted
                 </span>
 
+                <!-- Locked -->
                 <span
-                  *ngIf="!canModify(req) && req.finalStatus !== 'approved'"
-                  class="text-muted"
+                  class="locked-tag"
+                  *ngIf="
+                    !canModify(req) &&
+                    req.finalStatus !== 'approved' &&
+                    !req.expenseSubmitted
+                  "
                 >
                   Locked
                 </span>
               </td>
             </tr>
+
+            <!-- No results after filter -->
+            <tr *ngIf="filteredRequests.length === 0">
+              <td colspan="6" class="no-results">
+                No requests match your filters.
+                <a (click)="clearFilters()" class="clear-link">Clear filters</a>
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
+
+      <!-- ── PAGINATION ── -->
+      <div class="pagination-bar">
+        <span class="pagination-info">
+          Showing {{ showingFrom }} to {{ showingTo }} of
+          {{ filteredRequests.length }} requests
+        </span>
+        <div class="pagination-controls">
+          <button
+            class="page-btn"
+            (click)="goToPage(currentPage - 1)"
+            [disabled]="currentPage === 1"
+          >
+            Previous
+          </button>
+          <button
+            class="page-btn"
+            (click)="goToPage(currentPage + 1)"
+            [disabled]="currentPage === totalPages || totalPages === 0"
+          >
+            Next
+          </button>
+        </div>
+      </div>
     </div>
 
+    <!-- ── EMPTY STATE ── -->
     <ng-template #emptyState>
-      <section class="empty-state">
+      <div class="empty-state">
+        <svg
+          width="48"
+          height="48"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#cbd5e1"
+          stroke-width="1.2"
+        >
+          <rect x="4" y="3" width="16" height="18" rx="2" />
+          <line x1="8" y1="8" x2="16" y2="8" />
+          <line x1="8" y1="12" x2="16" y2="12" />
+          <line x1="8" y1="16" x2="12" y2="16" />
+        </svg>
         <h2>No requests yet</h2>
-        <p>
-          Your travel requests will appear here after you submit one from the
-          request page.
-        </p>
-      </section>
+        <p>Your travel requests will appear here after you submit one.</p>
+      </div>
     </ng-template>
   </div>
 </section>
 
+<!-- ── EDIT MODAL (unchanged structure, restyled) ── -->
 <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
   <div
     class="modal-box"
     role="dialog"
     aria-modal="true"
-    aria-labelledby="draft-form-title"
+    aria-labelledby="modal-title"
     (click)="$event.stopPropagation()"
   >
     <div class="modal-header">
       <div>
-        <p class="modal-kicker">Draft Form</p>
-        <h3 id="draft-form-title">Edit Travel Draft</h3>
+        <p class="modal-kicker">Travel Request</p>
+        <h3 id="modal-title">Edit Request</h3>
       </div>
       <button
         type="button"
@@ -307,16 +361,7 @@
             destination.errors?.['minlength']
           "
         >
-          Destination should be at least 3 characters.
-        </div>
-        <div
-          class="invalid-feedback d-block"
-          *ngIf="
-            (destination.touched || modalSubmitted) &&
-            destination.errors?.['maxlength']
-          "
-        >
-          Destination cannot exceed 80 characters.
+          Minimum 3 characters.
         </div>
         <div
           class="invalid-feedback d-block"
@@ -325,7 +370,7 @@
             destination.errors?.['pattern']
           "
         >
-          Use letters, numbers, spaces, commas, dots, and hyphens only.
+          Use letters, numbers, spaces, commas, dots and hyphens only.
         </div>
       </label>
 
@@ -410,7 +455,7 @@
               selectedRequest?.toDate < selectedRequest?.fromDate
             "
           >
-            End date should be the same as or after the start date.
+            End date must be same as or after start date.
           </div>
         </label>
       </div>
@@ -430,7 +475,8 @@
           maxlength="250"
           rows="3"
           required
-        ></textarea>
+        >
+        </textarea>
         <div
           class="invalid-feedback d-block"
           *ngIf="
@@ -445,20 +491,12 @@
             (purpose.touched || modalSubmitted) && purpose.errors?.['minlength']
           "
         >
-          Purpose should be at least 10 characters.
-        </div>
-        <div
-          class="invalid-feedback d-block"
-          *ngIf="
-            (purpose.touched || modalSubmitted) && purpose.errors?.['maxlength']
-          "
-        >
-          Purpose cannot exceed 250 characters.
+          Minimum 10 characters.
         </div>
       </label>
 
       <label class="draft-field">
-        <span>Estimated Cost</span>
+        <span>Estimated Cost (₹)</span>
         <input
           #cost="ngModel"
           type="number"
@@ -468,7 +506,7 @@
           name="cost"
           placeholder="Enter amount"
           min="1"
-          max="100000"
+          max="1000000"
           required
         />
         <div
@@ -481,13 +519,7 @@
           class="invalid-feedback d-block"
           *ngIf="(cost.touched || modalSubmitted) && cost.errors?.['min']"
         >
-          Cost must be at least 1.
-        </div>
-        <div
-          class="invalid-feedback d-block"
-          *ngIf="(cost.touched || modalSubmitted) && cost.errors?.['max']"
-        >
-          Cost looks too high for a single request.
+          Cost must be at least ₹1.
         </div>
       </label>
 
@@ -495,7 +527,6 @@
         <button type="button" class="modal-btn ghost" (click)="closeModal()">
           Cancel
         </button>
-
         <button
           type="button"
           class="modal-btn success"
@@ -503,7 +534,6 @@
         >
           Save Draft
         </button>
-
         <button
           type="button"
           class="modal-btn primary"
