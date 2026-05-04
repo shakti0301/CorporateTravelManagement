@@ -214,7 +214,7 @@
                   *ngIf="
                     req.finalStatus === 'approved' && !req.expenseSubmitted
                   "
-                  [routerLink]="['/employee/expense', req.id]"
+                  [routerLink]="['/employee/expense', req.tripId]"
                 >
                   Add Expense
                 </button>

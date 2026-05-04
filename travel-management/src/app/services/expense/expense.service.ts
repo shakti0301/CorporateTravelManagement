@@ -14,16 +14,17 @@ export class ExpenseService {
     localStorage.setItem('requests', JSON.stringify(requests));
   }
 
-  getRequestById(requestId: number) {
+  getRequestById(requestId: any) {
     const requests = this.getRequests();
-    return requests.find((r: any) => r.id == requestId);
+    // Search by tripId (TRP-xxxx format)
+    return requests.find((r: any) => r.tripId == requestId);
   }
 
-  saveExpenses(requestId: number, expenses: any[]) {
+  saveExpenses(requestId: any, expenses: any[]) {
     let requests = this.getRequests();
 
     requests = requests.map((r: any) => {
-      if (r.id == requestId) {
+      if (r.tripId == requestId) {
         const totalExpense = expenses.reduce(
           (sum, e) => sum + Number(e.amount || 0),
           0,
