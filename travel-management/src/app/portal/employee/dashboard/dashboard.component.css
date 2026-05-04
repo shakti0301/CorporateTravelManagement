@@ -59,6 +59,20 @@
   border: 1px solid #e8eef4;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 }
+.stat-card {
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
 .stat-top {
   display: flex;
@@ -346,9 +360,10 @@
 }
 
 .current-badge {
-  background: #eff6ff;
-  color: #2563eb;
+  background: #2563eb;
+  color: white;
 }
+
 .approved-badge {
   background: #f0fdf4;
   color: #16a34a;
@@ -358,6 +373,23 @@
   display: flex;
   gap: 12px;
   margin-bottom: 14px;
+}
+
+.trip-card:first-child {
+  border: 2px solid #2563eb;
+}
+
+.trip-card,
+.stat-card,
+.action-card {
+  transition: all 0.25s ease;
+}
+
+.trip-card:hover,
+.stat-card:hover,
+.action-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
 }
 
 .trip-icon-wrap {
@@ -478,6 +510,14 @@
   color: #94a3b8;
   text-align: center;
   margin: 0;
+}
+
+button {
+  transition: transform 0.1s ease;
+}
+
+button:active {
+  transform: scale(0.96);
 }
 
 /* ── ACTION CARD ── */

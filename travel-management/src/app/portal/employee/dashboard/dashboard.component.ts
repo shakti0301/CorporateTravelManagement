@@ -21,6 +21,10 @@ export class DashboardComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.loadRequests();
+  }
+
+  loadRequests() {
     this.requests = this.requestService.getRequestsByUser();
   }
 
@@ -122,44 +126,18 @@ export class DashboardComponent implements OnInit {
   }
 
   getStatusLabel(req: any): string {
-    // Completed = finance accepted the expense reimbursement
-    if (
-      req.reimbursementStatus === 'approved' ||
-      (req.finalStatus || '').toLowerCase() === 'completed'
-    ) {
-      return 'Completed';
-    }
+    if (req.isDraft) return 'Draft';
 
-    const final = (req.finalStatus || '').toLowerCase();
-    const manager = (req.managerStatus || '').toLowerCase();
-    const finance = (req.financeStatus || '').toLowerCase();
+    if (req.reimbursementStatus === 'approved') return 'Completed';
+    if (req.reimbursementStatus === 'rejected') return 'Rejected';
+    if (req.reimbursementStatus === 'pending') return 'Reimbursement Pending';
 
-    const reimbursementStatus = (req.reimbursementStatus || '').toLowerCase();
+    if (req.expenseSubmitted) return 'Expense Submitted';
 
-    if (reimbursementStatus === 'approved') {
-      return 'Reimbursement Approved';
-    }
+    if ((req.finalStatus || '').toLowerCase() === 'approved') return 'Approved';
+    if ((req.finalStatus || '').toLowerCase() === 'rejected') return 'Rejected';
 
-    if (reimbursementStatus === 'rejected') {
-      return 'Reimbursement Rejected';
-    }
-
-    if (reimbursementStatus === 'pending') {
-      return 'Reimbursement Pending';
-    }
-
-    if (final === 'approved') {
-      if (req.booked) return 'Booked';
-      return 'Approved';
-    }
-
-    if (final === 'rejected') return 'Rejected';
-
-    if (manager === 'pending') return 'Pending Review by Manager';
-
-    if (finance === 'pending') return 'Pending Review by Finance';
-
-    return 'Draft';
+    return 'Pending Approval';
   }
 
   // TRIP GETTERS
