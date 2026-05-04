@@ -4,6 +4,19 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class RequestService {
+  private generateTripId(): string {
+    const allRequests = JSON.parse(localStorage.getItem('requests') || '[]');
+    const existingIds = new Set(allRequests.map((r: any) => r.tripId));
+
+    let tripId: string;
+    do {
+      const random = Math.floor(1000 + Math.random() * 9000); // always 4 digits
+      tripId = `TRP-${random}`;
+    } while (existingIds.has(tripId)); // regenerate if already taken
+
+    return tripId;
+  }
+
   createRequest(request: any, isDraft: boolean = false) {
     let requests = JSON.parse(localStorage.getItem('requests') || '[]');
     let user = JSON.parse(localStorage.getItem('currentUser') || '{}');
@@ -22,6 +35,8 @@ export class RequestService {
       reason: '',
       isDraft: isDraft,
       id: Date.now(),
+      tripId: this.generateTripId(),
+      createdAt: new Date().toISOString(),
     };
 
     requests.push(newRequest);
