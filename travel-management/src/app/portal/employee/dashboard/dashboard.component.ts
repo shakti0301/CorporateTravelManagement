@@ -97,6 +97,10 @@ export class DashboardComponent implements OnInit {
   getExpenseCostLabel(req: any): string {
     const totalExpense = Number(req?.totalExpense);
 
+    if (req.finalStatus.toLowerCase() === 'rejected') {
+      return 'Request rejected';
+    }
+
     if (
       !req?.expenseSubmitted ||
       !Number.isFinite(totalExpense) ||
