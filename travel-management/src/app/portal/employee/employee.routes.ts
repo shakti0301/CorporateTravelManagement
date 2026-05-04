@@ -14,7 +14,7 @@ export const employeeRoutes: Routes = [
     component: TravelRequestComponent,
   },
   {
-    path: 'expense/:id',
+    path: 'expense/:tripId',
     component: ExpenseComponent,
   },
   {
