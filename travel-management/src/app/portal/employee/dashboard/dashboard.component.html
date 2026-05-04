@@ -31,8 +31,11 @@
         </span>
       </div>
       <div class="stat-value">{{ totalRequests }}</div>
-      <div class="stat-sub success">
-        <span class="trend-arrow">↗</span> +2 this month
+      <div class="stat-sub success" *ngIf="thisMonthRequests > 0">
+        <span class="trend-arrow">↗</span> +{{ thisMonthRequests }} this month
+      </div>
+      <div class="stat-sub muted" *ngIf="thisMonthRequests === 0">
+        No new requests this month
       </div>
     </div>
 

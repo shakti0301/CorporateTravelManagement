@@ -375,7 +375,7 @@
   margin-bottom: 14px;
 }
 
-.trip-card:first-child {
+.trip-card:first-child:not(.empty-trip-card) {
   border: 2px solid #2563eb;
 }
 

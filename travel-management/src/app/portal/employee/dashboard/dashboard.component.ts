@@ -34,6 +34,17 @@ export class DashboardComponent implements OnInit {
     return this.requests.length;
   }
 
+  get thisMonthRequests(): number {
+    const now = new Date();
+    return this.requests.filter((r) => {
+      const created = new Date(r.createdAt || r.fromDate);
+      return (
+        created.getMonth() === now.getMonth() &&
+        created.getFullYear() === now.getFullYear()
+      );
+    }).length;
+  }
+
   get pendingApproval(): number {
     return this.requests.filter(
       (r) => (r.managerStatus || '').toLowerCase() === 'pending',
