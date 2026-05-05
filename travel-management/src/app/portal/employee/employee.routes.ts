@@ -3,6 +3,7 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { TravelRequestComponent } from './travel-request/travel-request.component';
 import { ExpenseComponent } from './expense/expense.component';
 import { MyRequestsComponent } from './my-requests/my-requests.component';
+import { RequestDetailsComponent } from './request-details/request-details.component';
 
 export const employeeRoutes: Routes = [
   {
@@ -20,5 +21,9 @@ export const employeeRoutes: Routes = [
   {
     path: 'myrequests',
     component: MyRequestsComponent,
+  },
+  {
+    path: 'request-details/:id',
+    component: RequestDetailsComponent,
   },
 ];
