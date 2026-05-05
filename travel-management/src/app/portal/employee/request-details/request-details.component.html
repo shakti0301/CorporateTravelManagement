@@ -3,7 +3,7 @@
 <div class="details-container" *ngIf="request">
   <!-- HEADER -->
   <div class="details-header">
-    <h2>{{ request.destination }}</h2>
+    <h2>{{ request.source }} → {{ request.destination }}</h2>
     <span class="status-badge">{{
       request.reimbursementStatus || "Pending"
     }}</span>
@@ -20,6 +20,9 @@
 
   <!-- TRIP INFO -->
   <div class="info-card">
+    <p>
+      <strong>Route:</strong> {{ request.source }} → {{ request.destination }}
+    </p>
     <p><strong>Dates:</strong> {{ request.fromDate }} → {{ request.toDate }}</p>
     <p><strong>Purpose:</strong> {{ request.purpose }}</p>
     <p><strong>Budget:</strong> ₹{{ request.cost }}</p>

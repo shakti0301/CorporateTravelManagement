@@ -35,7 +35,7 @@
           <input
             type="text"
             class="filter-input"
-            placeholder="Destination, Purpose..."
+            placeholder="Source, Destination, Purpose..."
             [(ngModel)]="searchQuery"
             (ngModelChange)="onFilterChange()"
           />
@@ -90,7 +90,7 @@
         <table>
           <thead>
             <tr>
-              <th>DESTINATION</th>
+              <th>SOURCE → DESTINATION</th>
               <th>PURPOSE</th>
               <th>DATES</th>
               <th>BUDGET</th>
@@ -100,9 +100,11 @@
           </thead>
           <tbody>
             <tr *ngFor="let req of paginatedRequests">
-              <!-- DESTINATION + TRIP ID -->
+              <!-- SOURCE → DESTINATION + TRIP ID -->
               <td>
-                <div class="dest-name">{{ req.destination }}</div>
+                <div class="dest-name">
+                  {{ req.source }} → {{ req.destination }}
+                </div>
                 <div class="trip-id-sub">
                   {{ req.tripId || "REQ-" + req.id }}
                 </div>
@@ -147,11 +149,12 @@
                 <ng-container *ngIf="!req.isDraft && !req.expenseSubmitted">
                   <div class="status-flow">
                     <span class="pill" [ngClass]="getManagerPillClass(req)">
-                      {{ formatStatus(req.managerStatus) }}
+                      Mgr : {{ formatStatus(req.managerStatus) }}
                     </span>
                     <span class="flow-arrow">→</span>
+
                     <span class="pill" [ngClass]="getFinancePillClass(req)">
-                      {{ formatStatus(req.financeStatus) }}
+                      Fin : {{ formatStatus(req.financeStatus) }}
                     </span>
                   </div>
                 </ng-container>
@@ -168,7 +171,10 @@
                 <button
                   class="icon-btn"
                   title="View details"
-                  [routerLink]="['/employee/request', req.id]"
+                  [routerLink]="[
+                    '/employee/request-details',
+                    req.tripId || req.id,
+                  ]"
                 >
                   <svg
                     width="16"
@@ -329,52 +335,96 @@
     </div>
 
     <form #editForm="ngForm" class="draft-form" novalidate>
-      <label class="draft-field">
-        <span>Destination</span>
-        <input
-          #destination="ngModel"
-          class="form-control"
-          [class.is-invalid]="
-            (destination.touched || modalSubmitted) && destination.invalid
-          "
-          [(ngModel)]="selectedRequest.destination"
-          name="destination"
-          placeholder="Enter destination"
-          minlength="3"
-          maxlength="80"
-          pattern="^[a-zA-Z0-9\s,.-]+$"
-          required
-        />
-        <div
-          class="invalid-feedback d-block"
-          *ngIf="
-            (destination.touched || modalSubmitted) &&
-            destination.errors?.['required']
-          "
-        >
-          Destination is required.
-        </div>
-        <div
-          class="invalid-feedback d-block"
-          *ngIf="
-            (destination.touched || modalSubmitted) &&
-            destination.errors?.['minlength']
-          "
-        >
-          Minimum 3 characters.
-        </div>
-        <div
-          class="invalid-feedback d-block"
-          *ngIf="
-            (destination.touched || modalSubmitted) &&
-            destination.errors?.['pattern']
-          "
-        >
-          Use letters, numbers, spaces, commas, dots and hyphens only.
-        </div>
-      </label>
-
       <div class="date-row">
+        <label class="draft-field">
+          <span>Source</span>
+          <input
+            #source="ngModel"
+            class="form-control"
+            [class.is-invalid]="
+              (source.touched || modalSubmitted) && source.invalid
+            "
+            [(ngModel)]="selectedRequest.source"
+            name="source"
+            placeholder="Enter source"
+            minlength="3"
+            maxlength="80"
+            pattern="^[a-zA-Z0-9\s,.-]+$"
+            required
+          />
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              (source.touched || modalSubmitted) && source.errors?.['required']
+            "
+          >
+            Source is required.
+          </div>
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              (source.touched || modalSubmitted) && source.errors?.['minlength']
+            "
+          >
+            Minimum 3 characters.
+          </div>
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              (source.touched || modalSubmitted) && source.errors?.['pattern']
+            "
+          >
+            Use letters, numbers, spaces, commas, dots and hyphens only.
+          </div>
+        </label>
+
+        <label class="draft-field">
+          <span>Destination</span>
+          <input
+            #destination="ngModel"
+            class="form-control"
+            [class.is-invalid]="
+              (destination.touched || modalSubmitted) && destination.invalid
+            "
+            [(ngModel)]="selectedRequest.destination"
+            name="destination"
+            placeholder="Enter destination"
+            minlength="3"
+            maxlength="80"
+            pattern="^[a-zA-Z0-9\s,.-]+$"
+            required
+          />
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              (destination.touched || modalSubmitted) &&
+              destination.errors?.['required']
+            "
+          >
+            Destination is required.
+          </div>
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              (destination.touched || modalSubmitted) &&
+              destination.errors?.['minlength']
+            "
+          >
+            Minimum 3 characters.
+          </div>
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              (destination.touched || modalSubmitted) &&
+              destination.errors?.['pattern']
+            "
+          >
+            Use letters, numbers, spaces, commas, dots and hyphens only.
+          </div>
+        </label>
+      </div>
+
+      <div class="date-row" style="margin-top: 1rem">
         <label class="draft-field">
           <span>From Date</span>
           <input

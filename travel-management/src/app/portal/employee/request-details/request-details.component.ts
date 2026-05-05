@@ -16,11 +16,11 @@ export class RequestDetailsComponent {
   constructor(private route: ActivatedRoute) {}
 
   ngOnInit() {
-    const id = this.route.snapshot.paramMap.get('id');
+    const id = this.route.snapshot.paramMap.get('tripId');
 
     const requests = JSON.parse(localStorage.getItem('requests') || '[]');
 
-    this.request = requests.find((r: any) => r.id == id);
+    this.request = requests.find((r: any) => r.tripId == id);
   }
 
   viewProof(expense: any) {

@@ -54,11 +54,12 @@ export class MyRequestsComponent implements OnInit {
   get filteredRequests(): any[] {
     let result = [...this.requests];
 
-    // Search — matches destination or purpose
+    // Search — matches source, destination or purpose
     if (this.searchQuery.trim()) {
       const q = this.searchQuery.trim().toLowerCase();
       result = result.filter(
         (r) =>
+          (r.source || '').toLowerCase().includes(q) ||
           (r.destination || '').toLowerCase().includes(q) ||
           (r.purpose || '').toLowerCase().includes(q),
       );

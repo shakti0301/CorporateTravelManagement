@@ -68,6 +68,12 @@ export class TravelRequestComponent {
 
   requestForm = new FormGroup(
     {
+      source: new FormControl('', [
+        Validators.required,
+        Validators.minLength(3),
+        Validators.maxLength(80),
+        Validators.pattern(/^[a-zA-Z0-9\s,.-]+$/),
+      ]),
       destination: new FormControl('', [
         Validators.required,
         Validators.minLength(3),
@@ -89,6 +95,10 @@ export class TravelRequestComponent {
     },
     { validators: travelDateRangeValidator },
   );
+
+  get source() {
+    return this.requestForm.get('source');
+  }
 
   get destination() {
     return this.requestForm.get('destination');
