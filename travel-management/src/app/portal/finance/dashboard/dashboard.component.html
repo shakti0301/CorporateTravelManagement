@@ -50,7 +50,7 @@
           <thead>
             <tr>
               <th>Employee</th>
-              <th>Destination</th>
+              <th>SOURCE → DESTINATION</th>
               <th>Dates</th>
               <th>Purpose</th>
               <th>Amount</th>
@@ -62,7 +62,7 @@
           <tbody>
             <tr *ngFor="let req of requests">
               <td>{{ req.userEmail }}</td>
-              <td>{{ req.destination }}</td>
+              <td>{{ req.source }} → {{ req.destination }}</td>
               <td>{{ req.fromDate }} - {{ req.toDate }}</td>
               <td>{{ req.purpose }}</td>
               <td class="amount-cell">
