@@ -213,7 +213,7 @@
                   *ngIf="
                     req.finalStatus === 'approved' && !req.expenseSubmitted
                   "
-                  [routerLink]="['/employee/expense', req.tripId]"
+                  [routerLink]="['/employee/expense', req.tripId || req.id]"
                 >
                   <svg
                     width="13"
