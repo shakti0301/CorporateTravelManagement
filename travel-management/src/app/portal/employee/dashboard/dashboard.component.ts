@@ -266,6 +266,6 @@ export class DashboardComponent implements OnInit {
   }
 
   viewTripDetails(trip: any) {
-    this.router.navigate(['/employee/myrequests', trip.id]);
+    this.router.navigate(['/employee/request-details', trip.id]);
   }
 }
