@@ -53,6 +53,7 @@ CREATE TABLE StatusMaster (
 CREATE TABLE TravelRequest (
     RequestID INT IDENTITY(1,1) PRIMARY KEY,
     UserID INT,
+    Source VARCHAR(150),
     Destination VARCHAR(150),
     TravelDate DATE,
     ReturnDate DATE,
