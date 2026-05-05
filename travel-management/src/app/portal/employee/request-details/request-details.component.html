@@ -1,0 +1,57 @@
+<app-navbar></app-navbar>
+
+<div class="details-container" *ngIf="request">
+  <!-- HEADER -->
+  <div class="details-header">
+    <h2>{{ request.destination }}</h2>
+    <span class="status-badge">{{
+      request.reimbursementStatus || "Pending"
+    }}</span>
+  </div>
+  <div class="status-box">
+    <p>
+      <strong>Reimbursement Status:</strong> {{ request.reimbursementStatus }}
+    </p>
+
+    <p *ngIf="request.reimbursementRemark">
+      <strong>Remark:</strong> {{ request.reimbursementRemark }}
+    </p>
+  </div>
+
+  <!-- TRIP INFO -->
+  <div class="info-card">
+    <p><strong>Dates:</strong> {{ request.fromDate }} → {{ request.toDate }}</p>
+    <p><strong>Purpose:</strong> {{ request.purpose }}</p>
+    <p><strong>Budget:</strong> ₹{{ request.cost }}</p>
+  </div>
+
+  <!-- EXPENSES -->
+  <div class="expenses-card" *ngIf="request.expenses?.length > 0">
+    <h3>Expenses</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th>Amount</th>
+          <th>Date</th>
+          <th>Description</th>
+          <th>Proof</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let exp of request.expenses">
+          <td>{{ exp.category }}</td>
+          <td>₹ {{ exp.amount }}</td>
+          <td>{{ exp.date }}</td>
+          <td>{{ exp.description }}</td>
+
+          <td>
+            <button (click)="viewProof(exp)">View</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
