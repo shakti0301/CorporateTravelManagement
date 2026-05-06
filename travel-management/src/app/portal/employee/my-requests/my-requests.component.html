@@ -136,13 +136,9 @@
 
                 <!-- REIMBURSEMENT STATUS (expense already submitted) -->
                 <ng-container *ngIf="!req.isDraft && req.expenseSubmitted">
-                  <div class="status-flow">
-                    <span class="pill pill-approved">Approved</span>
-                    <span class="flow-arrow">→</span>
-                    <span class="pill" [ngClass]="getFinancePillClass(req)">
-                      {{ formatStatus(req.reimbursementStatus) }}
-                    </span>
-                  </div>
+                  <span class="pill" [ngClass]="getReimbursementPillClass(req)">
+                    Reimbursement: {{ formatStatus(req.reimbursementStatus) }}
+                  </span>
                 </ng-container>
 
                 <!-- NORMAL APPROVAL FLOW (manager → finance) -->

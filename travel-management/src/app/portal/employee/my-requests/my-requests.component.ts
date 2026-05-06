@@ -158,6 +158,13 @@ export class MyRequestsComponent implements OnInit {
     return 'pill-pending';
   }
 
+  getReimbursementPillClass(req: any): string {
+    const s = this.normalizeStatus(req.reimbursementStatus);
+    if (s === 'approved') return 'pill-approved';
+    if (s === 'rejected') return 'pill-rejected';
+    return 'pill-pending';
+  }
+
   // DATE HELPERS
   get today(): string {
     return this.formatDateForInput(new Date());
