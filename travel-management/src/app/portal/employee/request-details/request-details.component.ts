@@ -88,6 +88,32 @@ export class RequestDetailsComponent implements OnInit {
     );
   }
 
+  /** Generate a meaningful trip overview message */
+  get tripOverview(): string {
+    if (!this.request) return '';
+
+    const fromDate = new Date(this.request.fromDate);
+    const toDate = new Date(this.request.toDate);
+    // Calculate inclusive day count (e.g. May 5 -> May 6 = 2 days).
+    // Use UTC midnight to avoid timezone/DST issues when computing whole days.
+    const msPerDay = 24 * 60 * 60 * 1000;
+    const utcFrom = Date.UTC(
+      fromDate.getFullYear(),
+      fromDate.getMonth(),
+      fromDate.getDate(),
+    );
+    const utcTo = Date.UTC(
+      toDate.getFullYear(),
+      toDate.getMonth(),
+      toDate.getDate(),
+    );
+    let days = Math.floor((utcTo - utcFrom) / msPerDay) + 1;
+    if (isNaN(days) || days < 1) days = 1;
+
+    const overview = `Business trip from ${this.request.source || 'unknown location'} to ${this.request.destination} scheduled for ${days} day${days !== 1 ? 's' : ''} (${new Date(this.request.fromDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${new Date(this.request.toDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}). Allocated budget: ${this.request.cost || this.request.budget || 0}.`;
+    return overview;
+  }
+
   // DYNAMIC INFO NOTE (bottom of actions panel)
   get statusNote(): string {
     if (!this.request) return '';
