@@ -161,8 +161,8 @@ export class DashboardComponent implements OnInit {
   getStatusLabel(req: any): string {
     if (req.isDraft) return 'Draft';
 
-    if (req.reimbursementStatus === 'approved') return 'Completed';
-    if (req.reimbursementStatus === 'rejected') return 'Rejected';
+    if (req.reimbursementStatus === 'approved') return 'TripCompleted';
+    if (req.reimbursementStatus === 'rejected') return 'Reimbursement Rejected';
     if (req.reimbursementStatus === 'pending') return 'Reimbursement Pending';
 
     if (req.expenseSubmitted) return 'Expense Submitted';
