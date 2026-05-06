@@ -13,6 +13,7 @@
   max-width: none;
   margin: 0;
   box-sizing: border-box;
+  animation: page-rise 0.45s ease-out both;
 }
 
 /* ── HEADER ── */
@@ -23,6 +24,7 @@
   margin-bottom: 28px;
   gap: 16px;
   flex-wrap: wrap;
+  animation: page-rise 0.45s ease-out both;
 }
 
 .page-header h1 {
@@ -70,6 +72,8 @@
   padding: 16px 20px;
   margin-bottom: 20px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  animation: page-rise 0.5s ease-out both;
+  animation-delay: 0.06s;
 }
 
 .filter-group {
@@ -183,6 +187,8 @@
   border-radius: 12px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
   overflow: hidden;
+  animation: page-rise 0.55s ease-out both;
+  animation-delay: 0.12s;
 }
 
 .table-wrap {
@@ -226,6 +232,30 @@ tbody tr:last-child td {
 
 tbody tr:hover {
   background: #fafbfc;
+}
+
+tbody tr {
+  animation: row-fade 0.35s ease-out both;
+}
+
+tbody tr:nth-child(1) {
+  animation-delay: 0.14s;
+}
+
+tbody tr:nth-child(2) {
+  animation-delay: 0.18s;
+}
+
+tbody tr:nth-child(3) {
+  animation-delay: 0.22s;
+}
+
+tbody tr:nth-child(4) {
+  animation-delay: 0.26s;
+}
+
+tbody tr:nth-child(5) {
+  animation-delay: 0.3s;
 }
 
 /* DESTINATION cell */
@@ -458,6 +488,43 @@ tbody tr:hover {
   border: 1px solid #e8eef4;
   border-radius: 12px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  animation: page-rise 0.5s ease-out both;
+}
+
+@keyframes page-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes row-fade {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-shell,
+  .page-header,
+  .filters-bar,
+  .table-card,
+  .empty-state,
+  tbody tr,
+  .modal-overlay,
+  .modal-box {
+    animation: none !important;
+    transition: none !important;
+  }
 }
 
 .empty-state h2 {
