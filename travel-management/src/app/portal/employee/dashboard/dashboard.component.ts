@@ -127,6 +127,8 @@ export class DashboardComponent implements OnInit {
       return 'badge-completed';
     }
 
+    if (req.isDraft) return 'badge-draft';
+
     const final = (req.finalStatus || '').toLowerCase();
     const manager = (req.managerStatus || '').toLowerCase();
     const finance = (req.financeStatus || '').toLowerCase();
@@ -161,7 +163,7 @@ export class DashboardComponent implements OnInit {
   getStatusLabel(req: any): string {
     if (req.isDraft) return 'Draft';
 
-    if (req.reimbursementStatus === 'approved') return 'TripCompleted';
+    if (req.reimbursementStatus === 'approved') return 'Trip Completed';
     if (req.reimbursementStatus === 'rejected') return 'Reimbursement Rejected';
     if (req.reimbursementStatus === 'pending') return 'Reimbursement Pending';
 

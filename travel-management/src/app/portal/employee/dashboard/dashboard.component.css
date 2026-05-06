@@ -274,6 +274,15 @@
   background: #94a3b8;
 }
 
+.badge-draft {
+  background: #e2e8f0;
+  color: #64748b;
+}
+
+.badge-draft .status-dot {
+  background: #64748b;
+}
+
 /* ACTION BUTTON in table */
 .action-btn {
   font-size: 12px;
