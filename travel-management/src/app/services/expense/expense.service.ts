@@ -16,15 +16,17 @@ export class ExpenseService {
 
   getRequestById(requestId: any) {
     const requests = this.getRequests();
-    // Search by tripId (TRP-xxxx format)
-    return requests.find((r: any) => r.tripId == requestId);
+    // Search by numeric id first, then by tripId for display
+    return requests.find(
+      (r: any) => String(r.id) === String(requestId) || r.tripId === requestId,
+    );
   }
 
   saveExpenses(requestId: any, expenses: any[]) {
     let requests = this.getRequests();
 
     requests = requests.map((r: any) => {
-      if (r.tripId == requestId) {
+      if (String(r.id) === String(requestId) || r.tripId === requestId) {
         const totalExpense = expenses.reduce(
           (sum, e) => sum + Number(e.amount || 0),
           0,
