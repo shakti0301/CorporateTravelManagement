@@ -91,8 +91,8 @@ export class ExpenseComponent implements OnInit {
     private router: Router,
     private expenseService: ExpenseService,
   ) {
-    // Get tripId from route parameter (TRP-xxxx format)
-    this.requestId = this.route.snapshot.paramMap.get('tripId');
+    // Get id from route parameter
+    this.requestId = this.route.snapshot.paramMap.get('id');
   }
 
   ngOnInit() {
