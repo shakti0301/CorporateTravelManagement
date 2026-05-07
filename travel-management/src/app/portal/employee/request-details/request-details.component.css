@@ -252,7 +252,7 @@
   box-shadow: 0 4px 14px rgba(22, 163, 74, 0.3);
 }
 
-.draft-edit-btn {
+.edit-btn {
   width: 100%;
   background: white;
   color: #2563eb;
@@ -271,12 +271,12 @@
     border-color 0.2s ease;
 }
 
-.draft-edit-btn:hover {
+.edit-btn:hover {
   background: #eff6ff;
   border-color: #1d4ed8;
 }
 
-.draft-delete-btn {
+.delete-btn {
   width: 100%;
   background: #fef2f2;
   color: #dc2626;
@@ -295,7 +295,7 @@
     border-color 0.2s ease;
 }
 
-.draft-delete-btn:hover {
+.delete-btn:hover {
   background: #fee2e2;
   border-color: #f87171;
 }

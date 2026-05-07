@@ -186,7 +186,7 @@ export class RequestDetailsComponent implements OnInit {
   /**
    * Edit draft: Open the modal form for editing
    */
-  editDraft() {
+  openEditModal() {
     this.selectedRequest = { ...this.request };
     this.modalSubmitted = false;
     this.showModal = true;
@@ -270,6 +270,23 @@ export class RequestDetailsComponent implements OnInit {
       localStorage.setItem('requests', JSON.stringify(requests));
       this.goBack();
     }
+  }
+
+  //Edit & Cancel
+  canModify(req: any): boolean {
+    const managerStatus = (req.managerStatus || '').toLowerCase();
+    return !req.isDraft && managerStatus === 'pending';
+  }
+
+  cancelRequest(id: number) {
+    const confirmDelete = confirm(
+      'Are you sure you want to delete/cancel this request?',
+    );
+    if (!confirmDelete) return;
+    let requests = JSON.parse(localStorage.getItem('requests') || '[]');
+    requests = requests.filter((r: any) => r.id !== id);
+    localStorage.setItem('requests', JSON.stringify(requests));
+    this.ngOnInit();
   }
 
   // DATE HELPERS
