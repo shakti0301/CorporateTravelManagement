@@ -4,6 +4,7 @@ import { TravelRequestComponent } from './travel-request/travel-request.componen
 import { ExpenseComponent } from './expense/expense.component';
 import { MyRequestsComponent } from './my-requests/my-requests.component';
 import { RequestDetailsComponent } from './request-details/request-details.component';
+import { ItineraryComponent } from './itinerary/itinerary.component';
 
 export const employeeRoutes: Routes = [
   {
@@ -15,7 +16,7 @@ export const employeeRoutes: Routes = [
     component: TravelRequestComponent,
   },
   {
-    path: 'expense/:tripId',
+    path: 'expense/:id',
     component: ExpenseComponent,
   },
   {
@@ -25,5 +26,9 @@ export const employeeRoutes: Routes = [
   {
     path: 'request-details/:id',
     component: RequestDetailsComponent,
+  },
+  {
+    path: 'itinerary/:id',
+    component: ItineraryComponent,
   },
 ];
