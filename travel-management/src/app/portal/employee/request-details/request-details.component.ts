@@ -166,7 +166,7 @@ export class RequestDetailsComponent implements OnInit {
     this.router.navigate(['/employee/expense', this.request.id]);
   }
 
-  addItinerary() {
+  openItinerary() {
     this.router.navigate(['/employee/itinerary', this.request.id]);
   }
 
