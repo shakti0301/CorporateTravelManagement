@@ -124,8 +124,7 @@
                 <line x1="3" y1="10" x2="21" y2="10" />
               </svg>
               {{
-                request.cost || request.budget || 0
-                  | currency: "INR" : "symbol-narrow" : "1.2-2"
+                request.cost || 0 | currency: "INR" : "symbol-narrow" : "1.0-0"
               }}
             </div>
           </div>
@@ -146,8 +145,8 @@
                 <line x1="3" y1="10" x2="21" y2="10" />
               </svg>
               {{
-                request.expenseTotal
-                  | currency: "INR" : "symbol-narrow" : "1.2-2"
+                request.totalExpense || 0
+                  | currency: "INR" : "symbol-narrow" : "1.0-0"
               }}
             </div>
           </div>
