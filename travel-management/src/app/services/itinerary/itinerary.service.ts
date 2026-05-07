@@ -46,7 +46,6 @@ export class ItineraryService {
   }
 
   // SAVE ITINERARY
-
   saveItinerary(requestId: any, itineraryDays: any[]) {
     let requests = JSON.parse(localStorage.getItem('requests') || '[]');
 
