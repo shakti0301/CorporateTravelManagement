@@ -163,22 +163,15 @@ export class RequestDetailsComponent implements OnInit {
   }
 
   addExpense() {
-    this.router.navigate([
-      '/employee/expense',
-      this.request.id,
-    ]);
+    this.router.navigate(['/employee/expense', this.request.id]);
   }
 
   addItinerary() {
-    this.router.navigate([
-      '/employee/itinerary',
-      this.request.id,
-    ]);
+    this.router.navigate(['/employee/itinerary', this.request.id]);
   }
 
   downloadPdf() {
     // Basic print-to-PDF — opens browser print dialog
-    // You can replace this with a proper PDF generation library later
     window.print();
   }
 
