@@ -165,14 +165,14 @@ export class RequestDetailsComponent implements OnInit {
   addExpense() {
     this.router.navigate([
       '/employee/expense',
-      this.request.tripId || this.request.id,
+      this.request.id,
     ]);
   }
 
   addItinerary() {
     this.router.navigate([
       '/employee/itinerary',
-      this.request.tripId || this.request.id,
+      this.request.id,
     ]);
   }
 
