@@ -1,0 +1,405 @@
+:host {
+  display: block;
+}
+
+.itinerary-page {
+  padding: 24px 32px 120px; /* bottom padding for the fixed action bar */
+  background: #f1f5f9;
+  min-height: calc(100vh - 64px);
+  font-family:
+    "Segoe UI",
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* ── BACK LINK ── */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #2563eb;
+  cursor: pointer;
+  margin-bottom: 14px;
+  transition: gap 0.15s ease;
+}
+
+.back-link:hover {
+  gap: 8px;
+  text-decoration: underline;
+}
+
+/* ── PAGE HEADER ── */
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 4px 0;
+}
+
+.trip-dates {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* ── DAY CARDS ── */
+.days-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.day-card {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+/* ── DAY HEADER ── */
+.day-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e8eef4;
+  padding: 14px 18px;
+}
+
+.day-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #eff6ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.day-title-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.day-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.day-subtitle-input {
+  border: none;
+  background: transparent;
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+  outline: none;
+  padding: 0;
+  width: 100%;
+  font-family: inherit;
+}
+
+.day-subtitle-input::placeholder {
+  color: #cbd5e1;
+  font-style: italic;
+}
+
+.day-subtitle-input:focus {
+  color: #334155;
+}
+
+/* ── ACTIVITIES ── */
+.activities-list {
+  padding: 0 18px;
+}
+
+.activity-block {
+  padding: 18px 0 12px;
+}
+
+.activity-divider {
+  height: 1px;
+  background: #f1f5f9;
+  margin: 4px 0 0;
+}
+
+/* Activity title + time in one row */
+.activity-row {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.flex-2 {
+  flex: 2;
+}
+.flex-1 {
+  flex: 1;
+}
+
+/* ── FORM FIELDS ── */
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 12px;
+}
+
+.field-group:last-of-type {
+  margin-bottom: 0;
+}
+
+.field-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  letter-spacing: 0.03em;
+  text-transform: none;
+}
+
+.field-input {
+  height: 38px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0 12px;
+  font-size: 13px;
+  color: #334155;
+  background: white;
+  outline: none;
+  font-family: inherit;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.field-input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.field-input::placeholder {
+  color: #cbd5e1;
+}
+
+/* Time input wrapper */
+.time-input-wrap {
+  position: relative;
+}
+
+.time-input-wrap .field-input {
+  padding-right: 36px;
+}
+
+/* Location input wrapper */
+.location-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.location-icon {
+  position: absolute;
+  left: 10px;
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
+.location-input {
+  padding-left: 30px;
+}
+
+/* Textarea */
+.field-textarea {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 13px;
+  color: #334155;
+  background: white;
+  outline: none;
+  font-family: inherit;
+  resize: vertical;
+  width: 100%;
+  min-height: 80px;
+  box-sizing: border-box;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+  line-height: 1.5;
+}
+
+.field-textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.field-textarea::placeholder {
+  color: #cbd5e1;
+}
+
+/* ── REMOVE ACTIVITY BUTTON ── */
+.remove-activity-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #ef4444;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px 0;
+  margin-top: 8px;
+  transition: color 0.15s ease;
+}
+
+.remove-activity-btn:hover {
+  color: #dc2626;
+}
+
+/* ── ADD ACTIVITY BUTTON ── */
+.add-activity-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #2563eb;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 14px 18px;
+  border-top: 1px solid #f1f5f9;
+  width: 100%;
+  transition: background 0.15s ease;
+}
+
+.add-activity-btn:hover {
+  background: #f8fafc;
+}
+
+/* ── BOTTOM ACTION BAR ── */
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  border-top: 1px solid #e2e8f0;
+  padding: 14px 32px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  z-index: 100;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.cancel-btn {
+  height: 40px;
+  padding: 0 22px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: white;
+  color: #475569;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s ease;
+}
+
+.cancel-btn:hover {
+  background: #f8fafc;
+}
+
+.save-btn {
+  height: 40px;
+  padding: 0 28px;
+  border: none;
+  border-radius: 8px;
+  background: #2563eb;
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.save-btn:hover:not(:disabled) {
+  background: #1d4ed8;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+}
+
+.save-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── NOT FOUND ── */
+.not-found {
+  text-align: center;
+  padding: 80px 24px;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.not-found h2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 8px;
+}
+
+.not-found p {
+  color: #64748b;
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .itinerary-page {
+    padding: 16px 16px 100px;
+  }
+
+  .activity-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .flex-2,
+  .flex-1 {
+    flex: unset;
+    width: 100%;
+  }
+
+  .bottom-bar {
+    padding: 12px 16px;
+  }
+
+  .page-title {
+    font-size: 20px;
+  }
+}

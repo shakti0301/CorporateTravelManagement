@@ -1,37 +1,75 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ItineraryService } from '../../../services/itinerary/itinerary.service';
+import { NavbarComponent } from '../../../shared/navbar/navbar.component';
+import { CommonModule, DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-itinerary',
   standalone: true,
-  imports: [],
+  imports: [NavbarComponent, CommonModule, FormsModule, DatePipe],
   templateUrl: './itinerary.component.html',
   styleUrl: './itinerary.component.css',
 })
 export class ItineraryComponent implements OnInit {
-  requestId: any;
-  currentRequest: any = null;
+  request: any = null;
+  days: any[] = [];
+  saving: boolean = false;
 
-  constructor(private route: ActivatedRoute) {
-    // Get id from route parameter
-    this.requestId = this.route.snapshot.paramMap.get('id');
-  }
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private itineraryService: ItineraryService,
+  ) {}
 
   ngOnInit() {
-    this.loadCurrentRequest();
+    //Get request id from route
+    const id = this.route.snapshot.paramMap.get('id');
+
+    //Get request details
+    this.request = this.itineraryService.getRequestById(id);
+    if (!this.request) return;
+
+    //If itinerary exists, load it. Otherwise generate days shells from the request dates
+    if (this.request.itinerary && this.request.itinerary.length > 0) {
+      this.days = this.request.itinerary;
+    } else {
+      this.days = this.itineraryService.generateDays(
+        this.request.fromDate,
+        this.request.toDate,
+      );
+    }
   }
 
-  loadCurrentRequest() {
-    const requests = JSON.parse(localStorage.getItem('requests') || '[]');
-    // Match by numeric id OR by tripId string (e.g. "TRP-4823")
-    this.currentRequest = requests.find(
-      (r: any) =>
-        String(r.id) === String(this.requestId) || r.tripId === this.requestId,
-    );
+  //Activity Management
 
-    if (!this.currentRequest) {
-      alert('Travel request not found!');
-      return;
-    }
+  /** Add a blank activity to a day */
+  addActivity(dayIndex: any) {
+    this.days[dayIndex].activities.push(this.itineraryService.blankActivity());
+  }
+
+  /** Remove an activity from a day */
+  removeActivity(dayIndex: any, activityIndex: any) {
+    this.days[dayIndex].activities.splice(activityIndex, 1);
+  }
+
+  //Save Itinerary
+  saveItinerary() {
+    this.saving = true;
+
+    setTimeout(() => {
+      this.itineraryService.saveItinerary(this.request.id, this.days);
+      this.saving = false;
+      alert('Itinerary saved successfully!');
+
+      //Navigate back to request details
+      this.router.navigate(['employee/request-details', this.request.id]);
+    });
+  }
+
+  //Navigation
+  goBack() {
+    this.router.navigate(['employee/request-details', this.request.id]);
   }
 }
