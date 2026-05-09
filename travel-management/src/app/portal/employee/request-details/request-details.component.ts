@@ -4,10 +4,19 @@ import { NavbarComponent } from '../../../shared/navbar/navbar.component';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 
+import { MatTooltipModule } from '@angular/material/tooltip';
+
 @Component({
   selector: 'app-request-details',
   standalone: true,
-  imports: [NavbarComponent, CommonModule, CurrencyPipe, DatePipe, FormsModule],
+  imports: [
+    NavbarComponent,
+    CommonModule,
+    CurrencyPipe,
+    DatePipe,
+    FormsModule,
+    MatTooltipModule,
+  ],
   templateUrl: './request-details.component.html',
   styleUrl: './request-details.component.css',
 })
@@ -114,7 +123,7 @@ export class RequestDetailsComponent implements OnInit {
     let days = Math.floor((utcTo - utcFrom) / msPerDay) + 1;
     if (isNaN(days) || days < 1) days = 1;
 
-    const overview = `Business trip from ${this.request.source || 'unknown location'} to ${this.request.destination} scheduled for ${days} day${days !== 1 ? 's' : ''} (${new Date(this.request.fromDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${new Date(this.request.toDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}). Allocated budget: ${this.request.cost || this.request.budget || 0}.`;
+    const overview = `Business trip from ${this.request.source || 'unknown location'} to ${this.request.destination} scheduled for ${days} day${days !== 1 ? 's' : ''} (${new Date(this.request.fromDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${new Date(this.request.toDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}). Allocated budget: ${this.request.cost || this.request.budget || 0}, Total Expenses: ${this.request.expenses || 'Not submitted yet'}.`;
     return overview;
   }
 
@@ -317,5 +326,23 @@ export class RequestDetailsComponent implements OnInit {
         req?.toDate &&
         new Date(req.fromDate) > new Date(req.toDate)),
     );
+  }
+
+  //Itinerary
+  editItinerary() {
+    this.router.navigate(['/employee/itinerary', this.request.id]);
+  }
+
+  // Returns true only for index 0 (used in template)
+  isFirst(index: number): boolean {
+    return index === 0;
+  }
+
+  // Returns different icon background color per day position
+  getDayIconClass(day: any): string {
+    const n = day.dayNumber;
+    if (n === 1) return 'icon-blue'; // first day — plane
+    if (n === this.request.itinerary.length) return 'icon-green'; // last day
+    return 'icon-indigo'; // middle days
   }
 }

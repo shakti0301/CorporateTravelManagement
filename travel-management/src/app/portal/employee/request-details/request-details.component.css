@@ -586,6 +586,139 @@
   font-weight: 600;
   cursor: pointer;
 }
+
+/* ── TRIP ITINERARY SECTION ── */
+.itinerary-card {
+  margin-bottom: 20px;
+}
+
+.itinerary-card h3 {
+  font-size: 17px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.edit-itinerary-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #2563eb;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 7px;
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.edit-itinerary-btn:hover {
+  background: #dbeafe;
+}
+
+/* Timeline layout */
+.itinerary-timeline {
+  display: flex;
+  flex-direction: column;
+}
+
+.itinerary-day {
+  display: flex;
+  gap: 16px;
+}
+
+/* Left column: circle + line */
+.day-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.day-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Circle color variants */
+.icon-blue {
+  background: #2563eb;
+}
+.icon-indigo {
+  background: #6366f1;
+}
+.icon-green {
+  background: #22c55e;
+}
+
+.day-line {
+  width: 2px;
+  flex: 1;
+  background: #e2e8f0;
+  margin: 6px 0;
+  min-height: 24px;
+}
+
+/* Right column: text content */
+.day-content {
+  padding-bottom: 4px;
+  flex: 1;
+}
+
+.day-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+  margin-top: 8px;
+}
+
+.activity-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 2px;
+}
+
+.activity-desc {
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+/* No itinerary card */
+.no-itinerary-card {
+  margin-bottom: 20px;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+}
+
+.no-itinerary-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* ── MODAL ── */
 .modal-overlay {
   position: fixed;
