@@ -22,8 +22,19 @@ export class NavbarComponent implements OnInit {
   get dashboardRoute(): string {
     const role = this.user?.role?.toLowerCase();
     if (role === 'manager') return '/manager';
+    if (role === 'projectmanager') return '/pm';
     if (role === 'finance') return '/finance';
     return '/employee';
+  }
+
+  get roleLabel(): string {
+    const map: any = {
+      employee: 'Employee',
+      projectmanager: 'Project Manager',
+      manager: 'Manager',
+      finance: 'Finance',
+    };
+    return map[this.user?.role] || this.user?.role;
   }
 
   getInitials(): string {

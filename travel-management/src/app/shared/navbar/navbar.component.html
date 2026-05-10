@@ -117,6 +117,26 @@
         </a>
       </li>
 
+      <!-- PROJECT MANAGER LINKS -->
+      <li *ngIf="user?.role === 'projectmanager'" (click)="closeMobileMenu()">
+        <a
+          routerLink="/pm"
+          routerLinkActive="nx-link--active"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="nx-link"
+        >
+          Dashboard
+        </a>
+      </li>
+      <li *ngIf="user?.role === 'projectmanager'" (click)="closeMobileMenu()">
+        <a
+          routerLink="/pm/approval"
+          routerLinkActive="nx-link--active"
+          class="nx-link"
+        >
+          Approvals
+        </a>
+      </li>
       <!-- FINANCE LINKS -->
       <li *ngIf="user?.role === 'finance'" (click)="closeMobileMenu()">
         <a
@@ -223,7 +243,7 @@
               class="nx-dropdown__role nx-role-badge nx-role-badge--{{
                 user?.role
               }}"
-              >{{ user?.role | titlecase }}</span
+              >{{ roleLabel }}</span
             >
           </div>
           <hr class="nx-dropdown__divider" />

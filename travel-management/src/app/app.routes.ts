@@ -22,6 +22,13 @@ export const routes: Routes = [
       import('./portal/manager/manager.routes').then((m) => m.managerRoutes),
   },
   {
+    path: 'pm',
+    canActivate: [authGuard],
+    data: { role: 'projectmanager' },
+    loadChildren: () =>
+      import('./portal/manager/manager.routes').then((m) => m.managerRoutes),
+  },
+  {
     path: 'finance',
     canActivate: [authGuard],
     data: { role: 'finance' },

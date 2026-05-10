@@ -2,11 +2,20 @@
 <section class="manager-dashboard">
   <div class="dashboard-shell">
     <header class="hero">
-      <p class="eyebrow">Manager workspace</p>
+      <p class="eyebrow">
+        {{
+          role === "projectmanager"
+            ? "Project Manager workspace"
+            : "Manager workspace"
+        }}
+      </p>
       <h1>Travel Request Review Queue</h1>
       <p class="subtitle">
-        Validate incoming travel requests, check budget impact, and route
-        approvals to finance.
+        {{
+          role === "projectmanager"
+            ? "Review requests assigned to you before they move to Manager approval."
+            : "Validate incoming travel requests, check budget impact, and route approvals to finance."
+        }}
       </p>
     </header>
 
@@ -16,7 +25,13 @@
         <h2>{{ totalRequests }}</h2>
       </article>
       <article class="stat-card pending">
-        <p class="stat-label">Pending manager review</p>
+        <p class="stat-label">
+          {{
+            role === "projectmanager"
+              ? "Pending PM review"
+              : "Pending manager review"
+          }}
+        </p>
         <h2>{{ pendingRequests }}</h2>
       </article>
       <article class="stat-card approved">
@@ -31,8 +46,20 @@
 
     <div class="requests-card" *ngIf="requests.length > 0; else emptyState">
       <div class="requests-card-header">
-        <h2>Requests Awaiting Manager Decision</h2>
-        <p>Approved requests move to finance for final budget clearance.</p>
+        <h2>
+          {{
+            role === "projectmanager"
+              ? "Requests Awaiting Your PM Decision"
+              : "Requests Awaiting Manager Decision"
+          }}
+        </h2>
+        <p>
+          {{
+            role === "projectmanager"
+              ? "Approved requests move to Manager, then Finance."
+              : "Approved requests move to finance for final budget clearance."
+          }}
+        </p>
       </div>
 
       <div class="table-wrapper">

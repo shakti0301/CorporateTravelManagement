@@ -11,18 +11,30 @@ import { CommonModule } from '@angular/common';
   styleUrl: './dashboard.component.css',
 })
 export class DashboardComponent implements OnInit {
+  currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+  role: string = '';
+
   requests: any[] = [];
   allRequests: any[] = [];
 
   constructor(private requestService: RequestService) {}
 
   ngOnInit() {
+    this.role = this.currentUser?.role?.toLowerCase() || 'manager';
     this.allRequests = this.requestService.getAllRequests();
 
-    this.requests = this.allRequests.filter(
-      (req) =>
-        !req.isDraft && this.normalizeStatus(req.managerStatus) === 'pending',
-    );
+    this.requests = this.allRequests.filter((req) => {
+      if (req.isDraft) return false;
+
+      if (this.role === 'projectmanager') {
+        return (
+          req.pmEmail === this.currentUser.email &&
+          this.normalizeStatus(req.pmStatus) === 'pending'
+        );
+      }
+
+      return this.normalizeStatus(req.managerStatus) === 'pending';
+    });
   }
 
   get totalRequests(): number {
@@ -30,33 +42,58 @@ export class DashboardComponent implements OnInit {
   }
 
   get pendingRequests(): number {
-    return this.allRequests.filter(
-      (req) =>
-        !req.isDraft && this.normalizeStatus(req.managerStatus) === 'pending',
-    ).length;
+    return this.allRequests.filter((req) => {
+      if (req.isDraft) return false;
+      if (this.role === 'projectmanager') {
+        return (
+          req.pmEmail === this.currentUser.email &&
+          this.normalizeStatus(req.pmStatus) === 'pending'
+        );
+      }
+      return this.normalizeStatus(req.managerStatus) === 'pending';
+    }).length;
   }
 
   get approvedRequests(): number {
-    return this.allRequests.filter(
-      (req) =>
-        !req.isDraft && this.normalizeStatus(req.managerStatus) === 'approved',
-    ).length;
+    return this.allRequests.filter((req) => {
+      if (req.isDraft) return false;
+      if (this.role === 'projectmanager') {
+        return (
+          req.pmEmail === this.currentUser.email &&
+          this.normalizeStatus(req.pmStatus) === 'approved'
+        );
+      }
+      return this.normalizeStatus(req.managerStatus) === 'approved';
+    }).length;
   }
 
   get rejectedRequests(): number {
-    return this.allRequests.filter(
-      (req) =>
-        !req.isDraft && this.normalizeStatus(req.managerStatus) === 'rejected',
-    ).length;
+    return this.allRequests.filter((req) => {
+      if (req.isDraft) return false;
+      if (this.role === 'projectmanager') {
+        return (
+          req.pmEmail === this.currentUser.email &&
+          this.normalizeStatus(req.pmStatus) === 'rejected'
+        );
+      }
+      return this.normalizeStatus(req.managerStatus) === 'rejected';
+    }).length;
   }
-
   approve(id: number) {
-    this.requestService.updateManagerStatus(id, 'approved');
+    if (this.role === 'projectmanager') {
+      this.requestService.updatePMStatus(id, 'approved');
+    } else {
+      this.requestService.updateManagerStatus(id, 'approved');
+    }
     this.refresh();
   }
 
   reject(id: number) {
-    this.requestService.updateManagerStatus(id, 'rejected');
+    if (this.role === 'projectmanager') {
+      this.requestService.updatePMStatus(id, 'rejected');
+    } else {
+      this.requestService.updateManagerStatus(id, 'rejected');
+    }
     this.refresh();
   }
 

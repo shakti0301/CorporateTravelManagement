@@ -54,6 +54,24 @@ export class RequestService {
     return JSON.parse(localStorage.getItem('requests') || '[]');
   }
 
+  getPendingManagerRequests() {
+    const requests = JSON.parse(localStorage.getItem('requests') || '[]');
+    return requests.filter(
+      (req: any) => req.managerStatus === 'pending' && !req.isDraft,
+    );
+  }
+
+  getPendingPMRequests() {
+    const requests = JSON.parse(localStorage.getItem('requests') || '[]');
+    const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    return requests.filter(
+      (req: any) =>
+        req.pmEmail === user.email &&
+        req.pmStatus === 'pending' &&
+        !req.isDraft,
+    );
+  }
+
   updateManagerStatus(id: number, status: string) {
     let requests = JSON.parse(localStorage.getItem('requests') || '[]');
 
@@ -73,6 +91,30 @@ export class RequestService {
       }
       return req;
     });
+    localStorage.setItem('requests', JSON.stringify(requests));
+  }
+
+  updatePMStatus(id: number, status: string, reason: string = '') {
+    let requests = JSON.parse(localStorage.getItem('requests') || '[]');
+
+    requests = requests.map((req: any) => {
+      if (req.id === id) {
+        req.pmStatus = status;
+
+        if (status === 'rejected') {
+          req.finalStatus = 'rejected';
+          req.managerStatus = 'not_applicable';
+          req.financeStatus = 'not_applicable';
+          req.reason = reason || 'Project Manager rejected the request';
+        }
+
+        if (status === 'approved') {
+          req.managerStatus = 'pending'; // now passes to manager
+        }
+      }
+      return req;
+    });
+
     localStorage.setItem('requests', JSON.stringify(requests));
   }
 
