@@ -40,15 +40,8 @@ export class LoginComponent {
       const normalizedEmail = email!.trim().toLowerCase();
       const user = this.authService.login(normalizedEmail, password!);
       if (user) {
-        // alert('Login Successful');
-
-        if (user.role === 'employee') {
-          this.router.navigate(['/employee']);
-        } else if (user.role === 'manager') {
-          this.router.navigate(['/manager']);
-        } else if (user.role === 'finance') {
-          this.router.navigate(['/finance']);
-        }
+        const path = this.authService.getRedirectPath(user.role);
+        this.router.navigate([path]);
       } else {
         this.authErrorMessage = 'Invalid email or password';
         this.loginForm.patchValue({ password: '' });

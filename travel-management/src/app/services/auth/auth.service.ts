@@ -1,12 +1,9 @@
-import { JsonPipe } from '@angular/common';
 import { Injectable } from '@angular/core';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  constructor() {}
-
   register(userData: any) {
     let users = JSON.parse(localStorage.getItem('users') || '[]');
     let existingUser = users.find((user: any) => user.email === userData.email);
@@ -17,7 +14,6 @@ export class AuthService {
     }
 
     users.push(userData);
-
     localStorage.setItem('users', JSON.stringify(users));
   }
 
@@ -33,5 +29,28 @@ export class AuthService {
     } else {
       return null;
     }
+  }
+
+  getRedirectPath(role: string): string {
+    switch (role.toLowerCase()) {
+      case 'employee':
+        return '/employee';
+      case 'projectmanager':
+        return '/pm';
+      case 'manager':
+        return '/manager';
+      case 'finance':
+        return '/finance';
+      default:
+        return '/';
+    }
+  }
+
+  getCurrentUser() {
+    return JSON.parse(localStorage.getItem('currentUser') || 'null');
+  }
+
+  logout() {
+    localStorage.removeItem('currentUser');
   }
 }
