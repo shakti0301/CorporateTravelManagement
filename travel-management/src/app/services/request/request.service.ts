@@ -21,6 +21,8 @@ export class RequestService {
     let requests = JSON.parse(localStorage.getItem('requests') || '[]');
     let user = JSON.parse(localStorage.getItem('currentUser') || '{}');
 
+    const hasPM = request.pmEmail && request.pmEmail.trim() !== '';
+
     if (!user.email) {
       alert('User not logged in');
       return;
@@ -29,7 +31,9 @@ export class RequestService {
     const newRequest = {
       ...request,
       userEmail: user.email,
-      managerStatus: 'pending',
+      pmEmail: hasPM ? request.pmEmail : null,
+      pmStatus: hasPM ? 'pending' : 'not_applicable',
+      managerStatus: hasPM ? 'not_applicable' : 'pending',
       financeStatus: 'not_applicable',
       finalStatus: 'pending',
       reason: '',
