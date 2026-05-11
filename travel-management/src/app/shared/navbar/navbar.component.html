@@ -89,15 +89,6 @@
           Approvals
         </a>
       </li>
-      <li *ngIf="user?.role === 'manager'" (click)="closeMobileMenu()">
-        <a
-          routerLink="/manager/reports"
-          routerLinkActive="nx-link--active"
-          class="nx-link"
-        >
-          Reports
-        </a>
-      </li>
 
       <!-- PROJECT MANAGER LINKS -->
       <li *ngIf="user?.role === 'projectmanager'" (click)="closeMobileMenu()">
@@ -146,15 +137,6 @@
           class="nx-link"
         >
           Expenses
-        </a>
-      </li>
-      <li *ngIf="user?.role === 'finance'" (click)="closeMobileMenu()">
-        <a
-          routerLink="/finance/reports"
-          routerLinkActive="nx-link--active"
-          class="nx-link"
-        >
-          Reports
         </a>
       </li>
     </ul>
