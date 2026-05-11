@@ -43,14 +43,33 @@ export class RequestDetailsComponent implements OnInit {
   }
 
   // TIMELINE STEP HELPERS
+  /** Check if request is submitted to a Project Manager */
+  get hasPM(): boolean {
+    return (
+      this.request &&
+      this.request.pmEmail &&
+      this.request.pmEmail.trim() !== '' &&
+      (this.request.pmStatus || 'not_applicable').toLowerCase() !==
+        'not_applicable'
+    );
+  }
+
   /**
     Returns CSS class for each timeline step based on current request status.
-    Steps: 'submitted' | 'manager' | 'finance'
+    Steps: 'submitted' | 'pm' | 'manager' | 'finance' (depends on hasPM)
    */
   getStepClass(step: string): string {
     if (step === 'submitted') {
       // Always done once request exists
       return 'step-done';
+    }
+
+    if (step === 'pm') {
+      const status = (this.request.pmStatus || '').toLowerCase();
+      if (status === 'approved') return 'step-done';
+      if (status === 'rejected') return 'step-rejected';
+      if (status === 'pending') return 'step-inactive';
+      return 'step-inactive';
     }
 
     if (step === 'manager') {
@@ -76,6 +95,8 @@ export class RequestDetailsComponent implements OnInit {
   /** Returns true if a step is done (approved) */
   isStepDone(step: string): boolean {
     if (step === 'submitted') return true;
+    if (step === 'pm')
+      return (this.request.pmStatus || '').toLowerCase() === 'approved';
     if (step === 'manager')
       return (this.request.managerStatus || '').toLowerCase() === 'approved';
     if (step === 'finance')
@@ -85,6 +106,8 @@ export class RequestDetailsComponent implements OnInit {
 
   /** Returns true if a step was rejected */
   isStepRejected(step: string): boolean {
+    if (step === 'pm')
+      return (this.request.pmStatus || '').toLowerCase() === 'rejected';
     if (step === 'manager')
       return (this.request.managerStatus || '').toLowerCase() === 'rejected';
     if (step === 'finance')
@@ -92,13 +115,24 @@ export class RequestDetailsComponent implements OnInit {
     return false;
   }
 
-  /** True only when both manager AND finance have approved */
+  /** True only when all required approvals have been granted */
   get isFullyApproved(): boolean {
-    return (
-      (this.request.managerStatus || '').toLowerCase() === 'approved' &&
-      (this.request.financeStatus || '').toLowerCase() === 'approved' &&
-      (this.request.finalStatus || '').toLowerCase() === 'approved'
-    );
+    const managerApproved =
+      (this.request.managerStatus || '').toLowerCase() === 'approved';
+    const financeApproved =
+      (this.request.financeStatus || '').toLowerCase() === 'approved';
+    const finalApproved =
+      (this.request.finalStatus || '').toLowerCase() === 'approved';
+
+    // If PM exists, PM must also approve
+    if (this.hasPM) {
+      const pmApproved =
+        (this.request.pmStatus || '').toLowerCase() === 'approved';
+      return pmApproved && managerApproved && financeApproved && finalApproved;
+    }
+
+    // Without PM, just need manager and finance
+    return managerApproved && financeApproved && finalApproved;
   }
 
   /** Generate a meaningful trip overview message */
@@ -132,6 +166,7 @@ export class RequestDetailsComponent implements OnInit {
     if (!this.request) return '';
 
     const final = (this.request.finalStatus || '').toLowerCase();
+    const pm = (this.request.pmStatus || '').toLowerCase();
     const manager = (this.request.managerStatus || '').toLowerCase();
     const finance = (this.request.financeStatus || '').toLowerCase();
 
@@ -139,14 +174,20 @@ export class RequestDetailsComponent implements OnInit {
       return 'This is a draft. Submit it to start the approval process.';
     }
 
-    if (final === 'rejected' || manager === 'rejected') {
-      return 'This request was rejected. See the remarks below for details.';
+    // Check for rejections
+    if (final === 'rejected' || pm === 'rejected') {
+      return 'This request was rejected by Project Manager. See the remarks below for details.';
+    }
+
+    if (manager === 'rejected') {
+      return 'This request was rejected by Manager. See the remarks below for details.';
     }
 
     if (finance === 'rejected') {
       return 'Finance rejected this request. Please review and re-submit.';
     }
 
+    // Fully approved states
     if (this.isFullyApproved && this.request.expenseSubmitted) {
       return 'Expenses submitted. Awaiting finance reimbursement review.';
     }
@@ -155,12 +196,28 @@ export class RequestDetailsComponent implements OnInit {
       return 'This request has been fully vetted and approved. You can now start logging expenses against this budget. Final reimbursement requires receipt submission.';
     }
 
-    if (manager === 'approved' && finance !== 'approved') {
-      return 'Manager approved. Awaiting finance department review.';
-    }
-
-    if (manager === 'pending') {
-      return 'Request submitted and awaiting manager approval.';
+    // In-progress states
+    if (this.hasPM) {
+      if (pm === 'pending') {
+        return 'Request submitted and awaiting Project Manager approval.';
+      }
+      if (pm === 'approved' && manager === 'pending') {
+        return 'Project Manager approved. Awaiting Manager review.';
+      }
+      if (
+        pm === 'approved' &&
+        manager === 'approved' &&
+        finance !== 'approved'
+      ) {
+        return 'Manager approved. Awaiting finance department review.';
+      }
+    } else {
+      if (manager === 'pending') {
+        return 'Request submitted and awaiting manager approval.';
+      }
+      if (manager === 'approved' && finance !== 'approved') {
+        return 'Manager approved. Awaiting finance department review.';
+      }
     }
 
     return 'Request is under review.';
@@ -276,6 +333,19 @@ export class RequestDetailsComponent implements OnInit {
 
   //Edit & Cancel
   canModify(req: any): boolean {
+    // Check if request has a Project Manager assigned
+    const hasPM = req.pmEmail && req.pmEmail.trim() !== '';
+    const pmApproved = (req.pmStatus || '').toLowerCase() === 'approved';
+
+    // If PM exists and PM has approved, employee CANNOT edit/cancel
+    if (hasPM && pmApproved) {
+      return false;
+    } else if (hasPM) {
+      // If PM exists but hasn't approved, employee CAN edit/cancel
+      return true;
+    }
+
+    // Otherwise, original logic: can modify if not draft and manager status is pending
     const managerStatus = (req.managerStatus || '').toLowerCase();
     return !req.isDraft && managerStatus === 'pending';
   }

@@ -92,6 +92,7 @@ export class TravelRequestComponent {
         Validators.min(1),
         Validators.max(100000),
       ]),
+      pmEmail: new FormControl(''),
     },
     { validators: travelDateRangeValidator },
   );
@@ -124,6 +125,10 @@ export class TravelRequestComponent {
     return formatDateForInput(new Date());
   }
 
+  get pmEmail() {
+    return this.requestForm.get('pmEmail');
+  }
+
   get fromDateMin() {
     const fromDateValue = this.fromDate?.value;
 
@@ -132,6 +137,16 @@ export class TravelRequestComponent {
     }
 
     return fromDateValue > this.today ? fromDateValue : this.today;
+  }
+
+  //To list of PMs for dropdown
+
+  projectManagers: any[] = [];
+  ngOnInit() {
+    const allUsers = JSON.parse(localStorage.getItem('users') || '[]');
+    this.projectManagers = allUsers.filter(
+      (u: any) => u.role === 'projectmanager',
+    );
   }
 
   hasDateValidationErrors() {

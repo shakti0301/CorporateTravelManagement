@@ -142,6 +142,14 @@ export class MyRequestsComponent implements OnInit {
     return (status || 'pending').trim().toLowerCase();
   }
 
+  getPmPillClass(req: any): string {
+    const s = this.normalizeStatus(req.pmStatus);
+    if (s === 'approved') return 'pill-approved';
+    if (s === 'rejected') return 'pill-rejected';
+    if (s === 'not_applicable') return 'pill-neutral';
+    return 'pill-pending';
+  }
+
   getManagerPillClass(req: any): string {
     const s = this.normalizeStatus(req.managerStatus);
     if (s === 'approved') return 'pill-approved';
@@ -257,6 +265,19 @@ export class MyRequestsComponent implements OnInit {
 
   // ACTIONS
   canModify(req: any): boolean {
+    // Check if request has a Project Manager assigned
+    const hasPM = req.pmEmail && req.pmEmail.trim() !== '';
+    const pmApproved = this.normalizeStatus(req.pmStatus) === 'approved';
+
+    // If PM exists and PM has approved, employee CANNOT edit/cancel
+    if (hasPM && pmApproved) {
+      return false;
+    } else if (hasPM) {
+      // If PM exists but hasn't approved, employee CAN edit/cancel
+      return true;
+    }
+
+    // Otherwise, original logic: can edit if draft or manager status is pending
     return req.isDraft || this.normalizeStatus(req.managerStatus) === 'pending';
   }
 
