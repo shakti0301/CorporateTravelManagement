@@ -333,6 +333,19 @@
   padding: 10px 14px;
 }
 
+.trip-complete-tag {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #16a34a;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+
 .not-approved-tag {
   display: flex;
   align-items: center;

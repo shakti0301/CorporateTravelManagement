@@ -741,7 +741,11 @@
       <!-- Expense already submitted - Not for drafts -->
       <div
         class="expense-submitted-tag"
-        *ngIf="!request.isDraft && request.expenseSubmitted"
+        *ngIf="
+          !request.isDraft &&
+          request.expenseSubmitted &&
+          request.reimbursementStatus !== 'approved'
+        "
       >
         <svg
           width="16"
@@ -754,6 +758,28 @@
           <polyline points="20 6 9 17 4 12" />
         </svg>
         Expense Submitted
+      </div>
+
+      <!-- Trip Complete -->
+      <div
+        class="trip-complete-tag"
+        *ngIf="
+          !request.isDraft &&
+          request.expenseSubmitted &&
+          request.reimbursementStatus === 'approved'
+        "
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#16a34a"
+          stroke-width="2"
+        >
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+        Trip Complete
       </div>
 
       <!-- Rejected - Not for drafts -->
