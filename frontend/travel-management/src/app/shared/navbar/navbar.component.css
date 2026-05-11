@@ -1,0 +1,571 @@
+/* =============================
+   NexTravel Enterprise Navbar
+   ============================= */
+
+:host {
+  display: block;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.nx-navbar {
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  height: 60px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  font-family: "Inter", "Segoe UI", sans-serif;
+}
+
+.nx-navbar__inner {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 24px;
+  gap: 20px;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+/* Brand */
+.nx-navbar__brand {
+  font-size: 15px;
+  font-weight: 700;
+  color: #111827;
+  text-decoration: none;
+  white-space: nowrap;
+  letter-spacing: -0.3px;
+  flex-shrink: 0;
+}
+
+/* Search */
+.nx-navbar__search {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.nx-search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+}
+
+.nx-search-input {
+  height: 36px;
+  width: 220px;
+  padding: 0 12px 0 34px;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  background: #f9fafb;
+  font-size: 13px;
+  color: #374151;
+  outline: none;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+
+.nx-search-input::placeholder {
+  color: #9ca3af;
+}
+
+.nx-search-input:focus {
+  border-color: #3b6ef8;
+  box-shadow: 0 0 0 3px rgba(59, 110, 248, 0.1);
+  background: #fff;
+}
+
+/* Nav Links */
+.nx-navbar__links {
+  display: flex;
+  align-items: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 4px;
+  flex: 1;
+  justify-content: center;
+}
+
+.nx-navbar__links li {
+  margin: 0;
+}
+
+.nx-link {
+  display: inline-block;
+  padding: 0 14px;
+  height: 60px;
+  line-height: 60px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #4b5563;
+  text-decoration: none;
+  position: relative;
+  transition: color 0.15s;
+  white-space: nowrap;
+}
+
+.nx-link:hover {
+  color: #1d4ed8;
+}
+
+.nx-link--active {
+  color: #1d4ed8 !important;
+  font-weight: 600;
+}
+
+.nx-link--active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 14px;
+  right: 14px;
+  height: 2px;
+  background: #1d4ed8;
+  border-radius: 2px 2px 0 0;
+}
+
+/* Right Action Icons */
+.nx-navbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.nx-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #6b7280;
+  transition:
+    background 0.15s,
+    color 0.15s;
+  padding: 0;
+}
+
+.nx-icon-btn:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.nx-icon-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Avatar */
+.nx-avatar-wrap {
+  position: relative;
+  cursor: pointer;
+  margin-left: 4px;
+}
+
+.nx-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b6ef8, #6d4ae8);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0.5px;
+  user-select: none;
+  border: 2px solid #e5e7eb;
+  transition: border-color 0.15s;
+}
+
+.nx-avatar:hover {
+  border-color: #3b6ef8;
+}
+
+/* Dropdown */
+.nx-dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  min-width: 200px;
+  padding: 8px;
+  z-index: 999;
+  animation: dropIn 0.15s ease-out;
+}
+
+@keyframes dropIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.nx-dropdown__header {
+  padding: 8px 10px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nx-dropdown__name {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.nx-dropdown__divider {
+  border: none;
+  border-top: 1px solid #f3f4f6;
+  margin: 4px 0;
+}
+
+.nx-dropdown__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  color: #374151;
+  transition: background 0.12s;
+}
+
+.nx-dropdown__item svg {
+  width: 15px;
+  height: 15px;
+}
+
+.nx-dropdown__item:hover {
+  background: #f9fafb;
+}
+
+.nx-dropdown__item--danger {
+  color: #dc2626;
+}
+
+.nx-dropdown__item--danger:hover {
+  background: #fef2f2;
+}
+
+/* Role Badge */
+.nx-role-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: capitalize;
+}
+
+.nx-role-badge--employee {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.nx-role-badge--manager {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.nx-role-badge--finance {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+/* =============================
+   RESPONSIVE DESIGN
+   ============================= */
+
+/* Hamburger Menu Button */
+.nx-mobile-menu-btn {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 0;
+  transition: transform 0.2s ease;
+}
+
+.nx-mobile-menu-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.nx-mobile-menu-btn:hover {
+  color: #374151;
+}
+
+.nx-mobile-menu-btn.active svg line {
+  animation: rotateMenu 0.3s ease;
+}
+
+@keyframes rotateMenu {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(90deg);
+  }
+}
+
+/* Tablet and Desktop: 1024px and above */
+@media (min-width: 1024px) {
+  .nx-navbar__inner {
+    padding: 0 24px;
+    gap: 20px;
+  }
+
+  .nx-navbar__search {
+    display: block;
+  }
+
+  .nx-navbar__links {
+    display: flex;
+    gap: 4px;
+    flex: 1;
+    justify-content: center;
+  }
+
+  .nx-navbar__actions {
+    display: flex;
+    gap: 4px;
+  }
+}
+
+/* Tablet: 768px to 1023px */
+@media (max-width: 1023px) {
+  .nx-navbar {
+    height: 56px;
+  }
+
+  .nx-navbar__inner {
+    padding: 0 16px;
+    gap: 12px;
+    height: 56px;
+  }
+
+  .nx-navbar__brand {
+    font-size: 14px;
+  }
+
+  .nx-navbar__search {
+    display: none;
+  }
+
+  .nx-navbar__links {
+    display: flex;
+    gap: 2px;
+    flex: 1;
+    justify-content: center;
+    max-height: none;
+  }
+
+  .nx-link {
+    padding: 0 10px;
+    font-size: 12px;
+  }
+
+  .nx-navbar__actions {
+    display: flex;
+    gap: 2px;
+  }
+
+  .nx-icon-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .nx-avatar {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* Mobile: Below 768px */
+@media (max-width: 767px) {
+  .nx-navbar {
+    height: 56px;
+  }
+
+  .nx-navbar__inner {
+    padding: 0 12px;
+    gap: 8px;
+    height: 56px;
+    flex-wrap: wrap;
+  }
+
+  .nx-mobile-menu-btn {
+    display: flex;
+    order: 1;
+    flex-shrink: 0;
+  }
+
+  .nx-navbar__brand {
+    font-size: 13px;
+    order: 2;
+    flex: 1;
+  }
+
+  .nx-navbar__search {
+    display: none;
+  }
+
+  .nx-navbar__links {
+    display: none;
+    position: absolute;
+    top: 56px;
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    flex-direction: column;
+    gap: 0;
+    padding: 8px 0;
+    margin: 0;
+    list-style: none;
+    z-index: 999;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .nx-navbar__links.mobile-open {
+    display: flex;
+  }
+
+  .nx-navbar__links li {
+    margin: 0;
+    width: 100%;
+  }
+
+  .nx-link {
+    display: block;
+    padding: 12px 16px;
+    height: auto;
+    line-height: 1;
+    font-size: 13px;
+    width: 100%;
+    border-radius: 0;
+  }
+
+  .nx-link:hover {
+    background: #f9fafb;
+  }
+
+  .nx-link--active {
+    background: #f0f7ff;
+    border-left: 3px solid #1d4ed8;
+    padding-left: 13px;
+  }
+
+  .nx-link--active::after {
+    display: none;
+  }
+
+  .nx-navbar__actions {
+    display: flex;
+    gap: 2px;
+    order: 3;
+    flex-shrink: 0;
+    margin-left: auto;
+  }
+
+  .nx-icon-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+
+  .nx-icon-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .nx-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 11px;
+  }
+
+  .nx-dropdown {
+    min-width: 180px;
+  }
+}
+
+/* Extra Small Phones: Below 480px */
+@media (max-width: 479px) {
+  .nx-navbar {
+    height: 52px;
+  }
+
+  .nx-navbar__inner {
+    padding: 0 8px;
+    height: 52px;
+  }
+
+  .nx-navbar__brand {
+    font-size: 12px;
+  }
+
+  .nx-icon-btn {
+    width: 28px;
+    height: 28px;
+  }
+
+  .nx-icon-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .nx-avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 10px;
+  }
+
+  .nx-link {
+    padding: 10px 14px;
+    font-size: 12px;
+  }
+
+  .nx-dropdown {
+    min-width: 160px;
+  }
+
+  .nx-dropdown__name {
+    font-size: 12px;
+  }
+
+  .nx-dropdown__item {
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+}
