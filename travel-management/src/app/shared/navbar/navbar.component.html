@@ -68,24 +68,6 @@
           Create Request
         </a>
       </li>
-      <li *ngIf="user?.role === 'employee'" (click)="closeMobileMenu()">
-        <a
-          routerLink="/employee/approvals"
-          routerLinkActive="nx-link--active"
-          class="nx-link"
-        >
-          Approvals
-        </a>
-      </li>
-      <li *ngIf="user?.role === 'employee'" (click)="closeMobileMenu()">
-        <a
-          routerLink="/employee/reports"
-          routerLinkActive="nx-link--active"
-          class="nx-link"
-        >
-          Reports
-        </a>
-      </li>
 
       <!-- MANAGER LINKS -->
       <li *ngIf="user?.role === 'manager'" (click)="closeMobileMenu()">
