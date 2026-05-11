@@ -161,6 +161,14 @@ export class RequestDetailsComponent implements OnInit {
     return overview;
   }
 
+  //Employee can able to add expences only after trip is start (fromDate)
+  get canAddExpenses(): boolean {
+    if (!this.request) return false;
+    const today = new Date();
+    const fromDate = new Date(this.request.fromDate);
+    return today >= fromDate;
+  }
+
   // DYNAMIC INFO NOTE (bottom of actions panel)
   get statusNote(): string {
     if (!this.request) return '';

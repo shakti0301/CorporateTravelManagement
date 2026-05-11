@@ -719,7 +719,8 @@
         *ngIf="
           !request.isDraft &&
           request.finalStatus === 'approved' &&
-          !request.expenseSubmitted
+          !request.expenseSubmitted &&
+          canAddExpenses
         "
         (click)="addExpense()"
       >
@@ -737,6 +738,31 @@
         </svg>
         Add Expense
       </button>
+
+      <!-- Waiting for trip to start to add expenses. -->
+      <div
+        class="not-started-tag"
+        *ngIf="
+          !request.isDraft &&
+          request.finalStatus === 'approved' &&
+          !request.expenseSubmitted &&
+          !canAddExpenses
+        "
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#f97316"
+          stroke-width="2"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <circle cx="12" cy="16" r="0.5" fill="#f97316" />
+        </svg>
+        Trip Not Started
+      </div>
 
       <!-- Expense already submitted - Not for drafts -->
       <div

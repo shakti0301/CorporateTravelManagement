@@ -166,6 +166,19 @@
     box-shadow 0.2s ease;
 }
 
+.not-started-tag {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #94a3b8;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+
 .add-expense-btn:hover {
   background: #1d4ed8;
   box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
