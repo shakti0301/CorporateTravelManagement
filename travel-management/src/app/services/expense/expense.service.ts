@@ -48,4 +48,17 @@ export class ExpenseService {
     });
     this.saveRequests(requests);
   }
+
+  saveExpensesAsDraft(requestId: any, expenses: any[]) {
+    let requests = this.getRequests();
+
+    requests = requests.map((r: any) => {
+      if (String(r.id) === String(requestId) || r.tripId === requestId) {
+        return { ...r, expenses }; // only saves expenses, touches nothing else
+      }
+      return r;
+    });
+
+    this.saveRequests(requests);
+  }
 }

@@ -234,16 +234,13 @@ export class ExpenseComponent implements OnInit {
     this.fileInput = file;
   }
 
+  // After addExpense() closes modal, persist immediately
   addExpense() {
     this.submitted = true;
 
-    if (!this.expenseForm.valid) {
-      return;
-    }
+    if (!this.expenseForm.valid) return;
 
     const formData = this.expenseForm.value;
-
-    // If user selected 'Other' and provided a value, use that as the category
     const finalCategory =
       formData.category === 'Other' && formData.otherCategory
         ? formData.otherCategory
@@ -263,13 +260,18 @@ export class ExpenseComponent implements OnInit {
       this.expenses.push(newExpense);
     }
 
+    //  Persist immediately after every change
+    this.expenseService.saveExpensesAsDraft(this.requestId, this.expenses);
+
     this.closeModal();
     this.submitted = false;
   }
 
+  // Persist after delete too
   removeExpense(index: number) {
     if (confirm('Are you sure you want to delete this expense?')) {
       this.expenses.splice(index, 1);
+      this.expenseService.saveExpensesAsDraft(this.requestId, this.expenses);
     }
   }
 
@@ -310,6 +312,28 @@ export class ExpenseComponent implements OnInit {
     return this.getRemaining() < 0;
   }
 
+  // Add inside the class, after isOverBudget()
+
+  getUtilizedPercent(): number {
+    if (!this.currentRequest) return 0;
+    const budget = Number(this.currentRequest.cost || 0);
+    if (budget === 0) return 0;
+    const percent = (this.getTotal() / budget) * 100;
+    return Math.min(Math.round(percent), 100);
+  }
+
+  getCategoryIcon(category: string): string {
+    const icons: any = {
+      Food: '🍽️',
+      Travel: '✈️',
+      Accommodation: '🛏️',
+      Transport: '🚗',
+      Lodging: '🛏️',
+      Other: '📦',
+    };
+    return icons[category] || '📋';
+  }
+
   submitExpenses() {
     if (this.expenses.length === 0) {
       alert('Please add at least one expense before submitting.');
@@ -327,5 +351,9 @@ export class ExpenseComponent implements OnInit {
     this.expenses = [];
 
     this.router.navigate(['/employee']);
+  }
+
+  goBack() {
+    this.router.navigate(['/employee/request-details', this.requestId]);
   }
 }
