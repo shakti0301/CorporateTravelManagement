@@ -23,3 +23,49 @@ yarn-error.log
 /libpeerconnection.log
 testem.log
 /typings
+
+# =========================
+# .NET Backend
+# =========================
+
+# Build folders
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio / VS Code
+.vs/
+.vscode/
+
+# Rider / JetBrains
+.idea/
+
+# Logs
+*.log
+
+# Environment files
+.env
+
+# Publish output
+publish/
+
+# EF Core local database files
+*.db
+*.db-shm
+*.db-wal
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# NuGet packages
+*.nupkg
+packages/
+
+# ASP.NET Core
+appsettings.Development.json
