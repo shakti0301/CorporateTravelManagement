@@ -44,6 +44,63 @@ namespace TravelMgmtApi.Data
                 .WithMany()
                 .HasForeignKey(d => d.ManagerId)
                 .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Role>().HasData(
+
+                new Role
+                {
+                    RoleId = 1,
+                    Name = "Admin"
+                },
+
+                new Role
+                {
+                    RoleId = 2,
+                    Name = "Employee"
+                },
+
+                new Role
+                {
+                    RoleId = 3,
+                    Name = "Manager"
+                },
+
+                new Role
+                {
+                    RoleId = 4,
+                    Name = "Finance"
+                },
+
+                new Role
+                {
+                    RoleId = 5,
+                    Name = "ProjectManager"
+                }
+            );
+            modelBuilder.Entity<Department>().HasData(
+                new Department
+                {
+                    DepartmentId = 1,
+                    DepartmentName = ".NET"
+                },
+
+                new Department
+                {
+                    DepartmentId = 2,
+                    DepartmentName = "Java"
+                },
+
+                new Department
+                {
+                    DepartmentId = 3,
+                    DepartmentName = "QA"
+                },
+
+                new Department
+                {
+                    DepartmentId = 4,
+                    DepartmentName = "AI"
+                }
+            );
         }
     }
 }
