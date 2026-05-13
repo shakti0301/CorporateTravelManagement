@@ -33,20 +33,45 @@ export class LoginComponent {
 
   onSubmit() {
     this.submitted = true;
+
     this.authErrorMessage = '';
 
     if (this.loginForm.valid) {
-      const { email, password } = this.loginForm.value;
-      const normalizedEmail = email!.trim().toLowerCase();
-      const user = this.authService.login(normalizedEmail, password!);
-      if (user) {
-        const path = this.authService.getRedirectPath(user.role);
-        this.router.navigate([path]);
-      } else {
-        this.authErrorMessage = 'Invalid email or password';
-        this.loginForm.patchValue({ password: '' });
-        this.submitted = false;
-      }
+      const loginData = {
+        email: this.loginForm.value.email?.trim().toLowerCase(),
+        password: this.loginForm.value.password,
+      };
+
+      this.authService.login(loginData).subscribe({
+        next: (response) => {
+          console.log(response);
+
+          // Store JWT Token
+          localStorage.setItem('token', response.token);
+
+          // Store Current User
+          localStorage.setItem('currentUser', JSON.stringify(response));
+          localStorage.setItem('role', response.role);
+          localStorage.setItem('userName', response.userName);
+
+          // Redirect based on role
+          const path = this.authService.getRedirectPath(response.role);
+
+          this.router.navigate([path]);
+        },
+
+        error: (error) => {
+          console.log(error.error);
+
+          this.authErrorMessage = 'Invalid email or password';
+
+          this.loginForm.patchValue({
+            password: '',
+          });
+
+          this.submitted = false;
+        },
+      });
     }
   }
 }
