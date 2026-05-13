@@ -3,3 +3,7 @@ GO
 
 USE TravelMgmtDB;
 GO
+
+SELECT * FROM Users
+SELECT * FROM Roles
+SELECT * FROM Departments
