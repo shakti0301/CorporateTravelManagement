@@ -65,27 +65,50 @@ export class RegisterComponent {
         Validators.pattern(passwordStrengthPattern),
       ]),
       confirmPassword: new FormControl('', [Validators.required]),
-      role: new FormControl('', [Validators.required]),
+      // role: new FormControl('', [Validators.required]),
     },
     { validators: passwordMatchValidator },
   );
 
   onSubmit() {
-    console.log('Submit ');
+    console.log('Submit');
+
     this.submitted = true;
+    this.authErrorMessage = '';
 
     if (this.registerForm.invalid) {
       this.registerForm.markAllAsTouched();
       return;
     }
 
-    this.authService.register(this.registerForm.value);
-    alert('Registration Successful');
+    const registerData = {
+      userName: this.registerForm.value.name,
+      email: this.registerForm.value.email,
+      password: this.registerForm.value.password,
+      // Employee Role
+      roleId: 2,
+      // .NET Department
+      departmentId: 1,
+      managerId: null,
+    };
 
-    this.registerForm.reset();
+    this.authService.register(registerData).subscribe({
+      next: (response) => {
+        console.log(response);
 
-    setTimeout(() => {
-      this.router.navigate(['/']);
-    }, 1000);
+        alert('Registration Successful');
+
+        this.registerForm.reset();
+
+        setTimeout(() => {
+          this.router.navigate(['/']);
+        }, 500);
+      },
+
+      error: (error) => {
+        console.log(error);
+        this.authErrorMessage = error?.error?.message || 'Registration failed';
+      },
+    });
   }
 }
