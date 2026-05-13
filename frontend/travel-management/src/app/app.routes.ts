@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
-import { authGuard } from './Components/auth/auth.guard';
-import { authRoutes } from './Components/auth/auth.routes';
+import { authGuard } from './components/auth/auth.guard';
+import { authRoutes } from './components/auth/auth.routes';
 
 export const routes: Routes = [
   {
@@ -12,7 +12,7 @@ export const routes: Routes = [
     canActivate: [authGuard],
     data: { role: 'employee' },
     loadChildren: () =>
-      import('./Components/portal/employee/employee.routes').then(
+      import('./components/portal/employee/employee.routes').then(
         (m) => m.employeeRoutes,
       ),
   },
@@ -21,7 +21,7 @@ export const routes: Routes = [
     canActivate: [authGuard],
     data: { role: 'manager' },
     loadChildren: () =>
-      import('./Components/portal/manager/manager.routes').then(
+      import('./components/portal/manager/manager.routes').then(
         (m) => m.managerRoutes,
       ),
   },
@@ -30,7 +30,7 @@ export const routes: Routes = [
     canActivate: [authGuard],
     data: { role: 'projectmanager' },
     loadChildren: () =>
-      import('./Components/portal/manager/manager.routes').then(
+      import('./components/portal/manager/manager.routes').then(
         (m) => m.managerRoutes,
       ),
   },
@@ -39,7 +39,7 @@ export const routes: Routes = [
     canActivate: [authGuard],
     data: { role: 'finance' },
     loadChildren: () =>
-      import('./Components/portal/finance/finance.routes').then(
+      import('./components/portal/finance/finance.routes').then(
         (m) => m.financeRoutes,
       ),
   },
