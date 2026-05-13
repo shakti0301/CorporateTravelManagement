@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NavbarComponent } from '../../../shared/navbar/navbar.component';
 import { CommonModule } from '@angular/common';
-import { RequestService } from '../../../services/request/request.service';
+import { RequestService } from '../../../../services/request/request.service';
 
 @Component({
   selector: 'app-approvals',

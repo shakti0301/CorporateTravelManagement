@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { NavbarComponent } from '../../../shared/navbar/navbar.component';
 import { CommonModule } from '@angular/common';
-import { ReimbursementService } from '../../../services/reimbursement/reimbursement.service';
+import { ReimbursementService } from '../../../../services/reimbursement/reimbursement.service';
 
 @Component({
   selector: 'app-reimbursements',

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ItineraryService } from '../../../services/itinerary/itinerary.service';
+import { ItineraryService } from '../../../../services/itinerary/itinerary.service';
 import { NavbarComponent } from '../../../shared/navbar/navbar.component';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';

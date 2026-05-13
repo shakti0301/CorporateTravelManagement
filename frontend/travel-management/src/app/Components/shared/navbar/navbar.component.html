@@ -195,14 +195,14 @@
       <div
         class="nx-avatar-wrap"
         (click)="toggleMenu()"
-        title="{{ user?.name }}"
+        title="{{ user?.userName }}"
       >
         <div class="nx-avatar">
           {{ getInitials() }}
         </div>
         <div class="nx-dropdown" *ngIf="menuOpen">
           <div class="nx-dropdown__header">
-            <span class="nx-dropdown__name">{{ user?.name }}</span>
+            <span class="nx-dropdown__name">{{ user?.userName }}</span>
             <span
               class="nx-dropdown__role nx-role-badge nx-role-badge--{{
                 user?.role

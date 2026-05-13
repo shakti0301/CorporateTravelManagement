@@ -11,19 +11,33 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 })
 export class NavbarComponent implements OnInit {
   user: any;
+
   menuOpen = false;
+
   mobileMenuOpen = false;
 
   ngOnInit(): void {
     const data = localStorage.getItem('currentUser');
+
     this.user = data ? JSON.parse(data) : null;
+
+    // Normalize role
+    if (this.user?.role) {
+      this.user.role = this.user.role.toLowerCase();
+    }
   }
 
   get dashboardRoute(): string {
-    const role = this.user?.role?.toLowerCase();
+    const role = this.user?.role;
+
     if (role === 'manager') return '/manager';
+
     if (role === 'projectmanager') return '/pm';
+
     if (role === 'finance') return '/finance';
+
+    if (role === 'admin') return '/admin';
+
     return '/employee';
   }
 
@@ -33,12 +47,15 @@ export class NavbarComponent implements OnInit {
       projectmanager: 'Project Manager',
       manager: 'Manager',
       finance: 'Finance',
+      admin: 'Admin',
     };
+
     return map[this.user?.role] || this.user?.role;
   }
 
   getInitials(): string {
-    const name: string = this.user?.name ?? '';
+    const name: string = this.user?.userName ?? '';
+
     return name
       .split(' ')
       .map((n: string) => n[0])
@@ -63,9 +80,11 @@ export class NavbarComponent implements OnInit {
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;
+
     if (!target.closest('.nx-avatar-wrap')) {
       this.menuOpen = false;
     }
+
     if (
       !target.closest('.nx-mobile-menu-btn') &&
       !target.closest('.nx-navbar__links')
@@ -75,8 +94,16 @@ export class NavbarComponent implements OnInit {
   }
 
   logout(): void {
+    localStorage.removeItem('token');
+
     localStorage.removeItem('currentUser');
+
+    localStorage.removeItem('role');
+
+    localStorage.removeItem('userName');
+
     alert('Logged out successfully!');
+
     window.location.href = '/';
   }
 }

@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 
 import { TravelRequestComponent } from './travel-request.component';
-import { RequestService } from '../../../services/request/request.service';
+import { RequestService } from '../../../../services/request/request.service';
 
 const formatDateForInput = (date: Date): string => {
   const year = date.getFullYear();

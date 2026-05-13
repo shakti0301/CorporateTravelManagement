@@ -12,7 +12,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ExpenseService } from '../../../services/expense/expense.service';
+import { ExpenseService } from '../../../../services/expense/expense.service';
 
 const ALLOWED_CATEGORIES = [
   'Food',

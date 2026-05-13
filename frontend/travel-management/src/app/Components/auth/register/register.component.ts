@@ -10,8 +10,9 @@ import {
   Validators,
 } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { AuthService } from '../../services/auth/auth.service';
+
 import { Router } from '@angular/router';
+import { AuthService } from '../../../services/auth/auth.service';
 
 const passwordStrengthPattern =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).+$/;
