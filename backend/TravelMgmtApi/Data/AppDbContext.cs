@@ -13,6 +13,9 @@ namespace TravelMgmtApi.Data
         public DbSet<Role> Roles { get; set; }
         public DbSet<Department> Departments { get; set; }
 
+        public DbSet<TravelRequest> TravelRequests{ get; set; }
+        public DbSet<TravelRequestApproval> TravelRequestApprovals { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
         base.OnModelCreating(modelBuilder);
@@ -101,6 +104,40 @@ namespace TravelMgmtApi.Data
                     DepartmentName = "AI"
                 }
             );
+
+            //Travel Request Relationships
+            modelBuilder.Entity<TravelRequest>()
+                .HasOne(tr => tr.Employee)
+                .WithMany()
+                .HasForeignKey(tr => tr.EmployeeId)
+                .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<TravelRequest>()
+                .HasOne(tr => tr.ProjectManager)
+                .WithMany()
+                .HasForeignKey(tr => tr.ProjectManagerId)
+                .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<TravelRequest>()
+                .HasOne(tr => tr.Manager)
+                .WithMany()
+                .HasForeignKey(tr => tr.ManagerId)
+                .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<TravelRequest>()
+                .HasOne(tr => tr.Finance)
+                .WithMany()
+                .HasForeignKey(tr => tr.FinanceId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Configure TravelRequestApproval relationships
+            modelBuilder.Entity<TravelRequestApproval>()
+                .HasOne(tra => tra.TravelRequest)
+                .WithMany(tr => tr.Approvals)
+                .HasForeignKey(tra => tra.TravelRequestId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<TravelRequestApproval>()
+                .HasOne(tra => tra.Approver)
+                .WithMany()
+                .HasForeignKey(tra => tra.ApproverId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
