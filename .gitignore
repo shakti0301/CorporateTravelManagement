@@ -73,3 +73,7 @@ appsettings.Development.json
 # App settings
 appsettings.json
 appsettings.Development.json
+
+# VS Code / C# cache
+*.lscache
+.vscode/
