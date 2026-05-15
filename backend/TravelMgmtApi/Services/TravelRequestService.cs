@@ -100,17 +100,24 @@ public class TravelRequestService : ITravelRequestService
 
     // Get My Requests
 
-    public async Task<List<TravelRequest>> GetMyRequestsAsync(int employeeId)
+    public async Task<List<TravelRequestResponseDto>> GetMyRequestsAsync(int employeeId)
     {
         return await _context.TravelRequests
-            .Where(tr =>
-                tr.EmployeeId == employeeId
-            )
+            .Where( tr => tr.EmployeeId == employeeId)
             .Include(tr => tr.Employee)
-            .Include(tr => tr.ProjectManager)
-            .Include(tr => tr.Manager)
-            .Include(tr => tr.Finance)
             .OrderByDescending(tr => tr.CreatedAt)
+            .Select( tr => new TravelRequestResponseDto
+            {
+                TravelRequestId = tr.TravelRequestId,
+                EmployeeName = tr.Employee!.UserName,
+                Source = tr.Source,
+                Destination = tr.Destination,
+                Purpose = tr.Purpose,
+                EstimatedCost = tr.EstimatedCost,
+                Status = tr.Status.ToString(),
+                CurrentStage = tr.CurrentStage.ToString(),
+                CreatedAt = tr.CreatedAt
+            })
             .ToListAsync();
     }
 }
