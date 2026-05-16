@@ -68,6 +68,28 @@ namespace TravelMgmtApi.Controllers
             return Ok(result);
         }
 
+    
+        // Pending Finance Requests
+
+        [HttpGet("pending/finance")]
+        public async Task<IActionResult> GetPendingFinanceRequests()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if(userId==null)
+            {
+                return Unauthorized();
+            }
+
+            var result=
+                await _travelService
+                .GetPendingFinanceRequestsAsync(
+                    Convert.ToInt32(userId)
+                );
+
+            return Ok(result);
+        }
+
         //Approve or Reject Request
         [HttpPost("approve")]
         public async Task<IActionResult> ApproveOrReject(ApprovalActionDto dto)
