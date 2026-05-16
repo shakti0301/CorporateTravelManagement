@@ -119,12 +119,12 @@ public class TravelRequestService : ITravelRequestService
     }
 
     // Pending Manager Requests
-    public async Task<List<TravelRequestResponseDto>>
-    GetPendingManagerRequestsAsync()
+    public async Task<List<TravelRequestResponseDto>> GetPendingManagerRequestsAsync(int managerId)
     {
         return await _context.TravelRequests
             .Include(tr => tr.Employee)
             .Where(tr =>
+                tr.ManagerId == managerId &&
                 tr.CurrentStage == ApprovalStage.Manager &&
                 tr.Status == RequestStatus.Pending
             )
