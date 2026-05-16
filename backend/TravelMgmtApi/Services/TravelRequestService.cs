@@ -145,6 +145,33 @@ public class TravelRequestService : ITravelRequestService
 
             .ToListAsync();
     }
+    
+    // Pending Finance Requests 
+    public async Task<List<TravelRequestResponseDto>>GetPendingFinanceRequestsAsync(int financeId)
+    {
+        return await _context.TravelRequests
+            .Include(tr => tr.Employee)
+            .Where(tr => 
+                tr.FinanceId == financeId &&
+                tr.CurrentStage == ApprovalStage.Finance &&
+                tr.Status == RequestStatus.Pending
+            )
+            .Select(tr => new TravelRequestResponseDto
+            {
+                TravelRequestId = tr.TravelRequestId,
+                EmployeeName = tr.Employee!.UserName,
+                Source = tr.Source,
+                Destination = tr.Destination,
+                Purpose = tr.Purpose,
+                EstimatedCost = tr.EstimatedCost,
+                Status = tr.Status.ToString(),
+                CurrentStage = tr.CurrentStage.ToString(),
+                CreatedAt = tr.CreatedAt
+            })
+            .ToListAsync();
+    }
+
+    // Approve or Reject
     public async Task<string>ApproveOrRejectAsync(int approverId,ApprovalActionDto dto)
     {
         var request =
@@ -202,29 +229,5 @@ public class TravelRequestService : ITravelRequestService
 
         await _context.SaveChangesAsync();
         return "Action completed";
-    }
-        
-    public async Task<List<TravelRequestResponseDto>>GetPendingFinanceRequestsAsync(int financeId)
-    {
-        return await _context.TravelRequests
-            .Include(tr => tr.Employee)
-            .Where(tr => 
-                tr.FinanceId == financeId &&
-                tr.CurrentStage == ApprovalStage.Finance &&
-                tr.Status == RequestStatus.Pending
-            )
-            .Select(tr => new TravelRequestResponseDto
-            {
-                TravelRequestId = tr.TravelRequestId,
-                EmployeeName = tr.Employee!.UserName,
-                Source = tr.Source,
-                Destination = tr.Destination,
-                Purpose = tr.Purpose,
-                EstimatedCost = tr.EstimatedCost,
-                Status = tr.Status.ToString(),
-                CurrentStage = tr.CurrentStage.ToString(),
-                CreatedAt = tr.CreatedAt
-            })
-            .ToListAsync();
     }
 }
