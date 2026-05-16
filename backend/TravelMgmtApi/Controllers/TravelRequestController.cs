@@ -54,5 +54,33 @@ namespace TravelMgmtApi.Controllers
             var result = await _travelService.GetMyRequestsAsync(Convert.ToInt32(userId));
             return Ok(result);
         }
+
+        //Pending Manager Requests
+        [HttpGet("pending/manager")]
+        public async Task<IActionResult> GetPendingManagerRequests()
+        {
+            var result = await _travelService.GetPendingManagerRequestsAsync();
+            return Ok(result);
+        }
+
+        //Approve or Reject Request
+        [HttpPost("approve")]
+        public async Task<IActionResult> ApproveOrReject(ApprovalActionDto dto)
+        {
+            var userId = User.FindFirst(
+                ClaimTypes.NameIdentifier
+                )?.Value;
+            
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            var result = await _travelService.ApproveOrRejectAsync(Convert.ToInt32(userId), dto);
+            return Ok(new
+            {
+                message = result
+            });
+        }
     }
 }

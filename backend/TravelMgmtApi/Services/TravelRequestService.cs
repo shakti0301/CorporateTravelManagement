@@ -18,8 +18,7 @@ public class TravelRequestService : ITravelRequestService
         _context = context;
     }
 
-    // Create Travel Request
-
+    // Create Travel Requestq
     public async Task<string> CreateRequestAsync(
         int employeeId,
         CreateTravelRequestDto dto
@@ -99,7 +98,6 @@ public class TravelRequestService : ITravelRequestService
     }
 
     // Get My Requests
-
     public async Task<List<TravelRequestResponseDto>> GetMyRequestsAsync(int employeeId)
     {
         return await _context.TravelRequests
@@ -119,5 +117,87 @@ public class TravelRequestService : ITravelRequestService
                 CreatedAt = tr.CreatedAt
             })
             .ToListAsync();
+    }
+
+    // Pending Manager Requests
+    public async Task<List<TravelRequestResponseDto>>
+    GetPendingManagerRequestsAsync()
+    {
+        return await _context.TravelRequests
+            .Include(tr => tr.Employee)
+            .Where(tr =>
+                tr.CurrentStage == ApprovalStage.Manager &&
+                tr.Status == RequestStatus.Pending
+            )
+
+            .Select(tr =>
+                new TravelRequestResponseDto
+                {
+                    TravelRequestId = tr.TravelRequestId,
+                    EmployeeName = tr.Employee!.UserName,
+                    Source = tr.Source,
+                    Destination = tr.Destination,
+                    Purpose = tr.Purpose,
+                    EstimatedCost = tr.EstimatedCost,
+                    Status = tr.Status.ToString(),
+                    CurrentStage = tr.CurrentStage.ToString(),
+                    CreatedAt =tr.CreatedAt
+                })
+
+            .ToListAsync();
+    }
+    public async Task<string>ApproveOrRejectAsync(int approverId,ApprovalActionDto dto)
+    {
+        var request =
+            await _context.TravelRequests
+            .FirstOrDefaultAsync(
+                x =>
+                x.TravelRequestId == dto.TravelRequestId
+            );
+
+        if(request==null)
+        {
+            return "Request not found";
+        }
+
+        // Save approval history
+
+        var approval =
+            new TravelRequestApproval
+            {
+                TravelRequestId = request.TravelRequestId,
+                ApproverId = approverId,
+                Status =dto.Status,
+                Comments = dto.Comments,
+                ApprovalStage = request.CurrentStage
+            };
+
+        _context.TravelRequestApprovals.Add(approval);
+
+        // Rejected
+
+        if(dto.Status == RequestStatus.Rejected)
+        {
+            request.Status = RequestStatus.Rejected;
+        }
+
+        // Approved
+
+        else
+        {
+            if(request.CurrentStage == ApprovalStage.Manager)
+            {
+                request.CurrentStage = ApprovalStage.Finance;
+            }
+
+            else if(request.CurrentStage == ApprovalStage.Finance)
+            {
+                request.Status = RequestStatus.Approved;
+                request.CurrentStage =ApprovalStage.Completed;
+            }
+        }
+
+        await _context.SaveChangesAsync();
+        return "Action completed";
     }
 }
