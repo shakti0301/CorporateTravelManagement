@@ -118,6 +118,32 @@ public class TravelRequestService : ITravelRequestService
             .ToListAsync();
     }
 
+    // Pending Project Manager Requests
+    public async Task<List<TravelRequestResponseDto>>GetPendingPMRequestsAsync(int projectManagerId)
+    {
+        return await _context.TravelRequests
+            .Include(tr => tr.Employee)
+            .Where(tr =>
+                tr.ProjectManagerId == projectManagerId &&
+                tr.CurrentStage == ApprovalStage.ProjectManager &&
+                tr.Status == RequestStatus.Pending
+            )
+            .Select(tr =>
+                new TravelRequestResponseDto
+                {
+                    TravelRequestId = tr.TravelRequestId,
+                    EmployeeName = tr.Employee!.UserName,
+                    Source = tr.Source,
+                    Destination = tr.Destination,
+                    Purpose = tr.Purpose,
+                    EstimatedCost = tr.EstimatedCost,
+                    Status = tr.Status.ToString(),
+                    CurrentStage = tr.CurrentStage.ToString(),
+                    CreatedAt = tr.CreatedAt
+                })
+            .ToListAsync();
+    }
+
     // Pending Manager Requests
     public async Task<List<TravelRequestResponseDto>> GetPendingManagerRequestsAsync(int managerId)
     {
@@ -209,11 +235,14 @@ public class TravelRequestService : ITravelRequestService
         // Approved
         else if(dto.Status == RequestStatus.Approved)
         {
-            if(request.CurrentStage == ApprovalStage.Manager)
+            if(request.CurrentStage == ApprovalStage.ProjectManager)
+            {
+                request.CurrentStage = ApprovalStage.Manager;
+            }
+            else if(request.CurrentStage == ApprovalStage.Manager)
             {
                 request.CurrentStage = ApprovalStage.Finance;
             }
-
             else if(request.CurrentStage == ApprovalStage.Finance)
             {
                 request.Status = RequestStatus.Approved;
