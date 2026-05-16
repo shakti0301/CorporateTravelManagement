@@ -62,16 +62,14 @@ public class TravelRequestService : ITravelRequestService
 
         // Decide first stage
         ApprovalStage firstStage;
-
-        if (dto.ProjectManagerId.HasValue)
+        if (dto.ProjectManagerId.HasValue && dto.ProjectManagerId > 0)
         {
-            firstStage =
-                ApprovalStage.ProjectManager;
+            firstStage = ApprovalStage.ProjectManager;
         }
         else
         {
-            firstStage =
-                ApprovalStage.Manager;
+            firstStage = ApprovalStage.Manager;
+            dto.ProjectManagerId = null;
         }
 
         // Create request
@@ -87,6 +85,7 @@ public class TravelRequestService : ITravelRequestService
             StartDate = dto.StartDate,
             EndDate = dto.EndDate,
             EstimatedCost = dto.EstimatedCost,
+            IsDraft = dto.IsDraft,
             Status = RequestStatus.Pending,
             CurrentStage = firstStage,
             CreatedAt = DateTime.UtcNow
@@ -175,15 +174,13 @@ public class TravelRequestService : ITravelRequestService
         _context.TravelRequestApprovals.Add(approval);
 
         // Rejected
-
         if(dto.Status == RequestStatus.Rejected)
         {
             request.Status = RequestStatus.Rejected;
         }
 
         // Approved
-
-        else
+        else if(dto.Status == RequestStatus.Approved)
         {
             if(request.CurrentStage == ApprovalStage.Manager)
             {
@@ -193,8 +190,14 @@ public class TravelRequestService : ITravelRequestService
             else if(request.CurrentStage == ApprovalStage.Finance)
             {
                 request.Status = RequestStatus.Approved;
-                request.CurrentStage =ApprovalStage.Completed;
+                request.CurrentStage = ApprovalStage.Completed;
             }
+        }
+
+        // Pending → do nothing
+        else
+        {
+            return "Request remains pending";
         }
 
         await _context.SaveChangesAsync();
