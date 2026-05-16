@@ -42,6 +42,7 @@ namespace TravelMgmtApi.Models
         [MaxLength(500)]
         public string Purpose { get; set; } = string.Empty;
         public decimal EstimatedCost { get; set; }
+        public bool IsDraft { get; set; } = false;
 
         //Status 
         public RequestStatus Status { get; set; } = RequestStatus.Pending;
