@@ -66,14 +66,13 @@ export class RegisterComponent {
         Validators.pattern(passwordStrengthPattern),
       ]),
       confirmPassword: new FormControl('', [Validators.required]),
-      // role: new FormControl('', [Validators.required]),
+      roleId: new FormControl('', [Validators.required]),
+      departmentId: new FormControl('', [Validators.required]),
     },
     { validators: passwordMatchValidator },
   );
 
   onSubmit() {
-    console.log('Submit');
-
     this.submitted = true;
     this.authErrorMessage = '';
 
@@ -86,26 +85,20 @@ export class RegisterComponent {
       userName: this.registerForm.value.name,
       email: this.registerForm.value.email,
       password: this.registerForm.value.password,
-      // Employee Role
-      roleId: 2,
-      // .NET Department
-      departmentId: 1,
+      roleId: this.registerForm.value.roleId,
+      departmentId: this.registerForm.value.departmentId,
       managerId: null,
     };
 
     this.authService.register(registerData).subscribe({
       next: (response) => {
         console.log(response);
-
         alert('Registration Successful');
-
         this.registerForm.reset();
-
         setTimeout(() => {
           this.router.navigate(['/']);
         }, 500);
       },
-
       error: (error) => {
         console.log(error);
         this.authErrorMessage = error?.error?.message || 'Registration failed';

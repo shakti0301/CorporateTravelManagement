@@ -175,26 +175,60 @@
           </small>
         </div>
 
-        <!-- <div class="field-group">
-          <label class="form-label" for="role">Role</label>
-          <select class="form-select" formControlName="role" id="role">
+        <div class="field-group">
+          <label class="form-label" for="role"> Role </label>
+
+          <select class="form-select" formControlName="roleId" id="role">
             <option value="">Select Role</option>
-            <option value="employee">Employee</option>
-            <option value="projectmanager">Project Manager</option>
-            <option value="manager">Manager</option>
-            <option value="finance">Finance</option>
+
+            <option value="2">Employee</option>
+
+            <option value="5">Project Manager</option>
+
+            <option value="3">Manager</option>
+
+            <option value="4">Finance</option>
           </select>
+
           <small
             class="field-error"
             *ngIf="
-              (registerForm.get('role')?.touched || submitted) &&
-              registerForm.get('role')?.errors?.['required']
+              (registerForm.get('roleId')?.touched || submitted) &&
+              registerForm.get('roleId')?.errors?.['required']
             "
           >
-            Role is required
+            Role required
           </small>
-        </div> -->
+        </div>
+        <div class="field-group">
+          <label class="form-label" for="department"> Department </label>
 
+          <select
+            class="form-select"
+            formControlName="departmentId"
+            id="department"
+          >
+            <option value="">Select Department</option>
+
+            <option value="1">.NET</option>
+
+            <option value="2">Java</option>
+
+            <option value="3">QA</option>
+
+            <option value="4">AI</option>
+          </select>
+
+          <small
+            class="field-error"
+            *ngIf="
+              (registerForm.get('departmentId')?.touched || submitted) &&
+              registerForm.get('departmentId')?.errors?.['required']
+            "
+          >
+            Department required
+          </small>
+        </div>
         <button
           class="auth-submit"
           type="submit"
