@@ -20,6 +20,10 @@ export class RequestService {
     return this.http.get(`${this.apiUrl}/my`);
   }
 
+  getDraftRequests() {
+    return this.http.get(`${environment.apiUrl}/TravelRequest/drafts`);
+  }
+
   // Manager
   getPendingManagerRequests() {
     return this.http.get(`${this.apiUrl}/pending/manager`);
