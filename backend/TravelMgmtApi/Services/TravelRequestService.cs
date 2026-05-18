@@ -36,6 +36,23 @@ public class TravelRequestService : ITravelRequestService
             return "Employee not found";
         }
 
+        // Validate only for actual submit
+        if (!dto.IsDraft)
+        {
+            if (
+                string.IsNullOrWhiteSpace(dto.Source)
+                || string.IsNullOrWhiteSpace(dto.Destination)
+                || string.IsNullOrWhiteSpace(dto.Purpose)
+                || !dto.StartDate.HasValue
+                || !dto.EndDate.HasValue
+                || !dto.EstimatedCost.HasValue
+                || dto.EstimatedCost <= 0
+            )
+            {
+                return "Please fill all required fields";
+            }
+        }
+
         // Find department manager
         var manager = await _context.Users
             .FirstOrDefaultAsync(u =>
@@ -79,12 +96,12 @@ public class TravelRequestService : ITravelRequestService
             ProjectManagerId = dto.ProjectManagerId,
             ManagerId = manager.UserId,
             FinanceId = finance.UserId,
-            Source = dto.Source,
-            Destination = dto.Destination,
-            Purpose = dto.Purpose,
-            StartDate = dto.StartDate,
-            EndDate = dto.EndDate,
-            EstimatedCost = dto.EstimatedCost,
+            Source = dto.Source ?? "",
+            Destination = dto.Destination ?? "",
+            Purpose = dto.Purpose ?? "",
+            StartDate = dto.StartDate ?? DateTime.UtcNow,
+            EndDate = dto.EndDate ?? DateTime.UtcNow,
+            EstimatedCost = dto.EstimatedCost ?? 0,
             IsDraft = dto.IsDraft,
             Status = RequestStatus.Pending,
             CurrentStage = firstStage,
@@ -110,6 +127,8 @@ public class TravelRequestService : ITravelRequestService
                 Source = tr.Source,
                 Destination = tr.Destination,
                 Purpose = tr.Purpose,
+                StartDate = tr.StartDate,
+                EndDate = tr.EndDate,
                 EstimatedCost = tr.EstimatedCost,
                 Status = tr.Status.ToString(),
                 CurrentStage = tr.CurrentStage.ToString(),
