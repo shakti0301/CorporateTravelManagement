@@ -122,7 +122,7 @@
               <!-- BUDGET -->
               <td class="budget-cell">
                 {{
-                  req.cost || req.budget || req.totalExpense || 0
+                  req.estimatedCost || 0
                     | currency: "INR" : "symbol-narrow" : "1.0-0"
                 }}
               </td>
@@ -548,12 +548,14 @@
       <label class="draft-field">
         <span>Estimated Cost (₹)</span>
         <input
-          #cost="ngModel"
+          #estimatedCost="ngModel"
           type="number"
           class="form-control"
-          [class.is-invalid]="(cost.touched || modalSubmitted) && cost.invalid"
-          [(ngModel)]="selectedRequest.cost"
-          name="cost"
+          [class.is-invalid]="
+            (estimatedCost.touched || modalSubmitted) && estimatedCost.invalid
+          "
+          [(ngModel)]="selectedRequest.estimatedCost"
+          name="estimatedCost"
           placeholder="Enter amount"
           min="1"
           max="1000000"
@@ -561,15 +563,21 @@
         />
         <div
           class="invalid-feedback d-block"
-          *ngIf="(cost.touched || modalSubmitted) && cost.errors?.['required']"
+          *ngIf="
+            (estimatedCost.touched || modalSubmitted) &&
+            estimatedCost.errors?.['required']
+          "
         >
           Estimated cost is required.
         </div>
         <div
           class="invalid-feedback d-block"
-          *ngIf="(cost.touched || modalSubmitted) && cost.errors?.['min']"
+          *ngIf="
+            (estimatedCost.touched || modalSubmitted) &&
+            estimatedCost.errors?.['min']
+          "
         >
-          Cost must be at least ₹1.
+          Estimated cost must be at least ₹1.
         </div>
       </label>
 

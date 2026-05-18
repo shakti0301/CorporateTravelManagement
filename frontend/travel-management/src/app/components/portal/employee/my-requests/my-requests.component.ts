@@ -30,7 +30,45 @@ export class MyRequestsComponent implements OnInit {
   constructor(private requestService: RequestService) {}
 
   ngOnInit() {
-    this.requests = this.requestService.getRequestsByUser();
+    this.loadRequests();
+  }
+
+  loadRequests() {
+    this.requestService.getMyRequests().subscribe({
+      next: (response: any) => {
+        this.requestService.getDraftRequests().subscribe({
+          next: (drafts: any) => {
+            const normal = response.map((r: any) => ({
+              ...r,
+              id: r.travelRequestId,
+              fromDate: r.startDate,
+              toDate: r.endDate,
+              finalStatus: r.status,
+              managerStatus: r.currentStage === 'Manager' ? 'pending' : '',
+              financeStatus: r.currentStage === 'Finance' ? 'pending' : '',
+              pmStatus: r.currentStage === 'ProjectManager' ? 'pending' : '',
+              isDraft: false,
+            }));
+
+            const draftData = drafts.map((d: any) => ({
+              ...d,
+              id: d.travelRequestId,
+              fromDate: d.startDate,
+              toDate: d.endDate,
+              finalStatus: d.status,
+              isDraft: true,
+            }));
+
+            this.requests = [...draftData, ...normal];
+            console.log(this.requests);
+          },
+        });
+      },
+
+      error: (err) => {
+        console.log(err);
+      },
+    });
   }
 
   // STATS
@@ -59,6 +97,7 @@ export class MyRequestsComponent implements OnInit {
       const q = this.searchQuery.trim().toLowerCase();
       result = result.filter(
         (r) =>
+          (r.source || '').toLowerCase().includes(q) ||
           (r.destination || '').toLowerCase().includes(q) ||
           (r.purpose || '').toLowerCase().includes(q),
       );
@@ -224,43 +263,11 @@ export class MyRequestsComponent implements OnInit {
   }
 
   saveDraft(editForm: NgForm) {
-    this.modalSubmitted = true;
-    if (this.hasDateValidationErrors()) {
-      editForm.form.markAllAsTouched();
-      return;
-    }
-    let requests = JSON.parse(localStorage.getItem('requests') || '[]');
-    requests = requests.map((r: any) =>
-      r.id === this.selectedRequest.id
-        ? { ...this.selectedRequest, isDraft: true }
-        : r,
-    );
-    localStorage.setItem('requests', JSON.stringify(requests));
-    this.closeModal();
-    this.ngOnInit();
+    alert('Backend update API not connected yet');
   }
 
   submitFromModal(editForm: NgForm) {
-    this.modalSubmitted = true;
-    if (editForm.invalid || this.hasDateValidationErrors()) {
-      editForm.form.markAllAsTouched();
-      return;
-    }
-    let requests = JSON.parse(localStorage.getItem('requests') || '[]');
-    requests = requests.map((r: any) =>
-      r.id === this.selectedRequest.id
-        ? {
-            ...this.selectedRequest,
-            isDraft: false,
-            managerStatus: 'pending',
-            financeStatus: 'not_applicable',
-            finalStatus: 'pending',
-          }
-        : r,
-    );
-    localStorage.setItem('requests', JSON.stringify(requests));
-    this.closeModal();
-    this.ngOnInit();
+    alert('Backend update API not connected yet');
   }
 
   // ACTIONS
@@ -282,13 +289,6 @@ export class MyRequestsComponent implements OnInit {
   }
 
   deleteRequest(id: number) {
-    const confirmDelete = confirm(
-      'Are you sure you want to delete/cancel this request?',
-    );
-    if (!confirmDelete) return;
-    let requests = JSON.parse(localStorage.getItem('requests') || '[]');
-    requests = requests.filter((r: any) => r.id !== id);
-    localStorage.setItem('requests', JSON.stringify(requests));
-    this.ngOnInit();
+    alert('Delete API pending');
   }
 }
