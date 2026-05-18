@@ -25,7 +25,29 @@ export class DashboardComponent implements OnInit {
   }
 
   loadRequests() {
-    this.requests = this.requestService.getRequestsByUser();
+    this.requestService.getMyRequests().subscribe({
+      next: (response: any) => {
+        this.requests = response.map((r: any) => ({
+          ...r,
+
+          // map backend → old UI names
+          id: r.travelRequestId,
+
+          fromDate: r.startDate,
+          toDate: r.endDate,
+
+          finalStatus: r.status,
+
+          managerStatus: r.currentStage === 'Manager' ? 'pending' : '',
+          financeStatus: r.currentStage === 'Finance' ? 'pending' : '',
+          isDraft: false,
+        }));
+        console.log(this.requests);
+      },
+      error: (err) => {
+        console.log(err);
+      },
+    });
   }
 
   // STAT GETTERS
@@ -97,7 +119,7 @@ export class DashboardComponent implements OnInit {
   getExpenseCostLabel(req: any): string {
     const totalExpense = Number(req?.totalExpense);
 
-    if (req.finalStatus.toLowerCase() === 'rejected') {
+    if ((req.finalStatus || '').toLowerCase() === 'rejected') {
       return 'Request rejected';
     }
 
