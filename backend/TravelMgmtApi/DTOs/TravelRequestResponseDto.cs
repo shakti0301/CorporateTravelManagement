@@ -8,8 +8,8 @@ public class TravelRequestResponseDto
     public string Destination { get; set; } = "";
     public string Purpose { get; set; } = "";
     public decimal EstimatedCost { get; set; }
-    public DateTime StartDate { get; set; }
-    public DateTime EndDate { get; set; }
+    public DateTime? StartDate { get; set; }
+    public DateTime? EndDate { get; set; }
     public string Status { get; set; } = "";
     public string CurrentStage { get; set; } = "";
     public DateTime CreatedAt { get; set; }
