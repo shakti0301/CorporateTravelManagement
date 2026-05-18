@@ -34,6 +34,17 @@ namespace TravelMgmtApi.Services
             }
 
             //Create User
+            int? managerId = null;
+            // Employee OR PM
+            if(registerDto.RoleId == 2 || registerDto.RoleId == 5)
+            {
+                var department = await _context.Departments
+                    .FirstOrDefaultAsync(
+                        d => d.DepartmentId == registerDto.DepartmentId
+                    );
+                managerId = department?.ManagerId;
+            }
+
             var user = new User
             {
                 UserName = registerDto.UserName,
@@ -41,9 +52,7 @@ namespace TravelMgmtApi.Services
                 PasswordHash = PasswordHelper.HashPassword(registerDto.Password),
                 RoleId = registerDto.RoleId,
                 DepartmentId = registerDto.DepartmentId,
-                ManagerId = registerDto.ManagerId,
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow
+                ManagerId = managerId
             };
             _context.Users.Add(user);
 
