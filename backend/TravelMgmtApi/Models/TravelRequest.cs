@@ -36,8 +36,8 @@ namespace TravelMgmtApi.Models
         [Required]
         [MaxLength(200)]
         public string Destination { get; set; } = string.Empty;
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
         [Required]
         [MaxLength(500)]
         public string Purpose { get; set; } = string.Empty;
