@@ -55,6 +55,28 @@ namespace TravelMgmtApi.Controllers
             return Ok(result);
         }
 
+        //Draft Requests
+        [HttpGet("drafts")]
+        public async Task<IActionResult> GetDrafts()
+        {
+            var userId = User.FindFirst(
+                ClaimTypes.NameIdentifier
+            )?.Value;
+
+            if(userId==null)
+            {
+                return Unauthorized();
+            }
+
+            var result =
+                await _travelService
+                .GetDraftRequestsAsync(
+                    Convert.ToInt32(userId)
+                );
+
+            return Ok(result);
+        }
+
         //Pending PM Requests
         [HttpGet("pending/pm")]
         public async Task<IActionResult> GetPendingPMRequests()
