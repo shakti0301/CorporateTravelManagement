@@ -12,6 +12,7 @@ import {
 import { NavbarComponent } from '../../../shared/navbar/navbar.component';
 import { RequestService } from '../../../../services/request/request.service';
 import { Router } from '@angular/router';
+import { UserService } from '../../../../services/user/user.service';
 
 const travelDateRangeValidator: ValidatorFn = (
   control: AbstractControl,
@@ -63,6 +64,7 @@ export class TravelRequestComponent {
   constructor(
     private requestService: RequestService,
     private router: Router,
+    private userService: UserService,
   ) {}
   submitted = false;
 
@@ -92,7 +94,7 @@ export class TravelRequestComponent {
         Validators.min(1),
         Validators.max(100000),
       ]),
-      pmEmail: new FormControl(''),
+      projectManagerId: new FormControl(null),
     },
     { validators: travelDateRangeValidator },
   );
@@ -125,8 +127,8 @@ export class TravelRequestComponent {
     return formatDateForInput(new Date());
   }
 
-  get pmEmail() {
-    return this.requestForm.get('pmEmail');
+  get projectManagerId() {
+    return this.requestForm.get('projectManagerId');
   }
 
   get fromDateMin() {
@@ -143,10 +145,14 @@ export class TravelRequestComponent {
 
   projectManagers: any[] = [];
   ngOnInit() {
-    const allUsers = JSON.parse(localStorage.getItem('users') || '[]');
-    this.projectManagers = allUsers.filter(
-      (u: any) => u.role === 'projectmanager',
-    );
+    this.userService.getProjectManagers().subscribe({
+      next: (response: any) => {
+        this.projectManagers = response;
+      },
+      error: (err) => {
+        console.error('Error fetching project managers', err);
+      },
+    });
   }
 
   hasDateValidationErrors() {
@@ -158,24 +164,70 @@ export class TravelRequestComponent {
   }
 
   onSubmit() {
-    if (this.requestForm.valid) {
-      this.requestService.createRequest(this.requestForm.value, false);
+    this.submitted = true;
 
-      alert('Travel request submitted successfully!');
-      this.requestForm.reset();
-      this.router.navigate(['/employee/myrequests']);
-    }
-  }
-  saveDraft() {
-    if (this.hasDateValidationErrors()) {
+    if (this.requestForm.invalid) {
       this.requestForm.markAllAsTouched();
       return;
     }
 
-    this.requestService.createRequest(this.requestForm.value, true);
+    const requestData = {
+      source: this.requestForm.value.source,
+      destination: this.requestForm.value.destination,
+      purpose: this.requestForm.value.purpose,
+      startDate: this.requestForm.value.fromDate,
+      endDate: this.requestForm.value.toDate,
+      estimatedCost: Number(this.requestForm.value.cost),
+      projectManagerId: this.requestForm.value.projectManagerId,
+      isDraft: false,
+    };
 
-    alert('Travel request saved as draft!');
-    this.requestForm.reset();
-    this.router.navigate(['/employee/myrequests']);
+    this.requestService.createRequest(requestData).subscribe({
+      next: (res) => {
+        console.log('Travel request created', res);
+
+        alert('Travel request submitted successfully!');
+
+        this.requestForm.reset();
+
+        this.router.navigate(['/employee/myrequests']);
+      },
+
+      error: (err) => {
+        console.log(err);
+
+        alert('Failed to submit request');
+      },
+    });
+  }
+  saveDraft() {
+    const requestData = {
+      source: this.requestForm.value.source || null,
+      destination: this.requestForm.value.destination || null,
+      purpose: this.requestForm.value.purpose || null,
+      startDate: this.requestForm.value.fromDate || null,
+      endDate: this.requestForm.value.toDate || null,
+      estimatedCost: this.requestForm.value.cost
+        ? Number(this.requestForm.value.cost)
+        : null,
+      projectManagerId: this.requestForm.value.projectManagerId || null,
+      isDraft: true,
+    };
+
+    this.requestService.createRequest(requestData).subscribe({
+      next: () => {
+        alert('Draft saved');
+
+        this.router.navigate(['/employee/myrequests']);
+      },
+
+      error: (err) => {
+        console.log(err);
+        console.log(err.error);
+        console.log(err.error.errors);
+
+        alert(JSON.stringify(err.error.errors));
+      },
+    });
   }
 }
