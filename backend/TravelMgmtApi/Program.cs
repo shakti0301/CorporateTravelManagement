@@ -53,6 +53,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         builder.Configuration.GetConnectionString("DefaultConnection")
     )
 );
+builder.Services.AddScoped<IUserService, UserService>();
 
 // Services
 builder.Services.AddScoped<IAuthService, AuthService>();
