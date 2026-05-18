@@ -99,8 +99,8 @@ public class TravelRequestService : ITravelRequestService
             Source = dto.Source ?? "",
             Destination = dto.Destination ?? "",
             Purpose = dto.Purpose ?? "",
-            StartDate = dto.StartDate ?? DateTime.UtcNow,
-            EndDate = dto.EndDate ?? DateTime.UtcNow,
+            StartDate = dto.StartDate,
+            EndDate = dto.EndDate,
             EstimatedCost = dto.EstimatedCost ?? 0,
             IsDraft = dto.IsDraft,
             Status = RequestStatus.Pending,
@@ -117,7 +117,7 @@ public class TravelRequestService : ITravelRequestService
     public async Task<List<TravelRequestResponseDto>> GetMyRequestsAsync(int employeeId)
     {
         return await _context.TravelRequests
-            .Where( tr => tr.EmployeeId == employeeId)
+            .Where( tr => tr.EmployeeId == employeeId && !tr.IsDraft )
             .Include(tr => tr.Employee)
             .OrderByDescending(tr => tr.CreatedAt)
             .Select( tr => new TravelRequestResponseDto
@@ -137,15 +137,14 @@ public class TravelRequestService : ITravelRequestService
             .ToListAsync();
     }
 
-    // Pending Project Manager Requests
-    public async Task<List<TravelRequestResponseDto>>GetPendingPMRequestsAsync(int projectManagerId)
+    // Get Draft Requests
+    public async Task<List<TravelRequestResponseDto>>GetDraftRequestsAsync(int employeeId)
     {
         return await _context.TravelRequests
-            .Include(tr => tr.Employee)
+            .Include(tr=>tr.Employee)
             .Where(tr =>
-                tr.ProjectManagerId == projectManagerId &&
-                tr.CurrentStage == ApprovalStage.ProjectManager &&
-                tr.Status == RequestStatus.Pending
+                tr.EmployeeId==employeeId &&
+                tr.IsDraft==true
             )
             .Select(tr =>
                 new TravelRequestResponseDto
@@ -155,6 +154,38 @@ public class TravelRequestService : ITravelRequestService
                     Source = tr.Source,
                     Destination = tr.Destination,
                     Purpose = tr.Purpose,
+                    StartDate = tr.StartDate,
+                    EndDate = tr.EndDate,
+                    EstimatedCost = tr.EstimatedCost,
+                    Status = tr.Status.ToString(),
+                    CurrentStage = tr.CurrentStage.ToString(),
+                    CreatedAt = tr.CreatedAt
+                })
+            .ToListAsync();
+    }
+
+    // Pending Project Manager Requests
+    public async Task<List<TravelRequestResponseDto>>GetPendingPMRequestsAsync(int projectManagerId)
+    {
+        return await _context.TravelRequests
+            .Include(tr => tr.Employee)
+            .Where(tr =>
+                tr.ProjectManagerId == projectManagerId &&
+                tr.CurrentStage == ApprovalStage.ProjectManager &&
+                tr.Status == RequestStatus.Pending &&
+                !tr.IsDraft
+
+            )
+            .Select(tr =>
+                new TravelRequestResponseDto
+                {
+                    TravelRequestId = tr.TravelRequestId,
+                    EmployeeName = tr.Employee!.UserName,
+                    Source = tr.Source,
+                    Destination = tr.Destination,
+                    Purpose = tr.Purpose,
+                    StartDate = tr.StartDate,
+                    EndDate = tr.EndDate,
                     EstimatedCost = tr.EstimatedCost,
                     Status = tr.Status.ToString(),
                     CurrentStage = tr.CurrentStage.ToString(),
@@ -171,7 +202,8 @@ public class TravelRequestService : ITravelRequestService
             .Where(tr =>
                 tr.ManagerId == managerId &&
                 tr.CurrentStage == ApprovalStage.Manager &&
-                tr.Status == RequestStatus.Pending
+                tr.Status == RequestStatus.Pending &&
+                !tr.IsDraft
             )
 
             .Select(tr =>
@@ -182,6 +214,8 @@ public class TravelRequestService : ITravelRequestService
                     Source = tr.Source,
                     Destination = tr.Destination,
                     Purpose = tr.Purpose,
+                    StartDate = tr.StartDate,
+                    EndDate = tr.EndDate,
                     EstimatedCost = tr.EstimatedCost,
                     Status = tr.Status.ToString(),
                     CurrentStage = tr.CurrentStage.ToString(),
@@ -199,7 +233,8 @@ public class TravelRequestService : ITravelRequestService
             .Where(tr => 
                 tr.FinanceId == financeId &&
                 tr.CurrentStage == ApprovalStage.Finance &&
-                tr.Status == RequestStatus.Pending
+                tr.Status == RequestStatus.Pending &&
+                !tr.IsDraft
             )
             .Select(tr => new TravelRequestResponseDto
             {
@@ -208,6 +243,8 @@ public class TravelRequestService : ITravelRequestService
                 Source = tr.Source,
                 Destination = tr.Destination,
                 Purpose = tr.Purpose,
+                StartDate = tr.StartDate,
+                EndDate = tr.EndDate,
                 EstimatedCost = tr.EstimatedCost,
                 Status = tr.Status.ToString(),
                 CurrentStage = tr.CurrentStage.ToString(),
