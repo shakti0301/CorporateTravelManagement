@@ -1,0 +1,605 @@
+<app-navbar></app-navbar>
+
+<section class="page">
+  <div class="page-shell">
+    <!-- ── HEADER ── -->
+    <div class="page-header">
+      <div>
+        <h1>My Travel Requests</h1>
+        <p class="page-subtitle">
+          Manage your upcoming and past travel itineraries.
+        </p>
+      </div>
+      <button class="create-btn" [routerLink]="basePath + '/request'">
+        <i class="bi bi-plus-lg me-2"></i>Create New Request
+      </button>
+    </div>
+
+    <!-- ── FILTERS ── -->
+    <div class="filters-bar">
+      <div class="filter-group search-group">
+        <label class="filter-label">SEARCH</label>
+        <div class="search-input-wrap">
+          <svg
+            class="search-icon"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#94a3b8"
+            stroke-width="2"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input
+            type="text"
+            class="filter-input"
+            placeholder="Source, Destination, Purpose..."
+            [(ngModel)]="searchQuery"
+            (ngModelChange)="onFilterChange()"
+          />
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">STATUS</label>
+        <select
+          class="filter-select"
+          [(ngModel)]="statusFilter"
+          (ngModelChange)="onFilterChange()"
+        >
+          <option value="all">All Statuses</option>
+          <option value="draft">Draft</option>
+          <option value="pending">Pending</option>
+          <option value="approved">Approved</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">DATE RANGE</label>
+        <input
+          type="date"
+          class="filter-input date-input"
+          [(ngModel)]="dateFilter"
+          (ngModelChange)="onFilterChange()"
+        />
+      </div>
+
+      <button class="filter-btn" (click)="clearFilters()">
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+        >
+          <line x1="4" y1="6" x2="20" y2="6" />
+          <line x1="8" y1="12" x2="16" y2="12" />
+          <line x1="11" y1="18" x2="13" y2="18" />
+        </svg>
+        Filter
+      </button>
+    </div>
+
+    <!-- ── TABLE ── -->
+    <div class="table-card" *ngIf="requests.length > 0; else emptyState">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>SOURCE → DESTINATION</th>
+              <th>PURPOSE</th>
+              <th>DATES</th>
+              <th>BUDGET</th>
+              <th>STATUS</th>
+              <th>ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let req of paginatedRequests">
+              <!-- SOURCE → DESTINATION + TRIP ID -->
+              <td>
+                <div class="dest-name">
+                  {{ req.source }} → {{ req.destination }}
+                </div>
+                <div class="trip-id-sub">
+                  {{ req.tripId || "REQ-" + req.id }}
+                </div>
+              </td>
+
+              <!-- PURPOSE -->
+              <td class="purpose-cell">{{ req.purpose }}</td>
+
+              <!-- DATES -->
+              <td class="dates-cell">
+                {{ req.fromDate | date: "MMM dd" }} –
+                {{ req.toDate | date: "MMM dd, yyyy" }}
+              </td>
+
+              <!-- BUDGET -->
+              <td class="budget-cell">
+                {{
+                  req.estimatedCost || 0
+                    | currency: "INR" : "symbol-narrow" : "1.0-0"
+                }}
+              </td>
+
+              <!-- STATUS -->
+              <td class="status-cell">
+                <!-- DRAFT -->
+                <ng-container *ngIf="req.isDraft">
+                  <span class="pill pill-neutral">Draft</span>
+                </ng-container>
+
+                <!-- REIMBURSEMENT STATUS (expense already submitted) -->
+                <ng-container *ngIf="!req.isDraft && req.expenseSubmitted">
+                  <span class="pill" [ngClass]="getReimbursementPillClass(req)">
+                    Reimbursement: {{ formatStatus(req.reimbursementStatus) }}
+                  </span>
+                </ng-container>
+
+                <!-- NORMAL APPROVAL FLOW (manager → finance) -->
+                <ng-container *ngIf="!req.isDraft && !req.expenseSubmitted">
+                  <div class="status-flow">
+                    <span class="pill" [ngClass]="getPmPillClass(req)">
+                      PM : {{ formatStatus(req.pmStatus) }}
+                    </span>
+                    <span class="flow-arrow">→</span>
+                    <span class="pill" [ngClass]="getManagerPillClass(req)">
+                      Mgr : {{ formatStatus(req.managerStatus) }}
+                    </span>
+                    <span class="flow-arrow">→</span>
+
+                    <span class="pill" [ngClass]="getFinancePillClass(req)">
+                      Fin : {{ formatStatus(req.financeStatus) }}
+                    </span>
+                  </div>
+                </ng-container>
+
+                <!-- REJECTION REASON -->
+                <div *ngIf="req.reason" class="reason-text">
+                  {{ req.reason }}
+                </div>
+              </td>
+
+              <!-- ACTIONS -->
+              <td class="actions-cell">
+                <!-- View icon -->
+                <button
+                  class="icon-btn"
+                  title="View details"
+                  [routerLink]="[
+                    basePath + '/request-details',
+                    req.travelRequestId || req.id
+                  ]"
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                </button>
+
+                <!-- Edit -->
+                <button
+                  class="action-btn btn-edit"
+                  *ngIf="canModify(req)"
+                  (click)="openEditModal(req)"
+                >
+                  Edit
+                </button>
+
+                <!-- Delete / Cancel -->
+                <button
+                  class="action-btn btn-danger"
+                  *ngIf="canModify(req)"
+                  (click)="deleteRequest(req.id)"
+                >
+                  {{ req.isDraft ? "Delete" : "Cancel" }}
+                </button>
+
+                <!-- Add Expense -->
+                <button
+                  class="action-btn btn-primary"
+                  *ngIf="
+                    req.finalStatus === 'approved' && !req.expenseSubmitted
+                  "
+                  [routerLink]="[basePath + '/expense', req.id]"
+                >
+                  <svg
+                    width="13"
+                    height="13"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <rect x="3" y="5" width="18" height="14" rx="2" />
+                    <line x1="3" y1="10" x2="21" y2="10" />
+                  </svg>
+                  Add Expense
+                </button>
+
+                <!-- Expense submitted -->
+                <!-- <span
+                  class="submitted-tag"
+                  *ngIf="req.finalStatus === 'approved' && req.expenseSubmitted"
+                >
+                  Expense Submitted
+                </span> -->
+
+                <!-- Locked -->
+                <!-- <span
+                  class="locked-tag"
+                  *ngIf="
+                    !canModify(req) &&
+                    req.finalStatus !== 'approved' &&
+                    !req.expenseSubmitted
+                  "
+                >
+                  Locked
+                </span> -->
+              </td>
+            </tr>
+
+            <!-- No results after filter -->
+            <tr *ngIf="filteredRequests.length === 0">
+              <td colspan="6" class="no-results">
+                No requests match your filters.
+                <a (click)="clearFilters()" class="clear-link">Clear filters</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ── PAGINATION ── -->
+      <div class="pagination-bar">
+        <span class="pagination-info">
+          Showing {{ showingFrom }} to {{ showingTo }} of
+          {{ filteredRequests.length }} requests
+        </span>
+        <div class="pagination-controls">
+          <button
+            class="page-btn"
+            (click)="goToPage(currentPage - 1)"
+            [disabled]="currentPage === 1"
+          >
+            Previous
+          </button>
+          <button
+            class="page-btn"
+            (click)="goToPage(currentPage + 1)"
+            [disabled]="currentPage === totalPages || totalPages === 0"
+          >
+            Next
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── EMPTY STATE ── -->
+    <ng-template #emptyState>
+      <div class="empty-state">
+        <svg
+          width="48"
+          height="48"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#cbd5e1"
+          stroke-width="1.2"
+        >
+          <rect x="4" y="3" width="16" height="18" rx="2" />
+          <line x1="8" y1="8" x2="16" y2="8" />
+          <line x1="8" y1="12" x2="16" y2="12" />
+          <line x1="8" y1="16" x2="12" y2="16" />
+        </svg>
+        <h2>No requests yet</h2>
+        <p>Your travel requests will appear here after you submit one.</p>
+      </div>
+    </ng-template>
+  </div>
+</section>
+
+<!-- ── EDIT MODAL (unchanged structure, restyled) ── -->
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div
+    class="modal-box"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modal-title"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="modal-header">
+      <div>
+        <p class="modal-kicker">Travel Request</p>
+        <h3 id="modal-title">Edit Request</h3>
+      </div>
+      <button
+        type="button"
+        class="icon-close"
+        aria-label="Close"
+        (click)="closeModal()"
+      >
+        ×
+      </button>
+    </div>
+
+    <form #editForm="ngForm" class="draft-form" novalidate>
+      <div class="date-row">
+        <label class="draft-field">
+          <span>Source</span>
+          <input
+            #source="ngModel"
+            class="form-control"
+            [class.is-invalid]="
+              (source.touched || modalSubmitted) && source.invalid
+            "
+            [(ngModel)]="selectedRequest.source"
+            name="source"
+            placeholder="Enter source"
+            minlength="3"
+            maxlength="80"
+            pattern="^[a-zA-Z0-9\s,.-]+$"
+            required
+          />
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              (source.touched || modalSubmitted) && source.errors?.['required']
+            "
+          >
+            Source is required.
+          </div>
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              (source.touched || modalSubmitted) && source.errors?.['minlength']
+            "
+          >
+            Minimum 3 characters.
+          </div>
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              (source.touched || modalSubmitted) && source.errors?.['pattern']
+            "
+          >
+            Use letters, numbers, spaces, commas, dots and hyphens only.
+          </div>
+        </label>
+
+        <label class="draft-field">
+          <span>Destination</span>
+          <input
+            #destination="ngModel"
+            class="form-control"
+            [class.is-invalid]="
+              (destination.touched || modalSubmitted) && destination.invalid
+            "
+            [(ngModel)]="selectedRequest.destination"
+            name="destination"
+            placeholder="Enter destination"
+            minlength="3"
+            maxlength="80"
+            pattern="^[a-zA-Z0-9\s,.-]+$"
+            required
+          />
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              (destination.touched || modalSubmitted) &&
+              destination.errors?.['required']
+            "
+          >
+            Destination is required.
+          </div>
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              (destination.touched || modalSubmitted) &&
+              destination.errors?.['minlength']
+            "
+          >
+            Minimum 3 characters.
+          </div>
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              (destination.touched || modalSubmitted) &&
+              destination.errors?.['pattern']
+            "
+          >
+            Use letters, numbers, spaces, commas, dots and hyphens only.
+          </div>
+        </label>
+      </div>
+
+      <div class="date-row" style="margin-top: 1rem">
+        <label class="draft-field">
+          <span>From Date</span>
+          <input
+            #fromDate="ngModel"
+            type="date"
+            class="form-control"
+            [class.is-invalid]="
+              (fromDate.touched || modalSubmitted) &&
+              (fromDate.invalid || selectedRequest?.fromDate < today)
+            "
+            [(ngModel)]="selectedRequest.fromDate"
+            name="fromDate"
+            [attr.min]="today"
+            required
+          />
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              (fromDate.touched || modalSubmitted) &&
+              fromDate.errors?.['required']
+            "
+          >
+            Start date is required.
+          </div>
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              (fromDate.touched || modalSubmitted) &&
+              selectedRequest?.fromDate < today
+            "
+          >
+            Start date cannot be in the past.
+          </div>
+        </label>
+
+        <label class="draft-field">
+          <span>To Date</span>
+          <input
+            #toDate="ngModel"
+            type="date"
+            class="form-control"
+            [class.is-invalid]="
+              (toDate.touched || modalSubmitted) &&
+              (toDate.invalid ||
+                selectedRequest?.toDate < today ||
+                (selectedRequest?.fromDate &&
+                  selectedRequest?.toDate &&
+                  selectedRequest?.toDate < selectedRequest?.fromDate))
+            "
+            [(ngModel)]="selectedRequest.toDate"
+            name="toDate"
+            [attr.min]="toDateMin"
+            required
+          />
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              (toDate.touched || modalSubmitted) && toDate.errors?.['required']
+            "
+          >
+            End date is required.
+          </div>
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              (toDate.touched || modalSubmitted) &&
+              selectedRequest?.toDate < today
+            "
+          >
+            End date cannot be in the past.
+          </div>
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              (toDate.touched || modalSubmitted) &&
+              selectedRequest?.fromDate &&
+              selectedRequest?.toDate &&
+              selectedRequest?.toDate < selectedRequest?.fromDate
+            "
+          >
+            End date must be same as or after start date.
+          </div>
+        </label>
+      </div>
+
+      <label class="draft-field">
+        <span>Purpose</span>
+        <textarea
+          #purpose="ngModel"
+          class="form-control"
+          [class.is-invalid]="
+            (purpose.touched || modalSubmitted) && purpose.invalid
+          "
+          [(ngModel)]="selectedRequest.purpose"
+          name="purpose"
+          placeholder="Purpose of travel"
+          minlength="10"
+          maxlength="250"
+          rows="3"
+          required
+        >
+        </textarea>
+        <div
+          class="invalid-feedback d-block"
+          *ngIf="
+            (purpose.touched || modalSubmitted) && purpose.errors?.['required']
+          "
+        >
+          Purpose is required.
+        </div>
+        <div
+          class="invalid-feedback d-block"
+          *ngIf="
+            (purpose.touched || modalSubmitted) && purpose.errors?.['minlength']
+          "
+        >
+          Minimum 10 characters.
+        </div>
+      </label>
+
+      <label class="draft-field">
+        <span>Estimated Cost (₹)</span>
+        <input
+          #estimatedCost="ngModel"
+          type="number"
+          class="form-control"
+          [class.is-invalid]="
+            (estimatedCost.touched || modalSubmitted) && estimatedCost.invalid
+          "
+          [(ngModel)]="selectedRequest.estimatedCost"
+          name="estimatedCost"
+          placeholder="Enter amount"
+          min="1"
+          max="1000000"
+          required
+        />
+        <div
+          class="invalid-feedback d-block"
+          *ngIf="
+            (estimatedCost.touched || modalSubmitted) &&
+            estimatedCost.errors?.['required']
+          "
+        >
+          Estimated cost is required.
+        </div>
+        <div
+          class="invalid-feedback d-block"
+          *ngIf="
+            (estimatedCost.touched || modalSubmitted) &&
+            estimatedCost.errors?.['min']
+          "
+        >
+          Estimated cost must be at least ₹1.
+        </div>
+      </label>
+
+      <div class="modal-actions">
+        <button type="button" class="modal-btn ghost" (click)="closeModal()">
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="modal-btn success"
+          (click)="saveDraft(editForm)"
+        >
+          Save Draft
+        </button>
+        <button
+          type="button"
+          class="modal-btn primary"
+          (click)="submitFromModal(editForm)"
+        >
+          Submit
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

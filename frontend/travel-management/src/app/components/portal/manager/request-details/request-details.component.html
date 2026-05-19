@@ -1,0 +1,1188 @@
+<app-navbar></app-navbar>
+
+<div class="details-page" *ngIf="request; else notFound">
+  <!-- ── BACK LINK ── -->
+  <div class="back-link" (click)="goBack()">
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2.5"
+    >
+      <polyline points="15 18 9 12 15 6" />
+    </svg>
+    Back to My Requests
+  </div>
+
+  <!-- ── PAGE TITLE ── -->
+  <div class="title-row">
+    <h1 class="page-title">
+      Request Details: {{ request.destination }} ({{
+        request.tripId || "REQ-" + request.id
+      }})
+    </h1>
+    <span class="draft-badge" *ngIf="request.isDraft">DRAFT</span>
+  </div>
+
+  <!-- ── MAIN LAYOUT: Two Column (Left Content + Right Actions) ── -->
+  <div class="main-layout">
+    <!-- LEFT COLUMN: All content stacked -->
+    <div class="left-column">
+      <!-- Info card -->
+      <div class="info-card">
+        <div class="info-row">
+          <div class="info-col">
+            <span class="info-label">SOURCE</span>
+            <div class="info-value">
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#94a3b8"
+                stroke-width="2"
+              >
+                <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              {{ request.source || "Not specified" }}
+            </div>
+          </div>
+
+          <div class="info-col">
+            <span class="info-label">DESTINATION</span>
+            <div class="info-value">
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#94a3b8"
+                stroke-width="2"
+              >
+                <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              {{ request.destination }}
+            </div>
+          </div>
+
+          <div class="info-col">
+            <span class="info-label">DATES</span>
+            <div class="info-value">
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#94a3b8"
+                stroke-width="2"
+              >
+                <rect x="3" y="4" width="18" height="18" rx="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
+              {{ request.fromDate | date: "MMM dd" }} –
+              {{ request.toDate | date: "MMM dd, yyyy" }}
+            </div>
+          </div>
+
+          <div class="info-col">
+            <span class="info-label">PURPOSE</span>
+            <div class="info-value">
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#94a3b8"
+                stroke-width="2"
+              >
+                <rect x="3" y="4" width="18" height="18" rx="2" />
+                <line x1="9" y1="9" x2="15" y2="9" />
+                <line x1="9" y1="13" x2="15" y2="13" />
+              </svg>
+              {{ request.purpose }}
+            </div>
+          </div>
+
+          <div class="info-col">
+            <span class="info-label">TOTAL BUDGET</span>
+            <div class="info-value budget-value">
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#94a3b8"
+                stroke-width="2"
+              >
+                <rect x="3" y="5" width="18" height="14" rx="2" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
+              {{
+                request.cost || 0 | currency: "INR" : "symbol-narrow" : "1.0-0"
+              }}
+            </div>
+          </div>
+
+          <!-- Total Expense -->
+          <div class="info-col">
+            <span class="info-label">TOTAL EXPENSE</span>
+            <div class="info-value expense-value">
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#94a3b8"
+                stroke-width="2"
+              >
+                <rect x="3" y="5" width="18" height="14" rx="2" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
+              {{
+                request.totalExpense || 0
+                  | currency: "INR" : "symbol-narrow" : "1.0-0"
+              }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Trip Overview -->
+      <div class="card overview-card">
+        <h3>Trip Overview</h3>
+        <p class="overview-text">
+          {{ tripOverview }}
+        </p>
+        <div class="draft-info" *ngIf="request.isDraft">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+            />
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+          </svg>
+          <span
+            >This is a draft. Complete editing and submit to start the approval
+            process.</span
+          >
+        </div>
+      </div>
+
+      <!-- Trip Itinerary -->
+      <!-- ── TRIP ITINERARY ── -->
+      <div
+        class="card itinerary-card"
+        *ngIf="request.itinerary && request.itinerary.length > 0"
+      >
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h3 class="mb-0">Trip Itinerary</h3>
+          <button
+            class="edit-itinerary-btn"
+            (click)="editItinerary()"
+            matTooltip="Edit Itinerary"
+            matTooltipPosition="left"
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+              />
+              <path
+                d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+              />
+            </svg>
+            Edit
+          </button>
+        </div>
+
+        <div class="itinerary-timeline">
+          <div
+            class="itinerary-day"
+            *ngFor="
+              let day of request.itinerary;
+              let i = index;
+              let last = last
+            "
+          >
+            <!-- Left: icon + vertical line -->
+            <div class="day-left">
+              <div class="day-circle" [ngClass]="getDayIconClass(day)">
+                <!-- Day 1 : plane icon -->
+                <svg
+                  *ngIf="i === 0"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="white"
+                  stroke-width="2"
+                >
+                  <path d="M22 16.5H2l2-9h16l2 9z" />
+                  <path d="M12 7.5V3m-4 4.5V4m8 3.5V4" />
+                </svg>
+                <!-- Last day : flag icon -->
+                <svg
+                  *ngIf="last && !isFirst(i)"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="white"
+                  stroke-width="2"
+                >
+                  <path
+                    d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"
+                  />
+                  <line x1="4" y1="22" x2="4" y2="15" />
+                </svg>
+                <!-- Middle days : calendar icon -->
+                <svg
+                  *ngIf="!isFirst(i) && !last"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="white"
+                  stroke-width="2"
+                >
+                  <rect x="3" y="4" width="18" height="18" rx="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+              </div>
+              <!-- Vertical connecting line (not on last item) -->
+              <div class="day-line" *ngIf="!last"></div>
+            </div>
+
+            <!-- Right: content -->
+            <div class="day-content" [class.mb-4]="!last">
+              <div class="day-label">
+                DAY {{ day.dayNumber }}:
+                {{ day.date | date: "MMM dd" | uppercase }}
+              </div>
+              <div class="day-activities">
+                <ng-container *ngFor="let activity of day.activities">
+                  <ng-container *ngIf="activity.title?.trim()">
+                    <div class="activity-title">{{ activity.title }}</div>
+                    <div
+                      class="activity-desc"
+                      *ngIf="activity.description?.trim()"
+                    >
+                      {{ activity.description }}
+                    </div>
+                    <div
+                      class="activity-meta d-flex align-items-center gap-2 mt-1"
+                      *ngIf="activity.time || activity.location"
+                    >
+                      <span class="meta-item" *ngIf="activity.time">
+                        <svg
+                          width="11"
+                          height="11"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="#94a3b8"
+                          stroke-width="2"
+                        >
+                          <circle cx="12" cy="12" r="10" />
+                          <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                        {{ activity.time }}
+                      </span>
+                      <span class="meta-item" *ngIf="activity.location">
+                        <svg
+                          width="11"
+                          height="11"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="#94a3b8"
+                          stroke-width="2"
+                        >
+                          <path
+                            d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"
+                          />
+                          <circle cx="12" cy="10" r="3" />
+                        </svg>
+                        {{ activity.location }}
+                      </span>
+                    </div>
+                  </ng-container>
+                </ng-container>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- No itinerary yet — show prompt -->
+      <div
+        class="card no-itinerary-card"
+        *ngIf="!request.itinerary || request.itinerary.length === 0"
+      >
+        <div class="d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center gap-3">
+            <div class="no-itinerary-icon">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#94a3b8"
+                stroke-width="1.5"
+              >
+                <rect x="3" y="4" width="18" height="18" rx="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
+            </div>
+            <div>
+              <div class="fw-semibold text-dark" style="font-size: 14px">
+                No itinerary added yet
+              </div>
+              <div class="text-muted" style="font-size: 12px">
+                Plan your day-by-day schedule for this trip
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Approval Status Timeline - Hidden for drafts -->
+      <div class="card timeline-card" *ngIf="!request.isDraft">
+        <h3>Approval Status</h3>
+
+        <div class="timeline">
+          <!-- STEP 1: Submitted -->
+          <div class="step" [ngClass]="getStepClass('submitted')">
+            <div class="step-circle">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="white"
+                stroke-width="3"
+              >
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </div>
+            <div class="step-label">Submitted</div>
+            <div class="step-sub">
+              {{ request.createdAt | date: "MMM dd, yyyy" }}
+            </div>
+          </div>
+
+          <!-- Line before PM approval (if applicable) -->
+          <div
+            class="timeline-line"
+            [ngClass]="{ 'line-active': isStepDone('pm') }"
+            *ngIf="hasPM"
+          ></div>
+
+          <!-- STEP 2A: Project Manager Approval (if hasPM) -->
+          <div class="step" [ngClass]="getStepClass('pm')" *ngIf="hasPM">
+            <div class="step-circle">
+              <svg
+                *ngIf="isStepDone('pm')"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="white"
+                stroke-width="3"
+              >
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+              <svg
+                *ngIf="isStepRejected('pm')"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="white"
+                stroke-width="3"
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </div>
+            <div class="step-label">Project Manager Approval</div>
+            <div class="step-sub">
+              {{ request.pmEmail || "Project Manager" }}
+            </div>
+          </div>
+
+          <!-- Line before manager approval -->
+          <div
+            class="timeline-line"
+            [ngClass]="{ 'line-active': isStepDone('manager') }"
+          ></div>
+
+          <!-- STEP 2B/3: Manager Approval -->
+          <div class="step" [ngClass]="getStepClass('manager')">
+            <div class="step-circle">
+              <svg
+                *ngIf="isStepDone('manager')"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="white"
+                stroke-width="3"
+              >
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+              <svg
+                *ngIf="isStepRejected('manager')"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="white"
+                stroke-width="3"
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </div>
+            <div class="step-label">Manager Approval</div>
+            <div class="step-sub">{{ request.managerName || "Manager" }}</div>
+          </div>
+
+          <div
+            class="timeline-line"
+            [ngClass]="{ 'line-active': isStepDone('finance') }"
+          ></div>
+
+          <!-- STEP 3/4: Finance Approval -->
+          <div class="step" [ngClass]="getStepClass('finance')">
+            <div class="step-circle">
+              <svg
+                *ngIf="isStepDone('finance')"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="white"
+                stroke-width="3"
+              >
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+              <svg
+                *ngIf="isStepRejected('finance')"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="white"
+                stroke-width="3"
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </div>
+            <div class="step-label">Finance Approval</div>
+            <div class="step-sub">Finance Dept</div>
+          </div>
+
+          <div
+            class="timeline-line"
+            [ngClass]="{ 'line-active': isFullyApproved }"
+          ></div>
+
+          <!-- STEP 4/5: Fully Approved -->
+          <div
+            class="step"
+            [ngClass]="isFullyApproved ? 'step-success' : 'step-inactive'"
+          >
+            <div class="step-circle">
+              <svg
+                *ngIf="isFullyApproved"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="white"
+                stroke-width="3"
+              >
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </div>
+            <div class="step-label" [class.text-success]="isFullyApproved">
+              {{ isFullyApproved ? "Fully Approved" : "Pending Approval" }}
+            </div>
+            <div class="step-sub">
+              {{
+                isFullyApproved ? "Ready for Expenses" : "Awaiting steps above"
+              }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Manager Remarks - Hidden for drafts -->
+      <div
+        class="card remark-card"
+        *ngIf="(request.reason || request.managerRemark) && !request.isDraft"
+      >
+        <div class="remark-header">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#2563eb"
+            stroke-width="2"
+          >
+            <path
+              d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+            />
+          </svg>
+          <span class="remark-label">MANAGER REMARKS</span>
+        </div>
+        <p class="remark-text">
+          "{{ request.managerRemark || request.reason }}"
+        </p>
+        <p class="remark-author">— {{ request.managerName || "Manager" }}</p>
+      </div>
+
+      <!-- No remarks fallback - Hidden for drafts -->
+      <div
+        class="card remark-card remark-muted"
+        *ngIf="!request.reason && !request.managerRemark && !request.isDraft"
+      >
+        <div class="remark-header">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#94a3b8"
+            stroke-width="2"
+          >
+            <path
+              d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+            />
+          </svg>
+          <span class="remark-label">MANAGER REMARKS</span>
+        </div>
+        <p class="remark-text muted-text">No remarks added by the manager.</p>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN: Actions panel (sticky) -->
+    <div class="actions-panel">
+      <div class="actions-label">ACTIONS</div>
+
+      <!-- DRAFT ACTIONS -->
+
+      <button
+        class="edit-btn"
+        *ngIf="request.isDraft"
+        (click)="openEditModal()"
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+          />
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+        </svg>
+        Edit Draft
+      </button>
+
+      <button
+        class="delete-btn"
+        *ngIf="request.isDraft"
+        (click)="deleteDraft()"
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <polyline points="3 6 5 6 21 6" />
+          <path
+            d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+          />
+          <line x1="10" y1="11" x2="10" y2="17" />
+          <line x1="14" y1="11" x2="14" y2="17" />
+        </svg>
+        Delete Draft
+      </button>
+
+      <!-- NON-DRAFT ACTIONS -->
+      <button
+        class="edit-btn"
+        *ngIf="canModify(request)"
+        (click)="openEditModal()"
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+          />
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+        </svg>
+        Edit Request
+      </button>
+
+      <button
+        class="delete-btn"
+        *ngIf="canModify(request)"
+        (click)="cancelRequest(request.id)"
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <polyline points="3 6 5 6 21 6" />
+          <path
+            d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+          />
+          <line x1="10" y1="11" x2="10" y2="17" />
+          <line x1="14" y1="11" x2="14" y2="17" />
+        </svg>
+        Cancel Request
+      </button>
+
+      <button
+        class="add-itinerary-btn"
+        *ngIf="
+          !request.isDraft &&
+          request.finalStatus == 'approved' &&
+          !request.expenseSubmitted &&
+          (!request.itinerary || request.itinerary.length === 0)
+        "
+        (click)="openItinerary()"
+      >
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+        >
+          <rect x="3" y="4" width="18" height="17" rx="2" />
+          <line x1="8" y1="2.5" x2="8" y2="6" />
+          <line x1="16" y1="2.5" x2="16" y2="6" />
+          <line x1="3" y1="9" x2="21" y2="9" />
+          <line x1="8" y1="13" x2="8" y2="13" />
+          <line x1="12" y1="13" x2="12" y2="13" />
+          <line x1="16" y1="13" x2="16" y2="13" />
+        </svg>
+        Add Itinerary
+      </button>
+
+      <!-- Add Expense — only if approved and not yet submitted and not draft -->
+      <button
+        class="add-expense-btn"
+        *ngIf="
+          !request.isDraft &&
+          request.finalStatus === 'approved' &&
+          !request.expenseSubmitted &&
+          canAddExpenses
+        "
+        (click)="addExpense()"
+      >
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="white"
+          stroke-width="2.5"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="16" />
+          <line x1="8" y1="12" x2="16" y2="12" />
+        </svg>
+        Add Expense
+      </button>
+
+      <!-- Waiting for trip to start to add expenses. -->
+      <div
+        class="not-started-tag"
+        *ngIf="
+          !request.isDraft &&
+          request.finalStatus === 'approved' &&
+          !request.expenseSubmitted &&
+          !canAddExpenses
+        "
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#f97316"
+          stroke-width="2"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <circle cx="12" cy="16" r="0.5" fill="#f97316" />
+        </svg>
+        Trip Not Started
+      </div>
+
+      <!-- Expense already submitted - Not for drafts -->
+      <div
+        class="expense-submitted-tag"
+        *ngIf="
+          !request.isDraft &&
+          request.expenseSubmitted &&
+          request.reimbursementStatus !== 'approved'
+        "
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#16a34a"
+          stroke-width="2"
+        >
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+        Expense Submitted
+      </div>
+
+      <!-- Trip Complete -->
+      <div
+        class="trip-complete-tag"
+        *ngIf="
+          !request.isDraft &&
+          request.expenseSubmitted &&
+          request.reimbursementStatus === 'approved'
+        "
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#16a34a"
+          stroke-width="2"
+        >
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+        Trip Complete
+      </div>
+
+      <!-- Rejected - Not for drafts -->
+      <div
+        class="rejected-tag"
+        *ngIf="!request.isDraft && request.finalStatus === 'rejected'"
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#dc2626"
+          stroke-width="2.5"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <line x1="8" y1="8" x2="16" y2="16" />
+          <line x1="16" y1="8" x2="8" y2="16" />
+        </svg>
+        Request Rejected
+      </div>
+
+      <!-- Not yet approved - Not for drafts -->
+      <div
+        class="not-approved-tag"
+        *ngIf="
+          !request.isDraft &&
+          request.finalStatus !== 'approved' &&
+          request.finalStatus !== 'rejected' &&
+          !request.expenseSubmitted
+        "
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#f97316"
+          stroke-width="2"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <circle cx="12" cy="16" r="0.5" fill="#f97316" />
+        </svg>
+        Awaiting Approval
+      </div>
+
+      <!-- Download PDF -->
+      <button class="download-btn" (click)="downloadPdf()">
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#475569"
+          stroke-width="2"
+        >
+          <rect x="3" y="3" width="18" height="18" rx="2" />
+          <line x1="9" y1="9" x2="15" y2="9" />
+          <line x1="9" y1="13" x2="15" y2="13" />
+          <line x1="9" y1="17" x2="12" y2="17" />
+        </svg>
+        Download PDF
+      </button>
+
+      <!-- Info note — dynamic based on status -->
+      <div class="info-note">
+        <svg
+          width="15"
+          height="15"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#2563eb"
+          stroke-width="2"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="16" x2="12" y2="12" />
+          <line x1="12" y1="8" x2="12.01" y2="8" />
+        </svg>
+        <span>{{ statusNote }}</span>
+      </div>
+    </div>
+  </div>
+  <!-- End main-layout -->
+</div>
+
+<!-- ── EDIT MODAL (Draft editing form) ── -->
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div
+    class="modal-box"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modal-title"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="modal-header">
+      <div>
+        <p class="modal-kicker">Travel Request</p>
+        <h3 id="modal-title">Edit Request</h3>
+      </div>
+      <button
+        type="button"
+        class="icon-close"
+        aria-label="Close"
+        (click)="closeModal()"
+      >
+        ×
+      </button>
+    </div>
+
+    <form #editForm="ngForm" class="draft-form" novalidate>
+      <div class="date-row">
+        <label class="draft-field">
+          <span>Source</span>
+          <input
+            #source="ngModel"
+            class="form-control"
+            [class.is-invalid]="
+              (source.touched || modalSubmitted) && source.invalid
+            "
+            [(ngModel)]="selectedRequest.source"
+            name="source"
+            placeholder="Enter source"
+            minlength="3"
+            maxlength="80"
+            pattern="^[a-zA-Z0-9\s,.-]+$"
+            required
+          />
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              (source.touched || modalSubmitted) && source.errors?.['required']
+            "
+          >
+            Source is required.
+          </div>
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              (source.touched || modalSubmitted) && source.errors?.['minlength']
+            "
+          >
+            Minimum 3 characters.
+          </div>
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              (source.touched || modalSubmitted) && source.errors?.['pattern']
+            "
+          >
+            Use letters, numbers, spaces, commas, dots and hyphens only.
+          </div>
+        </label>
+
+        <label class="draft-field">
+          <span>Destination</span>
+          <input
+            #destination="ngModel"
+            class="form-control"
+            [class.is-invalid]="
+              (destination.touched || modalSubmitted) && destination.invalid
+            "
+            [(ngModel)]="selectedRequest.destination"
+            name="destination"
+            placeholder="Enter destination"
+            minlength="3"
+            maxlength="80"
+            pattern="^[a-zA-Z0-9\s,.-]+$"
+            required
+          />
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              (destination.touched || modalSubmitted) &&
+              destination.errors?.['required']
+            "
+          >
+            Destination is required.
+          </div>
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              (destination.touched || modalSubmitted) &&
+              destination.errors?.['minlength']
+            "
+          >
+            Minimum 3 characters.
+          </div>
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              (destination.touched || modalSubmitted) &&
+              destination.errors?.['pattern']
+            "
+          >
+            Use letters, numbers, spaces, commas, dots and hyphens only.
+          </div>
+        </label>
+      </div>
+
+      <div class="date-row" style="margin-top: 1rem">
+        <label class="draft-field">
+          <span>From Date</span>
+          <input
+            #fromDate="ngModel"
+            type="date"
+            class="form-control"
+            [class.is-invalid]="
+              (fromDate.touched || modalSubmitted) &&
+              (fromDate.invalid || selectedRequest?.fromDate < today)
+            "
+            [(ngModel)]="selectedRequest.fromDate"
+            name="fromDate"
+            [attr.min]="today"
+            required
+          />
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              (fromDate.touched || modalSubmitted) &&
+              fromDate.errors?.['required']
+            "
+          >
+            Start date is required.
+          </div>
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              (fromDate.touched || modalSubmitted) &&
+              selectedRequest?.fromDate < today
+            "
+          >
+            Start date cannot be in the past.
+          </div>
+        </label>
+
+        <label class="draft-field">
+          <span>To Date</span>
+          <input
+            #toDate="ngModel"
+            type="date"
+            class="form-control"
+            [class.is-invalid]="
+              (toDate.touched || modalSubmitted) &&
+              (toDate.invalid ||
+                selectedRequest?.toDate < today ||
+                (selectedRequest?.fromDate &&
+                  selectedRequest?.toDate &&
+                  selectedRequest?.toDate < selectedRequest?.fromDate))
+            "
+            [(ngModel)]="selectedRequest.toDate"
+            name="toDate"
+            [attr.min]="toDateMin"
+            required
+          />
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              (toDate.touched || modalSubmitted) && toDate.errors?.['required']
+            "
+          >
+            End date is required.
+          </div>
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              (toDate.touched || modalSubmitted) &&
+              selectedRequest?.toDate < today
+            "
+          >
+            End date cannot be in the past.
+          </div>
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              (toDate.touched || modalSubmitted) &&
+              selectedRequest?.fromDate &&
+              selectedRequest?.toDate &&
+              selectedRequest?.toDate < selectedRequest?.fromDate
+            "
+          >
+            End date must be same as or after start date.
+          </div>
+        </label>
+      </div>
+
+      <label class="draft-field">
+        <span>Purpose</span>
+        <textarea
+          #purpose="ngModel"
+          class="form-control"
+          [class.is-invalid]="
+            (purpose.touched || modalSubmitted) && purpose.invalid
+          "
+          [(ngModel)]="selectedRequest.purpose"
+          name="purpose"
+          placeholder="Purpose of travel"
+          minlength="10"
+          maxlength="250"
+          rows="3"
+          required
+        >
+        </textarea>
+        <div
+          class="invalid-feedback d-block"
+          *ngIf="
+            (purpose.touched || modalSubmitted) && purpose.errors?.['required']
+          "
+        >
+          Purpose is required.
+        </div>
+        <div
+          class="invalid-feedback d-block"
+          *ngIf="
+            (purpose.touched || modalSubmitted) && purpose.errors?.['minlength']
+          "
+        >
+          Minimum 10 characters.
+        </div>
+      </label>
+
+      <label class="draft-field">
+        <span>Estimated Cost (₹)</span>
+        <input
+          #cost="ngModel"
+          type="number"
+          class="form-control"
+          [class.is-invalid]="(cost.touched || modalSubmitted) && cost.invalid"
+          [(ngModel)]="selectedRequest.cost"
+          name="cost"
+          placeholder="Enter amount"
+          min="1"
+          max="1000000"
+          required
+        />
+        <div
+          class="invalid-feedback d-block"
+          *ngIf="(cost.touched || modalSubmitted) && cost.errors?.['required']"
+        >
+          Estimated cost is required.
+        </div>
+        <div
+          class="invalid-feedback d-block"
+          *ngIf="(cost.touched || modalSubmitted) && cost.errors?.['min']"
+        >
+          Cost must be at least ₹1.
+        </div>
+      </label>
+
+      <div class="modal-actions">
+        <button type="button" class="modal-btn ghost" (click)="closeModal()">
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="modal-btn success"
+          (click)="saveDraft(editForm)"
+        >
+          Save Draft
+        </button>
+        <button
+          type="button"
+          class="modal-btn primary"
+          (click)="submitDraft(editForm)"
+        >
+          Submit
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ── NOT FOUND ── -->
+<ng-template #notFound>
+  <div class="not-found">
+    <h2>Request not found</h2>
+    <p>This request may have been deleted or you don't have access.</p>
+    <button class="back-btn" (click)="goBack()">← Back to My Requests</button>
+  </div>
+</ng-template>
