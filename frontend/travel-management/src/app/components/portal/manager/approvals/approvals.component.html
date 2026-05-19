@@ -65,7 +65,8 @@
           <tr>
             <th>Trip Id</th>
             <th>Employee</th>
-            <th>Destination</th>
+            <th>Source -> Destination</th>
+            <th>Purpose</th>
             <th>Dates</th>
             <th>Total Budget</th>
 
@@ -89,13 +90,15 @@
                   </div>
                   <div>
                     <div class="emp-name">{{ req.userEmail }}</div>
-                    <div class="emp-meta">{{ req.source }}</div>
                   </div>
                 </div>
               </td>
 
-              <!-- Destination -->
-              <td>{{ req.destination }}</td>
+              <!-- Source & Destination -->
+              <td>{{ req.source }} -> {{ req.destination }}</td>
+
+              <!-- purpose -->
+              <td>{{ req.purpose }}</td>
 
               <!-- Dates -->
               <td class="dates">
