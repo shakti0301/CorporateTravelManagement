@@ -7,23 +7,14 @@ namespace TravelMgmtApi.Services
 {
     public class UserService : IUserService
     {
-        private readonly AppDbContext _context;
-        public UserService(AppDbContext context)
+        private readonly IUserRepository _userRepository;
+        public UserService(IUserRepository userRepository)
         {
-            _context = context;
+            _userRepository = userRepository;
         }
-
-        public async Task<List<DTOs.UserDropdownDto>> GetProjectManagerAsync()
+        public async Task<List<UserDropdownDto>> GetProjectManagerAsync()
         {
-            return await _context.Users
-                .Include(u => u.Role)
-                .Where(u => u.Role!.Name == "ProjectManager")
-                .Select(u => new UserDropdownDto
-                {
-                    UserId = u.UserId,
-                    UserName = u.UserName
-                })
-                .ToListAsync();
+            return await _userRepository.GetProjectManagerAsync();
         }
     }
 }
