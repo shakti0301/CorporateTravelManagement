@@ -89,8 +89,27 @@
           Approvals
         </a>
       </li>
+      <li *ngIf="user?.role === 'manager'" (click)="closeMobileMenu()">
+        <a
+          routerLink="/manager/myrequests"
+          routerLinkActive="nx-link--active"
+          class="nx-link"
+        >
+          My Requests
+        </a>
+      </li>
+      <li *ngIf="user?.role === 'manager'" (click)="closeMobileMenu()">
+        <a
+          routerLink="/manager/request"
+          routerLinkActive="nx-link--active"
+          class="nx-link"
+        >
+          Create Request
+        </a>
+      </li>
 
       <!-- PROJECT MANAGER LINKS -->
+
       <li *ngIf="user?.role === 'projectmanager'" (click)="closeMobileMenu()">
         <a
           routerLink="/pm"
@@ -110,6 +129,25 @@
           Approvals
         </a>
       </li>
+      <li *ngIf="user?.role === 'projectmanager'" (click)="closeMobileMenu()">
+        <a
+          routerLink="/pm/myrequests"
+          routerLinkActive="nx-link--active"
+          class="nx-link"
+        >
+          My Requests
+        </a>
+      </li>
+      <li *ngIf="user?.role === 'projectmanager'" (click)="closeMobileMenu()">
+        <a
+          routerLink="/pm/request"
+          routerLinkActive="nx-link--active"
+          class="nx-link"
+        >
+          Create Request
+        </a>
+      </li>
+
       <!-- FINANCE LINKS -->
       <li *ngIf="user?.role === 'finance'" (click)="closeMobileMenu()">
         <a
