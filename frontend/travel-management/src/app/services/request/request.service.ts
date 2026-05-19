@@ -25,11 +25,19 @@ export class RequestService {
   }
 
   // Manager
+  getManagerRequests() {
+    return this.http.get(`${this.apiUrl}/all/manager`);
+  }
+
   getPendingManagerRequests() {
     return this.http.get(`${this.apiUrl}/pending/manager`);
   }
 
   // PM
+  getPMRequests() {
+    return this.http.get(`${this.apiUrl}/all/pm`);
+  }
+
   getPendingPMRequests() {
     return this.http.get(`${this.apiUrl}/pending/pm`);
   }
