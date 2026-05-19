@@ -13,19 +13,19 @@ namespace TravelMgmtApi.Services
 {
     public class AuthService : IAuthService
     {
-        private readonly AppDbContext _context;
+        private readonly IAuthRepository _authRepository;
         private readonly IConfiguration _configuration;
 
-        public AuthService(AppDbContext context, IConfiguration configuration)
+        public AuthService(IAuthRepository authRepository, IConfiguration configuration)
         {
-            _context = context;
+            _authRepository = authRepository;
             _configuration = configuration;
         }
 
         //Register
         public async Task<string> RegisterAsync(RegisterDto registerDto)
         {
-            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == registerDto.Email);
+            var existingUser = await _authRepository.GetUserByEmailAsync(registerDto.Email);
 
             //Checks email if it is exist
             if (existingUser != null)
@@ -38,10 +38,7 @@ namespace TravelMgmtApi.Services
             // Employee OR PM
             if(registerDto.RoleId == 2 || registerDto.RoleId == 5)
             {
-                var department = await _context.Departments
-                    .FirstOrDefaultAsync(
-                        d => d.DepartmentId == registerDto.DepartmentId
-                    );
+                var department = await _authRepository.GetDepartmentAsync(registerDto.DepartmentId);
                 managerId = department?.ManagerId;
             }
 
@@ -54,10 +51,7 @@ namespace TravelMgmtApi.Services
                 DepartmentId = registerDto.DepartmentId,
                 ManagerId = managerId
             };
-            _context.Users.Add(user);
-
-            await _context.SaveChangesAsync();
-
+            await _authRepository.AddUserAsync(user);
             return "User registered successfully";
         }
 
@@ -65,12 +59,7 @@ namespace TravelMgmtApi.Services
         public async Task<AuthResponseDto?> LoginAsync(LoginDto loginDto)
         {
             var hashedPassword = PasswordHelper.HashPassword(loginDto.Password);
-
-            var user = await _context.Users
-                .Include(u => u.Role)
-                .FirstOrDefaultAsync(x => 
-                x.Email == loginDto.Email && 
-                x.PasswordHash == hashedPassword);
+            var user = await _authRepository.LoginUserAsync(loginDto.Email, hashedPassword);
 
             if (user == null)
             {
@@ -79,7 +68,6 @@ namespace TravelMgmtApi.Services
 
             //Generate JWT token
             var token = GenerateJwtToken(user);
-
             return new AuthResponseDto
             {
                 Token = token,
