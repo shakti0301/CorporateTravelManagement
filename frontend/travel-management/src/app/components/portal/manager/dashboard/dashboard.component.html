@@ -1,1 +1,107 @@
 <app-navbar></app-navbar>
+
+<div class="db-page">
+  <!-- Header -->
+  <div class="db-header">
+    <div>
+      <h1 class="db-title">{{ pageTitle }}</h1>
+      <p class="db-sub">{{ pageSubtitle }}</p>
+    </div>
+    <button class="btn-export">⬇ Export Report</button>
+  </div>
+
+  <!-- Stat Cards -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-top">
+        <span class="stat-label">PENDING APPROVALS</span>
+        <div class="stat-icon pending-icon">⏳</div>
+      </div>
+      <div class="stat-number">{{ pendingCount }}</div>
+      <div class="stat-watermark pending-wm">⏳</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-top">
+        <span class="stat-label">APPROVED THIS MONTH</span>
+        <div class="stat-icon approved-icon">✓</div>
+      </div>
+      <div class="stat-number">{{ approvedThisMonth }}</div>
+      <div class="stat-watermark approved-wm">✓</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-top">
+        <span class="stat-label">REJECTED</span>
+        <div class="stat-icon rejected-icon">✕</div>
+      </div>
+      <div class="stat-number">{{ rejectedCount }}</div>
+      <div class="stat-watermark rejected-wm">✕</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-top">
+        <span class="stat-label">TOTAL TEAM REQUESTS</span>
+        <div class="stat-icon total-icon">👥</div>
+      </div>
+      <div class="stat-number">{{ totalRequests }}</div>
+      <div class="stat-watermark total-wm">👥</div>
+    </div>
+  </div>
+
+  <!-- Pending Approvals Table -->
+  <div class="db-table-card">
+    <div class="db-table-header">
+      <h2 class="db-table-title">Pending Approvals</h2>
+      <button class="btn-view-all" (click)="goToApprovals()">View All</button>
+    </div>
+
+    <!-- Empty -->
+    <div *ngIf="recentPending.length === 0" class="db-empty">
+      <p>No pending approvals right now 🎉</p>
+      <small>All requests have been reviewed.</small>
+    </div>
+
+    <!-- Table -->
+    <div *ngIf="recentPending.length > 0" class="table-wrap">
+      <table class="db-table">
+        <thead>
+          <tr>
+            <th>EMPLOYEE</th>
+            <th>DESTINATION</th>
+            <th>TRAVEL DATES</th>
+            <th>BUDGET</th>
+            <th>SUBMITTED ON</th>
+            <th>ACTIONS</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let req of recentPending">
+            <td>
+              <div class="emp-cell">
+                <div
+                  class="emp-avatar"
+                  [style.background]="getAvatarColor(req.userEmail)"
+                >
+                  {{ getInitials(req.userEmail) }}
+                </div>
+                <span class="emp-name">{{ req.userEmail }}</span>
+              </div>
+            </td>
+            <td>{{ req.destination }}</td>
+            <td class="nowrap">{{ req.fromDate }} – {{ req.toDate }}</td>
+            <td class="budget-cell">
+              {{ req.cost | currency: "INR" : "symbol" : "1.0-0" }}
+            </td>
+            <td class="nowrap">{{ req.createdAt | date: "MMM dd, yyyy" }}</td>
+            <td>
+              <button class="btn-view-req" (click)="goToApprovals()">
+                Review →
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
