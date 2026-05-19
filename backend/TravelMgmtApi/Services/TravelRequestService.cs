@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using TravelMgmtApi.Data;
 using TravelMgmtApi.DTOs;
 using TravelMgmtApi.Enums;
@@ -27,6 +28,7 @@ public class TravelRequestService : ITravelRequestService
         // Find employee
         var employee = await _context.Users
             .Include(u => u.Department)
+            .Include(u => u.Role)
             .FirstOrDefaultAsync(
                 u => u.UserId == employeeId
             );
@@ -79,14 +81,26 @@ public class TravelRequestService : ITravelRequestService
 
         // Decide first stage
         ApprovalStage firstStage;
-        if (dto.ProjectManagerId.HasValue && dto.ProjectManagerId > 0)
+
+        if(employee.Role?.Name == "Manager")
         {
+            // manager request → finance directly
+            firstStage = ApprovalStage.Finance;
+        }
+        else if(employee.Role?.Name == "ProjectManager")
+        {
+            // PM request → manager
+            firstStage = ApprovalStage.Manager;
+        }
+        else if(dto.ProjectManagerId.HasValue)
+        {
+            // employee selected PM
             firstStage = ApprovalStage.ProjectManager;
         }
         else
         {
+            // normal employee
             firstStage = ApprovalStage.Manager;
-            dto.ProjectManagerId = null;
         }
 
         // Create request
@@ -132,6 +146,10 @@ public class TravelRequestService : ITravelRequestService
                 EstimatedCost = tr.EstimatedCost,
                 Status = tr.Status.ToString(),
                 CurrentStage = tr.CurrentStage.ToString(),
+                Comments = tr.Approvals
+                    .OrderByDescending(a => a.ActionDate)
+                    .Select(a => a.Comments)
+                    .FirstOrDefault(),
                 CreatedAt = tr.CreatedAt
             })
             .ToListAsync();
@@ -159,16 +177,76 @@ public class TravelRequestService : ITravelRequestService
                     EstimatedCost = tr.EstimatedCost,
                     Status = tr.Status.ToString(),
                     CurrentStage = tr.CurrentStage.ToString(),
+                    Comments = tr.Approvals
+                        .OrderByDescending(a => a.ActionDate)
+                        .Select(a => a.Comments)
+                        .FirstOrDefault(),
                     CreatedAt = tr.CreatedAt
                 })
             .ToListAsync();
     }
+
+    public async Task<List<TravelRequestResponseDto>>GetManagerRequestsAsync(int managerId)
+    {
+        return await _context.TravelRequests
+            .Include(tr => tr.Employee)
+            .Include(tr => tr.Approvals)
+            .Where(tr => tr.ManagerId == managerId && !tr.IsDraft)
+            .OrderByDescending(tr => tr.CreatedAt)
+            .Select(tr=>new TravelRequestResponseDto{
+                TravelRequestId=tr.TravelRequestId,
+                EmployeeName=tr.Employee!.UserName,
+                Source=tr.Source,
+                Destination=tr.Destination,
+                StartDate=tr.StartDate,
+                EndDate=tr.EndDate,
+                Purpose=tr.Purpose,
+                EstimatedCost=tr.EstimatedCost,
+                Status=tr.Status.ToString(),
+                CurrentStage=tr.CurrentStage.ToString(),
+                Comments = tr.Approvals
+                    .OrderByDescending(a => a.ActionDate)
+                    .Select(a => a.Comments)
+                    .FirstOrDefault(),
+                CreatedAt=tr.CreatedAt
+            })
+            .ToListAsync();
+    }
+
+    public async Task<List<TravelRequestResponseDto>>GetPMRequestsAsync(int pmId)
+        {
+            return await _context.TravelRequests
+                .Include(tr=>tr.Employee)
+                .Include(tr => tr.Approvals)
+                .Where(tr=>tr.ProjectManagerId==pmId && !tr.IsDraft)
+                .OrderByDescending(tr=>tr.CreatedAt)
+                .Select(tr=>new TravelRequestResponseDto{
+
+                    TravelRequestId=tr.TravelRequestId,
+                    EmployeeName=tr.Employee!.UserName,
+                    Source=tr.Source,
+                    Destination=tr.Destination,
+                    StartDate=tr.StartDate,
+                    EndDate=tr.EndDate,
+                    Purpose=tr.Purpose,
+                    EstimatedCost=tr.EstimatedCost,
+                    Status=tr.Status.ToString(),
+                    CurrentStage=tr.CurrentStage.ToString(),
+                    Comments = tr.Approvals
+                        .OrderByDescending(a => a.ActionDate)
+                        .Select(a => a.Comments)
+                        .FirstOrDefault(),
+                    CreatedAt=tr.CreatedAt
+                })
+                .ToListAsync();
+        }
 
     // Pending Project Manager Requests
     public async Task<List<TravelRequestResponseDto>>GetPendingPMRequestsAsync(int projectManagerId)
     {
         return await _context.TravelRequests
             .Include(tr => tr.Employee)
+            .Include(tr => tr.Approvals)
             .Where(tr =>
                 tr.ProjectManagerId == projectManagerId &&
                 tr.CurrentStage == ApprovalStage.ProjectManager &&
@@ -189,7 +267,11 @@ public class TravelRequestService : ITravelRequestService
                     EstimatedCost = tr.EstimatedCost,
                     Status = tr.Status.ToString(),
                     CurrentStage = tr.CurrentStage.ToString(),
-                    CreatedAt = tr.CreatedAt
+                    Comments = tr.Approvals
+                        .OrderByDescending(a => a.ActionDate)
+                        .Select(a => a.Comments)
+                        .FirstOrDefault(),
+                    CreatedAt =tr.CreatedAt
                 })
             .ToListAsync();
     }
@@ -199,6 +281,7 @@ public class TravelRequestService : ITravelRequestService
     {
         return await _context.TravelRequests
             .Include(tr => tr.Employee)
+            .Include(tr => tr.Approvals)
             .Where(tr =>
                 tr.ManagerId == managerId &&
                 tr.CurrentStage == ApprovalStage.Manager &&
@@ -219,7 +302,11 @@ public class TravelRequestService : ITravelRequestService
                     EstimatedCost = tr.EstimatedCost,
                     Status = tr.Status.ToString(),
                     CurrentStage = tr.CurrentStage.ToString(),
-                    CreatedAt =tr.CreatedAt
+                    Comments = tr.Approvals
+                        .OrderByDescending(a => a.ActionDate)
+                        .Select(a => a.Comments)
+                        .FirstOrDefault(),
+                    CreatedAt = tr.CreatedAt
                 })
 
             .ToListAsync();
@@ -230,6 +317,7 @@ public class TravelRequestService : ITravelRequestService
     {
         return await _context.TravelRequests
             .Include(tr => tr.Employee)
+            .Include(tr => tr.Approvals)
             .Where(tr => 
                 tr.FinanceId == financeId &&
                 tr.CurrentStage == ApprovalStage.Finance &&
@@ -248,6 +336,10 @@ public class TravelRequestService : ITravelRequestService
                 EstimatedCost = tr.EstimatedCost,
                 Status = tr.Status.ToString(),
                 CurrentStage = tr.CurrentStage.ToString(),
+                Comments = tr.Approvals
+                    .OrderByDescending(a => a.ActionDate)
+                    .Select(a => a.Comments)
+                    .FirstOrDefault(),
                 CreatedAt = tr.CreatedAt
             })
             .ToListAsync();
@@ -291,6 +383,8 @@ public class TravelRequestService : ITravelRequestService
         // Approved
         else if(dto.Status == RequestStatus.Approved)
         {
+            request.Status = RequestStatus.Pending; // remains pending until final approval
+            
             if(request.CurrentStage == ApprovalStage.ProjectManager)
             {
                 request.CurrentStage = ApprovalStage.Manager;
