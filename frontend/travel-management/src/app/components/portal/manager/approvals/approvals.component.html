@@ -1,122 +1,186 @@
 <app-navbar></app-navbar>
-<section class="manager-dashboard">
-  <div class="dashboard-shell">
-    <header class="hero">
-      <p class="eyebrow">
-        {{
-          role === "projectmanager"
-            ? "Project Manager workspace"
-            : "Manager workspace"
-        }}
-      </p>
-      <h1>Travel Request Review Queue</h1>
-      <p class="subtitle">
-        {{
-          role === "projectmanager"
-            ? "Review requests assigned to you before they move to Manager approval."
-            : "Validate incoming travel requests, check budget impact, and route approvals to finance."
-        }}
-      </p>
-    </header>
 
-    <div class="stats-grid">
-      <article class="stat-card">
-        <p class="stat-label">Total submitted requests</p>
-        <h2>{{ totalRequests }}</h2>
-      </article>
-      <article class="stat-card pending">
-        <p class="stat-label">
-          {{
-            role === "projectmanager"
-              ? "Pending PM review"
-              : "Pending manager review"
-          }}
-        </p>
-        <h2>{{ pendingRequests }}</h2>
-      </article>
-      <article class="stat-card approved">
-        <p class="stat-label">Approved</p>
-        <h2>{{ approvedRequests }}</h2>
-      </article>
-      <article class="stat-card rejected">
-        <p class="stat-label">Rejected</p>
-        <h2>{{ rejectedRequests }}</h2>
-      </article>
+<div class="ap-page">
+  <!-- Page Header -->
+  <div class="ap-header">
+    <div>
+      <h1 class="ap-title">{{ pageTitle }}</h1>
+      <p class="ap-sub">{{ pageSubtitle }}</p>
+    </div>
+    <div class="ap-header-actions">
+      <button
+        class="btn-approve-all"
+        *ngIf="activeTab === 'pending' && pendingList.length > 0"
+        (click)="approveAll()"
+      >
+        ✓ Approve All
+      </button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="ap-tabs">
+    <button
+      class="ap-tab"
+      [class.active]="activeTab === 'pending'"
+      (click)="setTab('pending')"
+    >
+      Pending
+      <span class="tab-badge" *ngIf="pendingList.length > 0">{{
+        pendingList.length
+      }}</span>
+    </button>
+    <button
+      class="ap-tab"
+      [class.active]="activeTab === 'approved'"
+      (click)="setTab('approved')"
+    >
+      Approved
+    </button>
+    <button
+      class="ap-tab"
+      [class.active]="activeTab === 'rejected'"
+      (click)="setTab('rejected')"
+    >
+      Rejected
+    </button>
+  </div>
+
+  <!-- Table Card -->
+  <div class="ap-table-card">
+    <!-- Empty State -->
+    <div *ngIf="paginatedList.length === 0" class="ap-empty">
+      <p>No {{ activeTab }} requests</p>
+      <small>{{
+        activeTab === "pending"
+          ? "New submissions will appear here."
+          : "Nothing here yet."
+      }}</small>
     </div>
 
-    <div class="requests-card" *ngIf="requests.length > 0; else emptyState">
-      <div class="requests-card-header">
-        <h2>
-          {{
-            role === "projectmanager"
-              ? "Requests Awaiting Your PM Decision"
-              : "Requests Awaiting Manager Decision"
-          }}
-        </h2>
-        <p>
-          {{
-            role === "projectmanager"
-              ? "Approved requests move to Manager, then Finance."
-              : "Approved requests move to finance for final budget clearance."
-          }}
-        </p>
-      </div>
+    <!-- Table -->
+    <div *ngIf="paginatedList.length > 0" class="table-wrap">
+      <table class="ap-table">
+        <thead>
+          <tr>
+            <th>Employee</th>
+            <th>Destination</th>
+            <th>Dates</th>
+            <th>Total Budget</th>
+            <th>Policy</th>
+            <th *ngIf="activeTab === 'pending'">Actions</th>
+            <th *ngIf="activeTab === 'rejected'">Reason</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngFor="let req of paginatedList">
+            <tr [class.rejecting-row]="rejectingId === req.id">
+              <!-- Employee -->
+              <td>
+                <div class="emp-cell">
+                  <div
+                    class="emp-avatar"
+                    [style.background]="getAvatarColor(req.userEmail)"
+                  >
+                    {{ getInitials(req.userEmail) }}
+                  </div>
+                  <div>
+                    <div class="emp-name">{{ req.userEmail }}</div>
+                    <div class="emp-meta">{{ req.source }}</div>
+                  </div>
+                </div>
+              </td>
 
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>Employee</th>
-              <th>SOURCE → DESTINATION</th>
-              <th>Dates</th>
-              <th>Purpose</th>
-              <th>Amount</th>
-              <th>Priority</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let req of requests">
-              <td>{{ req.userEmail }}</td>
-              <td>{{ req.source }} → {{ req.destination }}</td>
-              <td>{{ req.fromDate }} - {{ req.toDate }}</td>
-              <td>{{ req.purpose }}</td>
-              <td class="amount-cell">
+              <!-- Destination -->
+              <td>{{ req.destination }}</td>
+
+              <!-- Dates -->
+              <td class="dates-cell">{{ req.fromDate }} – {{ req.toDate }}</td>
+
+              <!-- Budget -->
+              <td class="budget-cell">
                 {{ req.cost | currency: "INR" : "symbol" : "1.0-0" }}
               </td>
+
+              <!-- Policy -->
               <td>
                 <span
-                  class="priority-pill"
-                  [class.priority-high]="isHighValue(req)"
-                  [class.priority-normal]="!isHighValue(req)"
+                  class="policy-badge"
+                  [class.in-policy]="isInPolicy(req)"
+                  [class.out-policy]="!isInPolicy(req)"
                 >
-                  {{ isHighValue(req) ? "High Value" : "Standard" }}
+                  <span class="policy-dot"></span>
+                  {{ isInPolicy(req) ? "In Policy" : "Out of Policy" }}
                 </span>
               </td>
-              <td>
-                <div class="actions">
-                  <button class="btn approve" (click)="approve(req.id)">
+
+              <!-- Actions (Pending tab) -->
+              <td *ngIf="activeTab === 'pending'">
+                <div class="row-actions" *ngIf="rejectingId !== req.id">
+                  <button class="action-approve" (click)="approve(req.id)">
                     Approve
                   </button>
-                  <button class="btn reject" (click)="reject(req.id)">
+                  <button class="action-reject" (click)="openReject(req.id)">
                     Reject
                   </button>
                 </div>
               </td>
+
+              <!-- Reason (Rejected tab) -->
+              <td *ngIf="activeTab === 'rejected'">
+                <span class="reject-reason-text">{{ req.reason || "—" }}</span>
+              </td>
             </tr>
-          </tbody>
-        </table>
-      </div>
+
+            <!-- Inline Reject Box -->
+            <tr *ngIf="rejectingId === req.id" class="reject-inline-row">
+              <td colspan="6">
+                <div class="reject-inline-box">
+                  <p class="reject-inline-title">⚑ Reason for rejection</p>
+                  <textarea
+                    class="reject-textarea"
+                    rows="3"
+                    placeholder="Please provide details..."
+                    [(ngModel)]="rejectReason"
+                  ></textarea>
+                  <div class="reject-inline-actions">
+                    <button class="btn-cancel-reject" (click)="cancelReject()">
+                      Cancel
+                    </button>
+                    <button
+                      class="btn-confirm-reject"
+                      (click)="confirmReject(req.id)"
+                    >
+                      Confirm Reject
+                    </button>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </ng-container>
+        </tbody>
+      </table>
     </div>
 
-    <ng-template #emptyState>
-      <section class="empty-state">
-        <h2>No pending requests</h2>
-        <p>
-          New employee submissions will appear here when manager review is
-          needed.
-        </p>
-      </section>
-    </ng-template>
+    <!-- Pagination -->
+    <div class="ap-pagination" *ngIf="activeList.length > 0">
+      <span class="showing-text">{{ showingText }}</span>
+      <div class="page-btns">
+        <button
+          class="page-btn"
+          (click)="prevPage()"
+          [disabled]="currentPage === 1"
+        >
+          ‹
+        </button>
+        <button
+          class="page-btn"
+          (click)="nextPage()"
+          [disabled]="currentPage === totalPages"
+        >
+          ›
+        </button>
+      </div>
+    </div>
   </div>
-</section>
+</div>
