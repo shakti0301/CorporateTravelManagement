@@ -6,6 +6,7 @@ using TravelMgmtApi.Data;
 using TravelMgmtApi.Interfaces;
 using TravelMgmtApi.Services;
 using Microsoft.OpenApi.Models;
+using TravelMgmtApi.Repositories;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -47,15 +48,18 @@ builder.Services.AddSwaggerGen(options =>
             }
         });
 });
+
 // Database
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")
     )
 );
-builder.Services.AddScoped<IUserService, UserService>();
+//Repositories
+builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 
 // Services
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITravelRequestService, TravelRequestService>();
 
