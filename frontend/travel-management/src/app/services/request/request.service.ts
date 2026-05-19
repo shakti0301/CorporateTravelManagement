@@ -40,7 +40,40 @@ export class RequestService {
   }
 
   approveReject(data: any) {
+    console.log('Sending:', data);
     return this.http.post(`${this.apiUrl}/approve`, data);
+  }
+
+  updateManagerStatus(
+    travelRequestId: number,
+    status: string,
+    comments: string = '',
+  ) {
+    return this.approveReject({
+      travelRequestId,
+      status: status === 'approved' ? 2 : 3,
+      comments,
+    });
+  }
+
+  updatePMStatus(
+    travelRequestId: number,
+    status: string,
+    comments: string = '',
+  ) {
+    return this.approveReject({
+      travelRequestId,
+      status: status === 'approved' ? 2 : 3,
+      comments,
+    });
+  }
+
+  updateFinanceStatus(travelRequestId: number, status: string) {
+    return this.approveReject({
+      travelRequestId,
+      status: status === 'approved' ? 2 : 3,
+      comments: '',
+    });
   }
 
   //Temorary: for removing errors
@@ -51,10 +84,4 @@ export class RequestService {
   getAllRequests() {
     return [];
   }
-
-  updateManagerStatus(id: number, status: string, reason?: string) {}
-
-  updatePMStatus(id: number, status: string, reason?: string) {}
-
-  updateFinanceStatus(id: number, status: string) {}
 }
