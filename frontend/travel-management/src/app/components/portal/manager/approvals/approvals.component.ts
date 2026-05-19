@@ -34,7 +34,7 @@ export class ApprovalsComponent implements OnInit {
   }
   loadRequests() {
     if (this.role === 'projectmanager') {
-      this.requestService.getPendingPMRequests().subscribe({
+      this.requestService.getPMRequests().subscribe({
         next: (res: any) => {
           this.allRequests = res.map((r: any) => ({
             ...r,
@@ -44,17 +44,37 @@ export class ApprovalsComponent implements OnInit {
             toDate: r.endDate,
             cost: r.estimatedCost,
             reason: r.comments || '',
+
             pmStatus:
-              r.currentStage === 'ProjectManager'
-                ? 'pending'
-                : r.status.toLowerCase(),
-            managerStatus: r.currentStage === 'Manager' ? 'pending' : '',
-            financeStatus: r.currentStage === 'Finance' ? 'pending' : '',
+              r.status === 'Rejected'
+                ? 'rejected'
+                : r.currentStage === 'ProjectManager'
+                  ? 'pending'
+                  : 'approved',
+
+            managerStatus:
+              r.status === 'Rejected'
+                ? 'rejected'
+                : r.currentStage === 'Manager'
+                  ? 'pending'
+                  : r.currentStage === 'Finance' ||
+                      r.currentStage === 'Completed'
+                    ? 'approved'
+                    : '',
+
+            financeStatus:
+              r.status === 'Rejected'
+                ? 'rejected'
+                : r.currentStage === 'Finance'
+                  ? 'pending'
+                  : r.currentStage === 'Completed'
+                    ? 'approved'
+                    : '',
           }));
         },
       });
     } else {
-      this.requestService.getPendingManagerRequests().subscribe({
+      this.requestService.getManagerRequests().subscribe({
         next: (res: any) => {
           this.allRequests = res.map((r: any) => ({
             ...r,
@@ -64,9 +84,25 @@ export class ApprovalsComponent implements OnInit {
             toDate: r.endDate,
             cost: r.estimatedCost,
             reason: r.comments || '',
+
             managerStatus:
-              r.currentStage === 'Manager' ? 'pending' : r.status.toLowerCase(),
-            financeStatus: r.currentStage === 'Finance' ? 'pending' : '',
+              r.status === 'Rejected'
+                ? 'rejected'
+                : r.currentStage === 'Manager'
+                  ? 'pending'
+                  : r.currentStage === 'Finance' ||
+                      r.currentStage === 'Completed'
+                    ? 'approved'
+                    : '',
+
+            financeStatus:
+              r.status === 'Rejected'
+                ? 'rejected'
+                : r.currentStage === 'Finance'
+                  ? 'pending'
+                  : r.currentStage === 'Completed'
+                    ? 'approved'
+                    : '',
           }));
         },
       });
@@ -76,33 +112,40 @@ export class ApprovalsComponent implements OnInit {
   // Filter by role scope
   private scopedRequests(): any[] {
     return this.allRequests.filter((req) => {
-      if (req.isDraft) return false;
-      if (this.role === 'projectmanager') {
-        return req.pmEmail === this.currentUser.email;
-      }
-      return true;
+      return !req.isDraft;
     });
   }
 
   private getStatus(req: any): string {
-    if (this.role === 'projectmanager') return this.normalize(req.pmStatus);
-    return this.normalize(req.managerStatus);
-  }
+    if (this.role === 'projectmanager') {
+      if (req.pmStatus) {
+        return this.normalize(req.pmStatus);
+      }
+    }
+    if (this.role === 'manager') {
+      if (req.managerStatus) {
+        return this.normalize(req.managerStatus);
+      }
+    }
 
-  get pendingList(): any[] {
-    return this.scopedRequests().filter((r) => this.getStatus(r) === 'pending');
+    return '';
   }
-
   get approvedList(): any[] {
-    return this.scopedRequests().filter(
-      (r) => this.getStatus(r) === 'approved',
-    );
+    return this.scopedRequests().filter((r) => {
+      return this.getStatus(r) === 'approved';
+    });
   }
 
   get rejectedList(): any[] {
-    return this.scopedRequests().filter(
-      (r) => this.getStatus(r) === 'rejected',
-    );
+    return this.scopedRequests().filter((r) => {
+      return this.getStatus(r) === 'rejected';
+    });
+  }
+
+  get pendingList(): any[] {
+    return this.scopedRequests().filter((r) => {
+      return this.getStatus(r) === 'pending';
+    });
   }
 
   get activeList(): any[] {
@@ -147,19 +190,24 @@ export class ApprovalsComponent implements OnInit {
 
   // Actions
   approve(id: number) {
-    const request = this.allRequests.find((r) => r.id === id);
+    const apiCall =
+      this.role === 'projectmanager'
+        ? this.requestService.updatePMStatus(id, 'approved')
+        : this.requestService.updateManagerStatus(id, 'approved');
 
-    if (!request) return;
+    apiCall.subscribe({
+      next: () => {
+        // reset UI state
+        this.currentPage = 1;
 
-    if (this.role === 'projectmanager') {
-      this.requestService.updatePMStatus(id, 'approved').subscribe(() => {
         this.loadRequests();
-      });
-    } else {
-      this.requestService.updateManagerStatus(id, 'approved').subscribe(() => {
-        this.loadRequests();
-      });
-    }
+        this.activeTab = 'pending';
+      },
+
+      error: (err) => {
+        console.log(err);
+      },
+    });
   }
 
   openReject(id: number) {
@@ -174,7 +222,7 @@ export class ApprovalsComponent implements OnInit {
 
   confirmReject(id: number) {
     if (!this.rejectReason.trim()) {
-      alert('Please provide a reason');
+      alert('Please provide reason');
       return;
     }
     const apiCall =
@@ -186,9 +234,13 @@ export class ApprovalsComponent implements OnInit {
             this.rejectReason,
           );
 
-    apiCall.subscribe(() => {
-      this.cancelReject();
-      this.loadRequests();
+    apiCall.subscribe({
+      next: () => {
+        this.cancelReject();
+        this.currentPage = 1;
+        this.loadRequests();
+        this.activeTab = 'pending';
+      },
     });
   }
 
@@ -219,7 +271,7 @@ export class ApprovalsComponent implements OnInit {
   }
 
   normalize(status: string): string {
-    return (status || 'pending').trim().toLowerCase();
+    return (status || '').trim().toLowerCase();
   }
 
   get pageTitle(): string {
