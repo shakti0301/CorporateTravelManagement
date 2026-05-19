@@ -12,5 +12,6 @@ public class TravelRequestResponseDto
     public DateTime? EndDate { get; set; }
     public string Status { get; set; } = "";
     public string CurrentStage { get; set; } = "";
+    public string? Comments { get; set; }
     public DateTime CreatedAt { get; set; }
 }
