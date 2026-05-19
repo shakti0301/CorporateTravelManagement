@@ -77,6 +77,16 @@ namespace TravelMgmtApi.Controllers
             return Ok(result);
         }
 
+        //All PM Requests
+        [HttpGet("all/pm")]
+        public async Task<IActionResult>GetPMRequests()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var result = await _travelService.GetPMRequestsAsync(Convert.ToInt32(userId));
+            return Ok(result);
+        }
+
         //Pending PM Requests
         [HttpGet("pending/pm")]
         public async Task<IActionResult> GetPendingPMRequests()
@@ -87,6 +97,16 @@ namespace TravelMgmtApi.Controllers
                 return Unauthorized();
             }
             var result = await _travelService.GetPendingPMRequestsAsync(Convert.ToInt32(userId));
+            return Ok(result);
+        }
+
+        //All Manager Requests
+        [HttpGet("all/manager")]
+        public async Task<IActionResult>GetManagerRequests()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var result = await _travelService.GetManagerRequestsAsync(Convert.ToInt32(userId));
             return Ok(result);
         }
 
