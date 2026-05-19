@@ -39,7 +39,7 @@ export class RequestService {
     return this.http.get(`${this.apiUrl}/pending/finance`);
   }
 
-  approveRequest(data: any) {
+  approveReject(data: any) {
     return this.http.post(`${this.apiUrl}/approve`, data);
   }
 
@@ -52,9 +52,9 @@ export class RequestService {
     return [];
   }
 
-  updateManagerStatus(id: number, status: string) {}
+  updateManagerStatus(id: number, status: string, reason?: string) {}
 
-  updatePMStatus(id: number, status: string) {}
+  updatePMStatus(id: number, status: string, reason?: string) {}
 
   updateFinanceStatus(id: number, status: string) {}
 }
