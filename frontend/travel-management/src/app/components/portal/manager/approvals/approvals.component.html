@@ -63,11 +63,12 @@
       <table class="ap-table">
         <thead>
           <tr>
+            <th>Trip Id</th>
             <th>Employee</th>
             <th>Destination</th>
             <th>Dates</th>
             <th>Total Budget</th>
-            <th>Policy</th>
+
             <th *ngIf="activeTab === 'pending'">Actions</th>
             <th *ngIf="activeTab === 'rejected'">Reason</th>
           </tr>
@@ -75,6 +76,8 @@
         <tbody>
           <ng-container *ngFor="let req of paginatedList">
             <tr [class.rejecting-row]="rejectingId === req.id">
+              <!-- Trip Id -->
+              <td class="trip-id">{{ req.id }}</td>
               <!-- Employee -->
               <td>
                 <div class="emp-cell">
@@ -95,23 +98,14 @@
               <td>{{ req.destination }}</td>
 
               <!-- Dates -->
-              <td class="dates-cell">{{ req.fromDate }} – {{ req.toDate }}</td>
+              <td class="dates">
+                {{ req.fromDate ? (req.fromDate | date: "MMM dd") : "-" }} –
+                {{ req.toDate ? (req.toDate | date: "MMM dd, yyyy") : "-" }}
+              </td>
 
               <!-- Budget -->
               <td class="budget-cell">
                 {{ req.cost | currency: "INR" : "symbol" : "1.0-0" }}
-              </td>
-
-              <!-- Policy -->
-              <td>
-                <span
-                  class="policy-badge"
-                  [class.in-policy]="isInPolicy(req)"
-                  [class.out-policy]="!isInPolicy(req)"
-                >
-                  <span class="policy-dot"></span>
-                  {{ isInPolicy(req) ? "In Policy" : "Out of Policy" }}
-                </span>
               </td>
 
               <!-- Actions (Pending tab) -->

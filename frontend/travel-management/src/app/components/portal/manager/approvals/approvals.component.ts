@@ -32,9 +32,45 @@ export class ApprovalsComponent implements OnInit {
     this.role = this.currentUser?.role?.toLowerCase() || 'manager';
     this.loadRequests();
   }
-
   loadRequests() {
-    this.allRequests = this.requestService.getAllRequests();
+    if (this.role === 'projectmanager') {
+      this.requestService.getPendingPMRequests().subscribe({
+        next: (res: any) => {
+          this.allRequests = res.map((r: any) => ({
+            ...r,
+            id: r.travelRequestId,
+            userEmail: r.employeeName,
+            fromDate: r.startDate,
+            toDate: r.endDate,
+            cost: r.estimatedCost,
+            reason: r.comments || '',
+            pmStatus:
+              r.currentStage === 'ProjectManager'
+                ? 'pending'
+                : r.status.toLowerCase(),
+            managerStatus: r.currentStage === 'Manager' ? 'pending' : '',
+            financeStatus: r.currentStage === 'Finance' ? 'pending' : '',
+          }));
+        },
+      });
+    } else {
+      this.requestService.getPendingManagerRequests().subscribe({
+        next: (res: any) => {
+          this.allRequests = res.map((r: any) => ({
+            ...r,
+            id: r.travelRequestId,
+            userEmail: r.employeeName,
+            fromDate: r.startDate,
+            toDate: r.endDate,
+            cost: r.estimatedCost,
+            reason: r.comments || '',
+            managerStatus:
+              r.currentStage === 'Manager' ? 'pending' : r.status.toLowerCase(),
+            financeStatus: r.currentStage === 'Finance' ? 'pending' : '',
+          }));
+        },
+      });
+    }
   }
 
   // Filter by role scope
@@ -111,12 +147,19 @@ export class ApprovalsComponent implements OnInit {
 
   // Actions
   approve(id: number) {
+    const request = this.allRequests.find((r) => r.id === id);
+
+    if (!request) return;
+
     if (this.role === 'projectmanager') {
-      this.requestService.updatePMStatus(id, 'approved');
+      this.requestService.updatePMStatus(id, 'approved').subscribe(() => {
+        this.loadRequests();
+      });
     } else {
-      this.requestService.updateManagerStatus(id, 'approved');
+      this.requestService.updateManagerStatus(id, 'approved').subscribe(() => {
+        this.loadRequests();
+      });
     }
-    this.loadRequests();
   }
 
   openReject(id: number) {
@@ -131,20 +174,22 @@ export class ApprovalsComponent implements OnInit {
 
   confirmReject(id: number) {
     if (!this.rejectReason.trim()) {
-      alert('Please provide a reason for rejection.');
+      alert('Please provide a reason');
       return;
     }
-    if (this.role === 'projectmanager') {
-      this.requestService.updatePMStatus(id, 'rejected', this.rejectReason);
-    } else {
-      this.requestService.updateManagerStatus(
-        id,
-        'rejected',
-        this.rejectReason,
-      );
-    }
-    this.cancelReject();
-    this.loadRequests();
+    const apiCall =
+      this.role === 'projectmanager'
+        ? this.requestService.updatePMStatus(id, 'rejected', this.rejectReason)
+        : this.requestService.updateManagerStatus(
+            id,
+            'rejected',
+            this.rejectReason,
+          );
+
+    apiCall.subscribe(() => {
+      this.cancelReject();
+      this.loadRequests();
+    });
   }
 
   approveAll() {
@@ -171,10 +216,6 @@ export class ApprovalsComponent implements OnInit {
     let hash = 0;
     for (let i = 0; i < email.length; i++) hash += email.charCodeAt(i);
     return colors[hash % colors.length];
-  }
-
-  isInPolicy(req: any): boolean {
-    return Number(req.cost || 0) <= 50000;
   }
 
   normalize(status: string): string {
