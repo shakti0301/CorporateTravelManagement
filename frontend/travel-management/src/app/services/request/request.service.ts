@@ -76,11 +76,15 @@ export class RequestService {
     });
   }
 
-  updateFinanceStatus(travelRequestId: number, status: string) {
+  updateFinanceStatus(
+    travelRequestId: number,
+    status: string,
+    comments: string = '',
+  ) {
     return this.approveReject({
       travelRequestId,
       status: status === 'approved' ? 2 : 3,
-      comments: '',
+      comments,
     });
   }
 
