@@ -73,11 +73,14 @@ export class DashboardComponent implements OnInit {
             cost: r.estimatedCost,
 
             managerStatus:
-              r.status === 'Rejected'
-                ? 'rejected'
-                : r.currentStage === 'Manager'
-                  ? 'pending'
-                  : 'approved',
+              this.normalize(r.currentStage) === 'manager'
+                ? this.normalize(r.status) === 'rejected'
+                  ? 'rejected'
+                  : 'pending'
+                : this.normalize(r.currentStage) === 'finance' ||
+                    this.normalize(r.currentStage) === 'completed'
+                  ? 'approved'
+                  : '',
           }));
         },
       });
@@ -105,7 +108,14 @@ export class DashboardComponent implements OnInit {
 
   // Stats
   get totalRequests(): number {
-    return this.allRequests.filter((r) => !r.isDraft).length;
+    if (this.role === 'projectmanager') {
+      return this.allRequests.filter((req) => !req.isDraft).length;
+    }
+
+    return this.allRequests.filter(
+      (req) =>
+        !req.isDraft && this.normalize(req.currentStage) !== 'projectmanager',
+    ).length;
   }
 
   get pendingCount(): number {
@@ -114,11 +124,7 @@ export class DashboardComponent implements OnInit {
 
   get approvedThisMonth(): number {
     const now = new Date();
-    return this.allRequests.filter((req) => {
-      if (req.isDraft) return false;
-      const status =
-        this.role === 'projectmanager' ? req.pmStatus : req.managerStatus;
-      if (this.normalize(status) !== 'approved') return false;
+    return this.roleApprovedRequests.filter((req) => {
       const created = new Date(req.createdAt);
       return (
         created.getMonth() === now.getMonth() &&
@@ -128,12 +134,7 @@ export class DashboardComponent implements OnInit {
   }
 
   get rejectedCount(): number {
-    return this.allRequests.filter((req) => {
-      if (req.isDraft) return false;
-      const status =
-        this.role === 'projectmanager' ? req.pmStatus : req.managerStatus;
-      return this.normalize(status) === 'rejected';
-    }).length;
+    return this.roleRejectedRequests.length;
   }
 
   // Show only first 5 in dashboard table
@@ -161,6 +162,40 @@ export class DashboardComponent implements OnInit {
 
   normalize(status: string): string {
     return (status || '').trim().toLowerCase();
+  }
+
+  get roleStage(): string {
+    return this.role === 'projectmanager' ? 'projectmanager' : 'manager';
+  }
+
+  get roleCurrentStageRequests(): any[] {
+    return this.allRequests.filter(
+      (req) =>
+        !req.isDraft && this.normalize(req.currentStage) === this.roleStage,
+    );
+  }
+
+  get roleApprovedRequests(): any[] {
+    const approvedStages =
+      this.role === 'projectmanager'
+        ? ['manager', 'finance', 'completed']
+        : ['finance', 'completed'];
+
+    return this.allRequests.filter(
+      (req) =>
+        !req.isDraft &&
+        approvedStages.includes(this.normalize(req.currentStage)) &&
+        this.normalize(req.status) !== 'rejected',
+    );
+  }
+
+  get roleRejectedRequests(): any[] {
+    return this.allRequests.filter(
+      (req) =>
+        !req.isDraft &&
+        this.normalize(req.status) === 'rejected' &&
+        this.normalize(req.currentStage) === this.roleStage,
+    );
   }
 
   get pageTitle(): string {
