@@ -121,10 +121,6 @@ export class ApprovalsComponent implements OnInit {
   }
 
   // Helpers
-  isInPolicy(req: any): boolean {
-    return Number(req.cost || 0) <= 50000;
-  }
-
   getInitials(email: string): string {
     if (!email) return '?';
     return email.substring(0, 2).toUpperCase();

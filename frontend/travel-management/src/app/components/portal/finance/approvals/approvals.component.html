@@ -6,8 +6,7 @@
     <div>
       <h1 class="fa-title">Finance Travel Approvals</h1>
       <p class="fa-sub">
-        Review and audit travel requests for budget compliance and policy
-        adherence.
+        Review and audit travel requests for budget compliance adherence.
       </p>
     </div>
     <div class="fa-header-actions">
@@ -68,7 +67,6 @@
             <th>Destination</th>
             <th>Dates</th>
             <th>Total Budget</th>
-            <th>Policy</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -97,20 +95,6 @@
 
               <td class="budget-cell">
                 {{ req.cost | currency: "INR" : "symbol" : "1.0-0" }}
-              </td>
-
-              <!-- Policy -->
-              <td>
-                <span
-                  class="policy-badge"
-                  [class.in-policy]="isInPolicy(req)"
-                  [class.out-policy]="!isInPolicy(req)"
-                >
-                  <span class="policy-icon">{{
-                    isInPolicy(req) ? "✓" : "⚠"
-                  }}</span>
-                  {{ isInPolicy(req) ? "In Policy" : "Out of Policy" }}
-                </span>
               </td>
 
               <!-- Action -->
