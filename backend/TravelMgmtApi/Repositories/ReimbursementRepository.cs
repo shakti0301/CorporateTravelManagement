@@ -4,7 +4,7 @@ using TravelMgmtApi.DTOs;
 using TravelMgmtApi.Interfaces;
 using TravelMgmtApi.Models;
 
-namespace TravelMgmtApi.Services
+namespace TravelMgmtApi.Repositories
 {
     public class ReimbursementRepository : IReimbursementRepository
     {
@@ -31,7 +31,7 @@ namespace TravelMgmtApi.Services
         {
             return await _context.Reimbursements
                 .Include(r => r.TravelRequest)
-                .ThenInclude(t => t.Employee)
+                .ThenInclude(t => t!.Employee)
 
                 .Include(r => r.Expenses)
                 .OrderByDescending(r => r.SubmittedAt)
