@@ -14,6 +14,7 @@ namespace TravelMgmtApi.Interfaces
         Task<List<TravelRequestResponseDto>> GetDraftRequestsAsync(int employeeId);
         Task<List<TravelRequestResponseDto>> GetManagerRequestsAsync(int managerId);
         Task<List<TravelRequestResponseDto>> GetPMRequestsAsync(int pmId);
+        Task<List<TravelRequestResponseDto>> GetFinanceRequestsAsync(int financeId);
         Task<List<TravelRequestResponseDto>> GetPendingPMRequestsAsync(int pmId);
         Task<List<TravelRequestResponseDto>> GetPendingManagerRequestsAsync(int managerId);
         Task<List<TravelRequestResponseDto>> GetPendingFinanceRequestsAsync(int financeId);
