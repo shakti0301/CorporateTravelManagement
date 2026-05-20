@@ -159,6 +159,12 @@
   background: #fff5f5 !important;
 }
 
+.rejected-reason-text {
+  font-size: 0.85rem;
+  color: #dc2626;
+  font-style: italic;
+}
+
 /* Employee */
 .emp-cell {
   display: flex;

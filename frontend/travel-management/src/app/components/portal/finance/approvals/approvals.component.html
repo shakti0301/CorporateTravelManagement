@@ -121,7 +121,10 @@
                 >
 
                 <!-- Reject tab: review button -->
-                <span *ngIf="activeTab === 'reject'">
+                <span
+                  class="rejected-reason-text"
+                  *ngIf="activeTab === 'reject'"
+                >
                   {{ req.comments || "—" }}
                 </span>
               </td>
