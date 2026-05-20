@@ -33,18 +33,31 @@ export class DashboardComponent implements OnInit {
   }
 
   load() {
+    // reimbursement section only
     this.allRequests = this.reimbursementService.getAllRequests();
-    // fetch pending travel requests for finance tab (safe fallback to [])
-    try {
-      this.requestService.getPendingFinanceRequests().subscribe({
-        next: (res: any) => {
-          this.pendingTravel = Array.isArray(res) ? res : [];
-        },
-        error: () => (this.pendingTravel = []),
-      });
-    } catch (e) {
-      this.pendingTravel = [];
-    }
+
+    // travel approval section only
+    this.requestService.getFinanceRequests().subscribe({
+      next: (res: any) => {
+        const mapped = (res || []).map((r: any) => ({
+          ...r,
+          id: r.travelRequestId,
+          userEmail: r.employeeName,
+          fromDate: r.startDate,
+          toDate: r.endDate,
+          cost: r.estimatedCost,
+        }));
+
+        this.pendingTravel = mapped.filter(
+          (x: any) => x.currentStage === 'Finance',
+        );
+      },
+
+      error: (err) => {
+        console.log(err);
+        this.pendingTravel = [];
+      },
+    });
   }
 
   // Stats
