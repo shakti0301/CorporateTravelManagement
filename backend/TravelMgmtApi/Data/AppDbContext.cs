@@ -16,6 +16,9 @@ namespace TravelMgmtApi.Data
         public DbSet<TravelRequest> TravelRequests{ get; set; }
         public DbSet<TravelRequestApproval> TravelRequestApprovals { get; set; }
 
+        public DbSet<Expense> Expenses { get; set; }
+        public DbSet<Reimbursement> Reimbursements { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
         base.OnModelCreating(modelBuilder);
