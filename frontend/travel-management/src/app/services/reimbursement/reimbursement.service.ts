@@ -14,6 +14,11 @@ export class ReimbursementService {
     localStorage.setItem('requests', JSON.stringify(requests));
   }
 
+  getAllRequests(): any[] {
+    const requests = JSON.parse(localStorage.getItem('requests') || '[]');
+    return requests.filter((r: any) => r.expenseSubmitted === true);
+  }
+
   getPendingRequests() {
     return this.getRequests().filter(
       (req: any) =>
