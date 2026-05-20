@@ -49,7 +49,7 @@ export class DashboardComponent implements OnInit {
         }));
 
         this.pendingTravel = mapped.filter(
-          (x: any) => x.currentStage === 'Finance',
+          (x: any) => x.currentStage === 'Finance' && x.status !== 'Rejected',
         );
       },
 
