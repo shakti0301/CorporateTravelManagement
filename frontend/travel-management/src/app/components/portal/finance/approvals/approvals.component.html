@@ -41,9 +41,6 @@
       (click)="setTab('reject')"
     >
       Reject
-      <span class="tab-badge reject-badge" *ngIf="rejectList.length > 0">{{
-        rejectList.length
-      }}</span>
     </button>
   </div>
 
@@ -69,7 +66,8 @@
             <th>Destination</th>
             <th>Dates</th>
             <th>Total Budget</th>
-            <th>Action</th>
+            <th *ngIf="activeTab !== 'reject'">Action</th>
+            <th *ngIf="activeTab === 'reject'">Reason</th>
           </tr>
         </thead>
         <tbody>
@@ -93,7 +91,10 @@
 
               <td>{{ req.source || "—" }}</td>
               <td>{{ req.destination }}</td>
-              <td class="nowrap">{{ req.fromDate }} – {{ req.toDate }}</td>
+              <td class="dates">
+                {{ req.fromDate ? (req.fromDate | date: "MMM dd") : "-" }} –
+                {{ req.toDate ? (req.toDate | date: "MMM dd, yyyy") : "-" }}
+              </td>
 
               <td class="budget-cell">
                 {{ req.cost | currency: "INR" : "symbol" : "1.0-0" }}
@@ -120,17 +121,9 @@
                 >
 
                 <!-- Reject tab: review button -->
-                <div
-                  class="row-actions"
-                  *ngIf="activeTab === 'reject' && rejectingId !== req.id"
-                >
-                  <button class="btn-review" (click)="approve(req.id)">
-                    Approve
-                  </button>
-                  <button class="action-reject" (click)="openReject(req.id)">
-                    Reject
-                  </button>
-                </div>
+                <span *ngIf="activeTab === 'reject'">
+                  {{ req.comments || "—" }}
+                </span>
               </td>
             </tr>
 

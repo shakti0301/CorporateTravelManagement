@@ -30,28 +30,52 @@ export class ApprovalsComponent implements OnInit {
   }
 
   load() {
-    this.allRequests = this.requestService.getAllRequests();
+    this.requestService.getFinanceRequests().subscribe({
+      next: (res: any) => {
+        console.log('Finance API:', res);
+
+        this.allRequests = (res || []).map((r: any) => ({
+          ...r,
+
+          id: r.travelRequestId,
+          userEmail: r.employeeName,
+          fromDate: r.startDate,
+          toDate: r.endDate,
+          cost: r.estimatedCost,
+
+          financeStatus:
+            r.status?.toLowerCase() === 'rejected'
+              ? 'rejected'
+              : r.status?.toLowerCase() === 'approved'
+                ? 'approved'
+                : r.currentStage?.toLowerCase() === 'finance'
+                  ? 'pending'
+                  : 'pending', // fallback
+        }));
+      },
+    });
   }
 
   // Tab lists
   get pendingList(): any[] {
     return this.allRequests.filter(
-      (req) =>
-        !req.isDraft &&
-        this.normalize(req.managerStatus) === 'approved' &&
-        this.normalize(req.financeStatus) === 'pending',
+      (req) => this.normalize(req.financeStatus) === 'pending',
     );
   }
 
   get approveList(): any[] {
     return this.allRequests.filter(
-      (req) => !req.isDraft && this.normalize(req.financeStatus) === 'approved',
+      (req) => this.normalize(req.financeStatus) === 'approved',
     );
   }
 
-  // Reject = out of policy (cost > 50000) and still pending
+  // Reject = requests rejected by finance
   get rejectList(): any[] {
-    return this.pendingList.filter((req) => Number(req.cost || 0) > 50000);
+    return this.allRequests.filter(
+      (req) =>
+        this.normalize(req.financeStatus) === 'rejected' &&
+        req.currentStage === 'Finance',
+    );
   }
 
   get activeList(): any[] {
@@ -96,8 +120,11 @@ export class ApprovalsComponent implements OnInit {
 
   // Actions
   approve(id: number) {
-    this.requestService.updateFinanceStatus(id, 'approved');
-    this.load();
+    this.requestService.updateFinanceStatus(id, 'approved').subscribe({
+      next: () => {
+        this.load();
+      },
+    });
   }
 
   openReject(id: number) {
@@ -112,12 +139,18 @@ export class ApprovalsComponent implements OnInit {
 
   confirmReject(id: number) {
     if (!this.rejectReason.trim()) {
-      alert('Please provide a reason for rejection.');
+      alert('Please provide reason');
       return;
     }
-    this.requestService.updateFinanceStatus(id, 'rejected', this.rejectReason);
-    this.cancelReject();
-    this.load();
+
+    this.requestService
+      .updateFinanceStatus(id, 'rejected', this.rejectReason)
+      .subscribe({
+        next: () => {
+          this.cancelReject();
+          this.load();
+        },
+      });
   }
 
   approveAll() {
