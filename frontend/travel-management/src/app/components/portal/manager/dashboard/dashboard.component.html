@@ -7,7 +7,9 @@
       <h1 class="db-title">{{ pageTitle }}</h1>
       <p class="db-sub">{{ pageSubtitle }}</p>
     </div>
-    <button class="btn-export">⬇ Export Report</button>
+    <button class="create-btn" (click)="createRequest()">
+      <i class="bi bi-plus-lg me-2"></i>Create Request
+    </button>
   </div>
 
   <!-- Stat Cards -->

@@ -2,12 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { NavbarComponent } from '../../../shared/navbar/navbar.component';
 import { RequestService } from '../../../../services/request/request.service';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [NavbarComponent, CommonModule],
+  imports: [NavbarComponent, CommonModule, RouterLink],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
 })
@@ -43,6 +43,12 @@ export class DashboardComponent implements OnInit {
         },
       });
     }
+  }
+
+  createRequest() {
+    const path =
+      this.role === 'projectmanager' ? '/pm/request' : '/manager/request';
+    this.router.navigate([path]);
   }
 
   // Stats
