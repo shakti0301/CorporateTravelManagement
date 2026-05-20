@@ -11,6 +11,7 @@ namespace TravelMgmtApi.Models
         public User? Employee { get; set; }
         public bool IsSubmitted { get; set; }
         public RequestStatus Status { get; set; }
+        public decimal TotalExpense { get; set; }
         public string? Remarks { get; set; }
         public DateTime SubmittedAt { get; set; }
 
