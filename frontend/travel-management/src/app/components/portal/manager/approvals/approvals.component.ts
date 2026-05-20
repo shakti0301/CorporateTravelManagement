@@ -130,6 +130,20 @@ export class ApprovalsComponent implements OnInit {
 
     return '';
   }
+
+  private isRejectedForCurrentRole(req: any): boolean {
+    const stage = this.normalize(req.currentStage);
+
+    if (this.role === 'projectmanager') {
+      return stage === 'projectmanager';
+    }
+
+    if (this.role === 'manager') {
+      return stage === 'manager';
+    }
+
+    return false;
+  }
   get approvedList(): any[] {
     return this.scopedRequests().filter((r) => {
       return this.getStatus(r) === 'approved';
@@ -138,7 +152,9 @@ export class ApprovalsComponent implements OnInit {
 
   get rejectedList(): any[] {
     return this.scopedRequests().filter((r) => {
-      return this.getStatus(r) === 'rejected';
+      return (
+        this.getStatus(r) === 'rejected' && this.isRejectedForCurrentRole(r)
+      );
     });
   }
 
