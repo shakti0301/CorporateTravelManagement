@@ -1,111 +1,202 @@
 <app-navbar></app-navbar>
-<section class="finance-dashboard">
-  <div class="dashboard-shell">
-    <header class="hero">
-      <p class="eyebrow">Finance workspace</p>
-      <h1>Travel Cost Approvals</h1>
-      <p class="subtitle">
-        Review manager-cleared travel requests, monitor spend trends, and close
-        approvals faster.
-      </p>
-    </header>
 
-    <div class="stats-grid">
-      <article class="stat-card">
-        <p class="stat-label">Total requests</p>
-        <h2>{{ totalRequests }}</h2>
-      </article>
-      <article class="stat-card pending">
-        <p class="stat-label">Pending finance approvals</p>
-        <h2>{{ pendingRequests }}</h2>
-      </article>
-      <article class="stat-card approved">
-        <p class="stat-label">Approved</p>
-        <h2>{{ approvedRequests }}</h2>
-      </article>
-      <article class="stat-card rejected">
-        <p class="stat-label">Rejected</p>
-        <h2>{{ rejectedRequests }}</h2>
-      </article>
-      <article class="stat-card amount">
-        <p class="stat-label">Pending amount</p>
-        <h2>{{ pendingAmount | currency: "INR" : "symbol" : "1.0-0" }}</h2>
-      </article>
-      <article class="stat-card amount">
-        <p class="stat-label">Avg pending amount</p>
-        <h2>
-          {{ averagePendingAmount | currency: "INR" : "symbol" : "1.0-0" }}
-        </h2>
-      </article>
+<div class="fa-page">
+  <!-- Header -->
+  <div class="fa-header">
+    <div>
+      <h1 class="fa-title">Finance Travel Approvals</h1>
+      <p class="fa-sub">
+        Review and audit travel requests for budget compliance and policy
+        adherence.
+      </p>
+    </div>
+    <div class="fa-header-actions">
+      <button class="btn-export">⬇ Export Report</button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="fa-tabs">
+    <button
+      class="fa-tab"
+      [class.active]="activeTab === 'pending'"
+      (click)="setTab('pending')"
+    >
+      Pending Review
+      <span class="tab-badge" *ngIf="pendingList.length > 0">{{
+        pendingList.length
+      }}</span>
+    </button>
+    <button
+      class="fa-tab"
+      [class.active]="activeTab === 'approve'"
+      (click)="setTab('approve')"
+    >
+      Approve
+    </button>
+    <button
+      class="fa-tab"
+      [class.active]="activeTab === 'reject'"
+      (click)="setTab('reject')"
+    >
+      Reject
+      <span class="tab-badge reject-badge" *ngIf="rejectList.length > 0">{{
+        rejectList.length
+      }}</span>
+    </button>
+  </div>
+
+  <!-- Table Card -->
+  <div class="fa-table-card">
+    <!-- Empty -->
+    <div *ngIf="paginatedList.length === 0" class="fa-empty">
+      <p>No {{ activeTab }} requests</p>
+      <small>{{
+        activeTab === "pending"
+          ? "Manager-approved requests will appear here."
+          : "Nothing to show."
+      }}</small>
     </div>
 
-    <div class="requests-card" *ngIf="requests.length > 0; else emptyState">
-      <div class="requests-card-header">
-        <h2>Requests Awaiting Finance Decision</h2>
-        <p>Only requests approved by manager are shown here.</p>
-      </div>
+    <!-- Table -->
+    <div *ngIf="paginatedList.length > 0" class="table-wrap">
+      <table class="fa-table">
+        <thead>
+          <tr>
+            <th>Employee</th>
+            <th>Source</th>
+            <th>Destination</th>
+            <th>Dates</th>
+            <th>Total Budget</th>
+            <th>Policy</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngFor="let req of paginatedList">
+            <tr [class.rejecting-row]="rejectingId === req.id">
+              <!-- Employee -->
+              <td>
+                <div class="emp-cell">
+                  <div
+                    class="emp-avatar"
+                    [style.background]="getAvatarColor(req.userEmail)"
+                  >
+                    {{ getInitials(req.userEmail) }}
+                  </div>
+                  <div>
+                    <div class="emp-name">{{ req.userEmail }}</div>
+                    <div class="emp-role">Employee</div>
+                  </div>
+                </div>
+              </td>
 
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>Employee</th>
-              <th>SOURCE → DESTINATION</th>
-              <th>Dates</th>
-              <th>Purpose</th>
-              <th>Amount</th>
-              <th>Manager Status</th>
-              <th>Priority</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let req of requests">
-              <td>{{ req.userEmail }}</td>
-              <td>{{ req.source }} → {{ req.destination }}</td>
-              <td>{{ req.fromDate }} - {{ req.toDate }}</td>
-              <td>{{ req.purpose }}</td>
-              <td class="amount-cell">
+              <td>{{ req.source || "—" }}</td>
+              <td>{{ req.destination }}</td>
+              <td class="nowrap">{{ req.fromDate }} – {{ req.toDate }}</td>
+
+              <td class="budget-cell">
                 {{ req.cost | currency: "INR" : "symbol" : "1.0-0" }}
               </td>
-              <td>
-                <span class="status-pill status-approved">
-                  {{ formatStatus(req.managerStatus) }}
-                </span>
-              </td>
+
+              <!-- Policy -->
               <td>
                 <span
-                  class="priority-pill"
-                  [class.priority-high]="isHighValue(req)"
-                  [class.priority-normal]="!isHighValue(req)"
+                  class="policy-badge"
+                  [class.in-policy]="isInPolicy(req)"
+                  [class.out-policy]="!isInPolicy(req)"
                 >
-                  {{ isHighValue(req) ? "High Value" : "Standard" }}
+                  <span class="policy-icon">{{
+                    isInPolicy(req) ? "✓" : "⚠"
+                  }}</span>
+                  {{ isInPolicy(req) ? "In Policy" : "Out of Policy" }}
                 </span>
               </td>
+
+              <!-- Action -->
               <td>
-                <div class="actions">
-                  <button class="btn approve" (click)="approve(req.id)">
+                <!-- Pending tab: approve + reject -->
+                <div
+                  class="row-actions"
+                  *ngIf="activeTab === 'pending' && rejectingId !== req.id"
+                >
+                  <button class="action-approve" (click)="approve(req.id)">
                     Approve
                   </button>
-                  <button class="btn reject" (click)="reject(req.id)">
+                  <button class="action-reject" (click)="openReject(req.id)">
+                    Reject
+                  </button>
+                </div>
+
+                <!-- Approve tab: show status -->
+                <span class="status-done" *ngIf="activeTab === 'approve'"
+                  >✓ Approved</span
+                >
+
+                <!-- Reject tab: review button -->
+                <div
+                  class="row-actions"
+                  *ngIf="activeTab === 'reject' && rejectingId !== req.id"
+                >
+                  <button class="btn-review" (click)="approve(req.id)">
+                    Approve
+                  </button>
+                  <button class="action-reject" (click)="openReject(req.id)">
                     Reject
                   </button>
                 </div>
               </td>
             </tr>
-          </tbody>
-        </table>
-      </div>
+
+            <!-- Inline Reject Box -->
+            <tr *ngIf="rejectingId === req.id" class="reject-inline-row">
+              <td colspan="7">
+                <div class="reject-inline-box">
+                  <p class="reject-inline-title">⚑ Reason for rejection</p>
+                  <textarea
+                    class="reject-textarea"
+                    rows="3"
+                    placeholder="Please provide details..."
+                    [(ngModel)]="rejectReason"
+                  ></textarea>
+                  <div class="reject-inline-actions">
+                    <button class="btn-cancel-reject" (click)="cancelReject()">
+                      Cancel
+                    </button>
+                    <button
+                      class="btn-confirm-reject"
+                      (click)="confirmReject(req.id)"
+                    >
+                      Confirm Reject
+                    </button>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </ng-container>
+        </tbody>
+      </table>
     </div>
 
-    <ng-template #emptyState>
-      <section class="empty-state">
-        <h2>No pending approvals</h2>
-        <p>
-          All manager-approved requests are processed. New approvals will appear
-          here automatically.
-        </p>
-      </section>
-    </ng-template>
+    <!-- Pagination -->
+    <div class="fa-pagination" *ngIf="activeList.length > 0">
+      <span class="showing-text">{{ showingText }}</span>
+      <div class="page-btns">
+        <button
+          class="page-btn"
+          (click)="prevPage()"
+          [disabled]="currentPage === 1"
+        >
+          ‹
+        </button>
+        <button
+          class="page-btn"
+          (click)="nextPage()"
+          [disabled]="currentPage === totalPages"
+        >
+          ›
+        </button>
+      </div>
+    </div>
   </div>
-</section>
+</div>
