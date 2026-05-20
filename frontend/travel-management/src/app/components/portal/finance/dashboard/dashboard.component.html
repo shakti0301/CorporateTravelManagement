@@ -1,1 +1,198 @@
 <app-navbar></app-navbar>
+
+<div class="fd-page">
+  <!-- Header -->
+  <div class="fd-header">
+    <div>
+      <h1 class="fd-title">Finance Overview</h1>
+      <p class="fd-sub">Manage and review enterprise travel reimbursements.</p>
+    </div>
+    <div class="fd-header-actions">
+      <button class="btn-review-claim" (click)="goToReimbursements()">
+        Review Claims
+      </button>
+    </div>
+  </div>
+
+  <!-- Stat Cards -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-top">
+        <span class="stat-label">PENDING REIMBURSEMENTS</span>
+        <div class="stat-icon pending-icon">⏳</div>
+      </div>
+      <div class="stat-number">{{ pendingCount }}</div>
+      <div class="stat-watermark pending-wm">⏳</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-top">
+        <span class="stat-label">APPROVED THIS MONTH</span>
+        <div class="stat-icon approved-icon">✓</div>
+      </div>
+      <div class="stat-number">{{ approvedThisMonth }}</div>
+      <div class="stat-watermark approved-wm">✓</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-top">
+        <span class="stat-label">TOTAL REIMBURSED</span>
+        <div class="stat-icon total-icon">💰</div>
+      </div>
+      <div class="stat-number">
+        {{ totalReimbursed | currency: "INR" : "symbol" : "1.0-0" }}
+      </div>
+      <div class="stat-watermark total-wm">💰</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-top">
+        <span class="stat-label">REJECTED CLAIMS</span>
+        <div class="stat-icon rejected-icon">✕</div>
+      </div>
+      <div class="stat-number">{{ rejectedCount }}</div>
+      <div class="stat-watermark rejected-wm">✕</div>
+    </div>
+  </div>
+  <!-- Finance Review Queue -->
+  <div class="queue-card">
+    <!-- Queue Header with tabs -->
+    <div class="queue-header">
+      <div style="display: flex; align-items: center; gap: 1rem">
+        <h2 class="queue-title">Finance Review Queue :</h2>
+        <div class="queue-tabs">
+          <button
+            class="q-tab"
+            [class.active]="activeTab === 'reimburse'"
+            (click)="activeTab = 'reimburse'"
+          >
+            Reimbursements
+          </button>
+          <button
+            class="q-tab"
+            [class.active]="activeTab === 'travel'"
+            (click)="activeTab = 'travel'"
+          >
+            Pending Travel Requests
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty -->
+    <div *ngIf="paginatedList.length === 0" class="queue-empty">
+      <p *ngIf="activeTab === 'reimburse'">No reimbursement requests found</p>
+      <p *ngIf="activeTab === 'travel'">No pending travel requests found</p>
+      <small *ngIf="activeTab === 'reimburse'"
+        >Submitted expenses will appear here.</small
+      >
+      <small *ngIf="activeTab === 'travel'"
+        >Recent travel requests awaiting finance review will appear here.</small
+      >
+    </div>
+
+    <!-- Table -->
+    <div *ngIf="paginatedList.length > 0" class="table-wrap">
+      <table class="queue-table">
+        <thead>
+          <tr *ngIf="activeTab === 'reimburse'">
+            <th>EMPLOYEE NAME</th>
+            <th>TRIP TITLE</th>
+            <th>TOTAL CLAIMED</th>
+            <th>SUBMITTED ON</th>
+            <th>STATUS</th>
+            <th>ACTION</th>
+          </tr>
+          <tr *ngIf="activeTab === 'travel'">
+            <th>EMPLOYEE</th>
+            <th>DESTINATION</th>
+            <th>TRAVEL DATES</th>
+            <th>BUDGET</th>
+            <th>SUBMITTED ON</th>
+            <th>ACTION</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngIf="activeTab === 'reimburse'">
+            <tr *ngFor="let req of paginatedList">
+              <td>
+                <div class="emp-cell">
+                  <div
+                    class="emp-avatar"
+                    [style.background]="getAvatarColor(req.userEmail)"
+                  >
+                    {{ getInitials(req.userEmail) }}
+                  </div>
+                  <span class="emp-name">{{ req.userEmail }}</span>
+                </div>
+              </td>
+
+              <td class="trip-title">{{ req.purpose || req.destination }}</td>
+
+              <td class="claimed-cell">
+                {{ getTotal(req) | currency: "INR" : "symbol" : "1.2-2" }}
+              </td>
+
+              <td class="nowrap">{{ req.createdAt | date: "MMM dd, yyyy" }}</td>
+
+              <td>
+                <span
+                  class="status-pill"
+                  [ngClass]="getStatusClass(req.reimbursementStatus)"
+                >
+                  <span class="status-dot"></span>
+                  {{ req.reimbursementStatus | titlecase }}
+                </span>
+              </td>
+
+              <td>
+                <button
+                  class="btn-review"
+                  *ngIf="normalize(req.reimbursementStatus) === 'pending'"
+                  (click)="goToReimbursements()"
+                >
+                  Review
+                </button>
+                <span
+                  class="more-btn"
+                  *ngIf="normalize(req.reimbursementStatus) !== 'pending'"
+                  >⋮</span
+                >
+              </td>
+            </tr>
+          </ng-container>
+
+          <ng-container *ngIf="activeTab === 'travel'">
+            <tr *ngFor="let req of paginatedList">
+              <td>
+                <div class="emp-cell">
+                  <div
+                    class="emp-avatar"
+                    [style.background]="getAvatarColor(req.userEmail)"
+                  >
+                    {{ getInitials(req.userEmail) }}
+                  </div>
+                  <span class="emp-name">{{ req.userEmail }}</span>
+                </div>
+              </td>
+              <td>{{ req.destination }}</td>
+              <td class="dates">
+                {{ req.fromDate ? (req.fromDate | date: "MMM dd") : "-" }} –
+                {{ req.toDate ? (req.toDate | date: "MMM dd, yyyy") : "-" }}
+              </td>
+              <td class="budget-cell">
+                {{ req.cost | currency: "INR" : "symbol" : "1.0-0" }}
+              </td>
+              <td class="nowrap">{{ req.createdAt | date: "MMM dd, yyyy" }}</td>
+              <td>
+                <button class="btn-view-req" (click)="goToApprovals()">
+                  Review →
+                </button>
+              </td>
+            </tr>
+          </ng-container>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
