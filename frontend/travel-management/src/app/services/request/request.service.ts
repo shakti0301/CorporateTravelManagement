@@ -43,6 +43,10 @@ export class RequestService {
   }
 
   // Finance
+  getFinanceRequests() {
+    return this.http.get(`${this.apiUrl}/all/finance`);
+  }
+
   getPendingFinanceRequests() {
     return this.http.get(`${this.apiUrl}/pending/finance`);
   }
