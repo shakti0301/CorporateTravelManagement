@@ -170,6 +170,34 @@ namespace TravelMgmtApi.Repositories
                 .ToListAsync();
         }
 
+        public async Task<List<TravelRequestResponseDto>>GetFinanceRequestsAsync(int financeId)
+        {
+            return await _context.TravelRequests
+                .Include(tr => tr.Employee)
+                .Include(tr => tr.Approvals)
+                .Where(tr => tr.FinanceId == financeId && !tr.IsDraft)
+                .OrderByDescending(tr => tr.CreatedAt)
+                .Select(tr => new TravelRequestResponseDto
+                {
+                    TravelRequestId = tr.TravelRequestId,
+                    EmployeeName = tr.Employee!.UserName,
+                    Source = tr.Source,
+                    Destination = tr.Destination,
+                    StartDate = tr.StartDate,
+                    EndDate = tr.EndDate,
+                    Purpose = tr.Purpose,
+                    EstimatedCost = tr.EstimatedCost,
+                    Status = tr.Status.ToString(),
+                    CurrentStage = tr.CurrentStage.ToString(),
+                    Comments = tr.Approvals
+                        .OrderByDescending(a => a.ActionDate)
+                        .Select(a => a.Comments)
+                        .FirstOrDefault(),
+                    CreatedAt = tr.CreatedAt
+                })
+                .ToListAsync();
+        }
+
         public async Task<List<TravelRequestResponseDto>> GetPendingPMRequestsAsync(int pmId)
         {
             return await _context.TravelRequests

@@ -147,18 +147,20 @@ public class TravelRequestService : ITravelRequestService
         return await _travelRepository.GetPMRequestsAsync(pmId);
     }
 
+    public async Task<List<TravelRequestResponseDto>>GetFinanceRequestsAsync(int financeId)
+    {
+        return await _travelRepository.GetFinanceRequestsAsync(financeId);
+    }
 
     public async Task<List<TravelRequestResponseDto>>GetPendingPMRequestsAsync(int projectManagerId)
     {
         return await _travelRepository.GetPendingPMRequestsAsync(projectManagerId);
     }
 
-
     public async Task<List<TravelRequestResponseDto>>GetPendingManagerRequestsAsync(int managerId)
     {
         return await _travelRepository.GetPendingManagerRequestsAsync(managerId);
     }
-
 
     public async Task<List<TravelRequestResponseDto>>GetPendingFinanceRequestsAsync(int financeId)
     {
