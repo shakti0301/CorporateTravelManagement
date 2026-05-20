@@ -141,6 +141,21 @@ namespace TravelMgmtApi.Data
                 .WithMany()
                 .HasForeignKey(tra => tra.ApproverId)
                 .OnDelete(DeleteBehavior.Restrict);
+            
+            // Reimbursement -> TravelRequest
+
+            modelBuilder.Entity<Reimbursement>()
+                .HasOne(r => r.TravelRequest)
+                .WithMany()
+                .HasForeignKey(r => r.TravelRequestId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Expense -> Reimbursement
+            modelBuilder.Entity<Expense>()
+                .HasOne(e => e.Reimbursement)
+                .WithMany(r => r.Expenses)
+                .HasForeignKey(e => e.ReimbursementId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
