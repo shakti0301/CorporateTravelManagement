@@ -123,6 +123,21 @@ namespace TravelMgmtApi.Controllers
             return Ok(result);
         }
 
+        //All Finance Requests
+        [HttpGet("all/finance")]
+        public async Task<IActionResult>GetFinanceRequests()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if(userId==null)
+            {
+                return Unauthorized();
+            }
+
+            var result = await _travelService.GetFinanceRequestsAsync(Convert.ToInt32(userId));
+            return Ok(result);
+        }
+
     
         // Pending Finance Requests
 
