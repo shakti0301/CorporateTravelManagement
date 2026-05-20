@@ -43,7 +43,7 @@
 
     <div class="stat-card">
       <div class="stat-top">
-        <span class="stat-label">TOTAL TEAM REQUESTS</span>
+        <span class="stat-label">TOTAL REQUESTS</span>
         <div class="stat-icon total-icon">👥</div>
       </div>
       <div class="stat-number">{{ totalRequests }}</div>
@@ -91,7 +91,10 @@
               </div>
             </td>
             <td>{{ req.destination }}</td>
-            <td class="nowrap">{{ req.fromDate }} – {{ req.toDate }}</td>
+            <td class="dates">
+              {{ req.fromDate ? (req.fromDate | date: "MMM dd") : "-" }} –
+              {{ req.toDate ? (req.toDate | date: "MMM dd, yyyy") : "-" }}
+            </td>
             <td class="budget-cell">
               {{ req.cost | currency: "INR" : "symbol" : "1.0-0" }}
             </td>

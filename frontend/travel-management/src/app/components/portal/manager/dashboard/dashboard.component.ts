@@ -29,17 +29,69 @@ export class DashboardComponent implements OnInit {
 
   load() {
     if (this.role === 'projectmanager') {
-      this.requestService.getPendingManagerRequests().subscribe({
+      // For cards
+      this.requestService.getPMRequests().subscribe({
         next: (res: any) => {
-          this.pendingList = res;
-          this.allRequests = res;
+          this.allRequests = res.map((r: any) => ({
+            ...r,
+            userEmail: r.employeeName,
+            fromDate: r.startDate,
+            toDate: r.endDate,
+            cost: r.estimatedCost,
+
+            pmStatus:
+              r.status === 'Rejected'
+                ? 'rejected'
+                : r.currentStage === 'ProjectManager'
+                  ? 'pending'
+                  : 'approved',
+          }));
+        },
+      });
+
+      // For pending table
+      this.requestService.getPendingPMRequests().subscribe({
+        next: (res: any) => {
+          this.pendingList = res.map((r: any) => ({
+            ...r,
+            userEmail: r.employeeName,
+            fromDate: r.startDate,
+            toDate: r.endDate,
+            cost: r.estimatedCost,
+          }));
         },
       });
     } else {
-      this.requestService.getPendingPMRequests().subscribe({
+      // For cards
+      this.requestService.getManagerRequests().subscribe({
         next: (res: any) => {
-          this.pendingList = res;
-          this.allRequests = res;
+          this.allRequests = res.map((r: any) => ({
+            ...r,
+            userEmail: r.employeeName,
+            fromDate: r.startDate,
+            toDate: r.endDate,
+            cost: r.estimatedCost,
+
+            managerStatus:
+              r.status === 'Rejected'
+                ? 'rejected'
+                : r.currentStage === 'Manager'
+                  ? 'pending'
+                  : 'approved',
+          }));
+        },
+      });
+
+      // Pending table
+      this.requestService.getPendingManagerRequests().subscribe({
+        next: (res: any) => {
+          this.pendingList = res.map((r: any) => ({
+            ...r,
+            userEmail: r.employeeName,
+            fromDate: r.startDate,
+            toDate: r.endDate,
+            cost: r.estimatedCost,
+          }));
         },
       });
     }
