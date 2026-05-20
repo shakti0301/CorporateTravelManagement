@@ -403,6 +403,20 @@
   background: #eff6ff;
 }
 
+.btn-view-req {
+  background: #fff;
+  color: #1d4ed8;
+  border: 1px solid #1d4ed8;
+  padding: 0.35rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-view-req:hover {
+  background: #eff6ff;
+}
+
 .no-action {
   color: #9ca3af;
   font-size: 0.85rem;
