@@ -120,6 +120,16 @@ export class ApprovalsComponent implements OnInit {
     this.load();
   }
 
+  approveAll() {
+    const toApprove = this.pendingList.filter(
+      (req) => Number(req.cost || 0) <= 50000,
+    );
+    toApprove.forEach((req) => {
+      this.requestService.updateFinanceStatus(req.id, 'approved');
+    });
+    this.load();
+  }
+
   // Helpers
   getInitials(email: string): string {
     if (!email) return '?';
