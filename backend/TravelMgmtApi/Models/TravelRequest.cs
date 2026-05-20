@@ -49,6 +49,8 @@ namespace TravelMgmtApi.Models
         public ApprovalStage CurrentStage { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        public Reimbursement? Reimbursement { get; set; }
+
         //Approval history
         public ICollection<TravelRequestApproval> Approvals { get; set; } = new List<TravelRequestApproval>();
 
