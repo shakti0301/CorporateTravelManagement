@@ -34,24 +34,29 @@ export class ApprovalsComponent implements OnInit {
       next: (res: any) => {
         console.log('Finance API:', res);
 
-        this.allRequests = (res || []).map((r: any) => ({
-          ...r,
+        this.allRequests = (res || []).map((r: any) => {
+          const stage = (r.currentStage || '').toLowerCase();
+          const status = (r.status || '').toLowerCase();
 
-          id: r.travelRequestId,
-          userEmail: r.employeeName,
-          fromDate: r.startDate,
-          toDate: r.endDate,
-          cost: r.estimatedCost,
+          return {
+            ...r,
+            id: r.travelRequestId,
+            userEmail: r.employeeName,
+            fromDate: r.startDate,
+            toDate: r.endDate,
+            cost: r.estimatedCost,
+            reason: r.comments || '',
 
-          financeStatus:
-            r.status?.toLowerCase() === 'rejected'
-              ? 'rejected'
-              : r.status?.toLowerCase() === 'approved'
-                ? 'approved'
-                : r.currentStage?.toLowerCase() === 'finance'
+            financeStatus:
+              status === 'rejected'
+                ? 'rejected'
+                : stage === 'finance'
                   ? 'pending'
-                  : 'pending', // fallback
-        }));
+                  : stage === 'completed'
+                    ? 'approved'
+                    : '',
+          };
+        });
       },
     });
   }
@@ -72,9 +77,7 @@ export class ApprovalsComponent implements OnInit {
   // Reject = requests rejected by finance
   get rejectList(): any[] {
     return this.allRequests.filter(
-      (req) =>
-        this.normalize(req.financeStatus) === 'rejected' &&
-        req.currentStage === 'Finance',
+      (req) => this.normalize(req.financeStatus) === 'rejected',
     );
   }
 
