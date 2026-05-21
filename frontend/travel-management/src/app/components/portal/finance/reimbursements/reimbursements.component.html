@@ -164,9 +164,19 @@
       </div>
       <div class="info-card status-card">
         <div class="info-label">STATUS</div>
-        <div class="info-value status-pending">
+        <div
+          class="info-value"
+          [ngClass]="{
+            'status-pending':
+              normalize(selectedRequest?.reimbursementStatus) === 'pending',
+            'status-approved':
+              normalize(selectedRequest?.reimbursementStatus) === 'approved',
+            'status-rejected':
+              normalize(selectedRequest?.reimbursementStatus) === 'rejected',
+          }"
+        >
           <span class="status-dot"></span>
-          Pending Approval
+          {{ selectedRequest?.reimbursementStatus }}
         </div>
       </div>
     </div>
@@ -244,7 +254,10 @@
           }}
         </span>
       </div>
-      <div class="modal-actions">
+      <div
+        class="modal-actions"
+        *ngIf="normalize(selectedRequest?.reimbursementStatus) === 'pending'"
+      >
         <button class="btn-cancel" (click)="closeModal()">Cancel</button>
         <button class="btn-reject-remarks" (click)="rejectRequest()">
           ✕ Reject with Remarks
@@ -252,6 +265,12 @@
         <button class="btn-approve-reimb" (click)="approveRequest()">
           ✓ Approve Reimbursement
         </button>
+      </div>
+      <div
+        *ngIf="normalize(selectedRequest?.reimbursementStatus) !== 'pending'"
+      >
+        <strong>Remarks:</strong
+        >{{ selectedRequest?.reimbursementRemark || "-" }}
       </div>
     </div>
   </div>

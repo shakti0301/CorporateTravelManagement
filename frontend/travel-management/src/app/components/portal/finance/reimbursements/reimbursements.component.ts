@@ -42,7 +42,10 @@ export class ReimbursementsComponent implements OnInit {
           reimbursementStatus: r.status,
           reimbursementRemark: r.remarks,
           createdAt: r.submittedAt,
-          expenses: r.expenses || [],
+          expenses: (r.expenses || []).map((e: any) => ({
+            ...e,
+            proof: e.proofPath,
+          })),
         }));
       },
 
@@ -136,6 +139,10 @@ export class ReimbursementsComponent implements OnInit {
       next: () => {
         this.closeModal();
         this.load();
+      },
+      error: (err: any) => {
+        console.log(err);
+        alert('Approval failed');
       },
     });
   }
