@@ -1,53 +1,38 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ExpenseService {
-  private apiUrl = 'http://localhost:5212/api/Reimbursement';
+  private apiUrl = `${environment.apiUrl}`;
 
   constructor(private http: HttpClient) {}
 
-  // Draft storage only
-  saveExpensesAsDraft(requestId: any, expenses: any[]) {
-    localStorage.setItem(`expenseDraft_${requestId}`, JSON.stringify(expenses));
+  // Get request details from DB
+  getRequestById(requestId: number) {
+    return this.http.get(`${this.apiUrl}/TravelRequest/${requestId}`);
   }
 
-  getExpenseDraft(requestId: any): any[] {
-    return JSON.parse(
-      localStorage.getItem(`expenseDraft_${requestId}`) || '[]',
-    );
+  // draft expenses (temporary)
+  saveExpensesAsDraft(requestId: number, expenses: any[]) {
+    localStorage.setItem(`draft_${requestId}`, JSON.stringify(expenses));
   }
 
-  clearDraft(requestId: any) {
-    localStorage.removeItem(`expenseDraft_${requestId}`);
+  getExpenseDraft(requestId: number) {
+    return JSON.parse(localStorage.getItem(`draft_${requestId}`) || '[]');
   }
 
-  // Backend APIs
-  getRequestById(id: any) {
-    return this.http.get(`http://localhost:5212/api/TravelRequest/${id}`);
+  clearDraft(requestId: number) {
+    localStorage.removeItem(`draft_${requestId}`);
   }
 
   submitExpenses(data: any) {
-    return this.http.post(`${this.apiUrl}/submit`, data);
-  }
+    return this.http.post(
+      `${this.apiUrl}/Reimbursement/submit`,
 
-  getMyReimbursements() {
-    return this.http.get(`${this.apiUrl}/my`);
-  }
-
-  getFinanceReimbursements() {
-    return this.http.get(`${this.apiUrl}/finance`);
-  }
-
-  approve(id: number) {
-    return this.http.put(`${this.apiUrl}/approve/${id}`, {});
-  }
-
-  reject(id: number, remarks: string) {
-    return this.http.put(`${this.apiUrl}/reject/${id}`, {
-      remarks,
-    });
+      data,
+    );
   }
 }
