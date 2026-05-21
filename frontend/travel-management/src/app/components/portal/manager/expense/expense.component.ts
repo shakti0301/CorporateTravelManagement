@@ -104,20 +104,29 @@ export class ExpenseComponent implements OnInit {
 
   ngOnInit() {
     this.loadCurrentRequest();
-    this.initializeForm();
   }
 
   loadCurrentRequest() {
-    this.currentRequest = this.expenseService.getRequestById(this.requestId);
+    this.expenseService.getRequestById(this.requestId).subscribe({
+      next: (res: any) => {
+        this.currentRequest = {
+          ...res,
+          id: res.travelRequestId,
+          fromDate: res.startDate,
+          toDate: res.endDate,
+          cost: res.estimatedCost,
+        };
 
-    if (!this.currentRequest) {
-      alert('Travel request not found!');
-      return;
-    }
+        this.expenses = this.expenseService.getExpenseDraft(this.requestId);
+        this.initializeForm();
+      },
 
-    if (this.currentRequest.expenses) {
-      this.expenses = [...this.currentRequest.expenses];
-    }
+      error: (err) => {
+        console.log(err);
+
+        alert('Travel request not found');
+      },
+    });
   }
 
   initializeForm() {
@@ -343,21 +352,46 @@ export class ExpenseComponent implements OnInit {
 
   submitExpenses() {
     if (this.expenses.length === 0) {
-      alert('Please add at least one expense before submitting.');
+      alert('Please add at least one expense');
       return;
     }
 
     if (this.isOverBudget()) {
-      alert('Total expenses exceed the approved amount.');
+      alert('Expenses exceed budget');
       return;
     }
 
-    this.expenseService.saveExpenses(this.requestId, this.expenses);
+    const payload = {
+      travelRequestId: Number(this.requestId),
 
-    alert('Expenses submitted to Finance successfully!');
-    this.expenses = [];
+      expenses: this.expenses.map((e: any) => ({
+        category: e.category,
 
-    this.router.navigate([this.basePath + '/myrequests']);
+        amount: Number(e.amount),
+
+        date: e.date,
+
+        description: e.description,
+
+        proofPath: e.proof || '',
+      })),
+    };
+
+    this.expenseService.submitExpenses(payload).subscribe({
+      next: () => {
+        this.expenseService.clearDraft(this.requestId);
+
+        alert('Submitted successfully');
+
+        this.router.navigate([this.basePath + '/myrequests']);
+      },
+
+      error: (err) => {
+        console.log(err);
+
+        alert('Submission failed');
+      },
+    });
   }
 
   goBack() {
