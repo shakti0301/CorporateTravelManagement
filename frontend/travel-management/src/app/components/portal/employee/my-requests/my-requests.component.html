@@ -141,16 +141,27 @@
                   </span>
                 </ng-container>
 
-                <!-- NORMAL APPROVAL FLOW (manager → finance) -->
+                <!-- Reimbursement flow -->
+                <ng-container *ngIf="!req.isDraft && req.expenseSubmitted">
+                  <span class="pill" [ngClass]="getReimbursementPillClass(req)">
+                    Reimbursement :
+                    {{ formatStatus(req.reimbursementStatus) }}
+                  </span>
+                </ng-container>
+
+                <!-- Approval flow -->
                 <ng-container *ngIf="!req.isDraft && !req.expenseSubmitted">
                   <div class="status-flow">
                     <span class="pill" [ngClass]="getPmPillClass(req)">
                       PM : {{ formatStatus(req.pmStatus) }}
                     </span>
+
                     <span class="flow-arrow">→</span>
+
                     <span class="pill" [ngClass]="getManagerPillClass(req)">
                       Mgr : {{ formatStatus(req.managerStatus) }}
                     </span>
+
                     <span class="flow-arrow">→</span>
 
                     <span class="pill" [ngClass]="getFinancePillClass(req)">
