@@ -11,6 +11,7 @@ namespace TravelMgmtApi.Interfaces
         Task<List<ReimbursementResponseDto>> GetFinanceRequestsAsync();
         Task<List<ReimbursementResponseDto>> GetMyReimbursementsAsync(int employeeId);
         Task<Reimbursement?> GetByIdAsync(int reimbursementId);
+        Task<Reimbursement?> GetByTravelRequestIdAsync(int travelRequestId);
 
         Task SaveChangesAsync();
     }

@@ -95,6 +95,12 @@ namespace TravelMgmtApi.Repositories
                 .FirstOrDefaultAsync(r => r.ReimbursementId == reimbursementId);
         }
 
+        public async Task<Reimbursement?> GetByTravelRequestIdAsync(int travelRequestId)
+        {
+            return await _context.Reimbursements
+                .FirstOrDefaultAsync(r => r.TravelRequestId == travelRequestId);
+        }
+
         public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();
