@@ -8,6 +8,7 @@ namespace TravelMgmtApi.Interfaces
         Task<string> CreateRequestAsync(int employeeId, CreateTravelRequestDto dto);
         Task<List<TravelRequestResponseDto>> GetMyRequestsAsync(int employeeId);
         Task<List<TravelRequestResponseDto>> GetDraftRequestsAsync(int employeeId);
+        Task<TravelRequestResponseDto?> GetByIdAsync(int requestId);
         Task<List<TravelRequestResponseDto>> GetManagerRequestsAsync(int managerId);
         Task<List<TravelRequestResponseDto>>GetPMRequestsAsync(int pmId);
         Task<List<TravelRequestResponseDto>>GetFinanceRequestsAsync(int financeId);
