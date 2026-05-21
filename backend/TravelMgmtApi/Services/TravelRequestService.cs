@@ -135,6 +135,31 @@ public class TravelRequestService : ITravelRequestService
         return await _travelRepository.GetDraftRequestsAsync(employeeId);
     }
 
+    public async Task<TravelRequestResponseDto?> GetByIdAsync(int requestId)
+    {
+        var tr = await _travelRepository.GetRequestByIdAsync(requestId);
+
+        if(tr == null)
+        {
+            return null;
+        }
+
+        return new TravelRequestResponseDto
+        {
+            TravelRequestId = tr.TravelRequestId,
+            EmployeeName = tr.Employee!.UserName,
+            Source = tr.Source,
+            Destination = tr.Destination,
+            Purpose = tr.Purpose,
+            StartDate = tr.StartDate,
+            EndDate = tr.EndDate,
+            EstimatedCost = tr.EstimatedCost,
+            Status = tr.Status.ToString(),
+            CurrentStage = tr.CurrentStage.ToString(),
+            CreatedAt = tr.CreatedAt
+        };
+    }
+
 
     public async Task<List<TravelRequestResponseDto>>GetManagerRequestsAsync(int managerId)
     {
