@@ -9,3 +9,5 @@ SELECT * FROM Roles
 SELECT * FROM Departments
 SELECT * FROM TravelRequests
 SELECT * FROM TravelRequestApprovals
+SELECT * FROM Reimbursements
+SELECT * FROM Expenses
