@@ -22,17 +22,17 @@ namespace TravelMgmtApi.Services
             {
                 return "Travel request not found.";
             }
+
             if (request.EmployeeId != employeeId)
             {
                 return "Unauthorized";
             }
-            var existing = await _repo.GetFinanceRequestsAsync();
 
-            if(existing.Any(x => x.TravelRequestId == dto.TravelRequestId))
+            if (request.Status != RequestStatus.Approved)
             {
-                return "Reimbursement already submitted";
+                return "Travel request must be fully approved before submitting expenses.";
             }
-            
+
             if (dto.Expenses.Count == 0)
             {
                 return "At least one expense is required.";
