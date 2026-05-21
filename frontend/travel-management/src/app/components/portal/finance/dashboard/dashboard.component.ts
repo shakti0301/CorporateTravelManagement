@@ -33,10 +33,19 @@ export class DashboardComponent implements OnInit {
   }
 
   load() {
-    // reimbursement section only
-    this.allRequests = this.reimbursementService.getAllRequests();
+    // reimbursement section
+    this.reimbursementService.getFinanceReimbursements().subscribe({
+      next: (res: any) => {
+        this.allRequests = res || [];
+      },
 
-    // travel approval section only
+      error: (err) => {
+        console.log(err);
+        this.allRequests = [];
+      },
+    });
+
+    // travel approval section
     this.requestService.getFinanceRequests().subscribe({
       next: (res: any) => {
         const mapped = (res || []).map((r: any) => ({
