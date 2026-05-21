@@ -5,6 +5,7 @@ import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { RequestService } from '../../../../services/request/request.service';
 
 @Component({
   selector: 'app-request-details',
@@ -29,17 +30,31 @@ export class RequestDetailsComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
+    private requestService: RequestService,
   ) {}
 
-  ngOnInit() {
-    // Route can be /employee/request/:id — id is the request's id or tripId
-    const id = this.route.snapshot.paramMap.get('id');
-    const requests = JSON.parse(localStorage.getItem('requests') || '[]');
+  loadRequest(id: any) {
+    this.requestService.getRequestById(id).subscribe({
+      next: (res: any) => {
+        this.request = {
+          ...res,
+          id: res.travelRequestId,
+          fromDate: res.startDate,
+          toDate: res.endDate,
+          cost: res.estimatedCost,
+        };
+      },
 
-    // Match by numeric id OR by tripId string (e.g. "TRP-4823")
-    this.request = requests.find(
-      (r: any) => String(r.id) === String(id) || r.tripId === id,
-    );
+      error: (err) => {
+        console.log(err);
+        alert('Request not found');
+      },
+    });
+  }
+
+  ngOnInit() {
+    const id = this.route.snapshot.paramMap.get('id');
+    this.loadRequest(id);
   }
 
   // TIMELINE STEP HELPERS
@@ -270,73 +285,59 @@ export class RequestDetailsComponent implements OnInit {
    */
   saveDraft(editForm: NgForm) {
     this.modalSubmitted = true;
-    if (this.hasDateValidationErrors()) {
+
+    if (editForm.invalid || this.hasDateValidationErrors()) {
       editForm.form.markAllAsTouched();
       return;
     }
-    let requests = JSON.parse(localStorage.getItem('requests') || '[]');
-    requests = requests.map((r: any) =>
-      r.id === this.selectedRequest.id ||
-      r.tripId === this.selectedRequest.tripId
-        ? { ...this.selectedRequest, isDraft: true }
-        : r,
-    );
-    localStorage.setItem('requests', JSON.stringify(requests));
-    this.closeModal();
-    this.ngOnInit();
-  }
 
+    this.requestService
+      .updateDraft(this.selectedRequest.id, this.selectedRequest)
+      .subscribe({
+        next: () => {
+          this.closeModal();
+
+          this.ngOnInit();
+
+          alert('Draft updated');
+        },
+      });
+  }
   /**
    * Submit draft with validation: Mark isDraft as false and set initial statuses
    */
-  submitDraft(editForm?: NgForm) {
+  submitDraft(editForm: NgForm) {
     this.modalSubmitted = true;
-    if (editForm && (editForm.invalid || this.hasDateValidationErrors())) {
+
+    if (editForm.invalid || this.hasDateValidationErrors()) {
       editForm.form.markAllAsTouched();
       return;
     }
-    if (!editForm && this.hasDateValidationErrors()) {
-      return;
-    }
-    if (confirm('Submit this draft for manager approval?')) {
-      const dataToSubmit = editForm ? this.selectedRequest : this.request;
-      let requests = JSON.parse(localStorage.getItem('requests') || '[]');
-      requests = requests.map((r: any) =>
-        r.id === dataToSubmit.id || r.tripId === dataToSubmit.tripId
-          ? {
-              ...dataToSubmit,
-              isDraft: false,
-              managerStatus: 'pending',
-              financeStatus: 'not_applicable',
-              finalStatus: 'pending',
-            }
-          : r,
-      );
-      localStorage.setItem('requests', JSON.stringify(requests));
-      if (editForm) {
+
+    this.requestService.submitDraft(this.selectedRequest.id).subscribe({
+      next: () => {
         this.closeModal();
-      }
-      this.ngOnInit();
-    }
+
+        alert('Submitted successfully');
+
+        this.ngOnInit();
+      },
+    });
   }
 
   /**
    * Delete draft: Remove it from localStorage and go back
    */
   deleteDraft() {
-    if (
-      confirm(
-        'Are you sure you want to delete this draft? This action cannot be undone.',
-      )
-    ) {
-      let requests = JSON.parse(localStorage.getItem('requests') || '[]');
-      requests = requests.filter(
-        (r: any) =>
-          !(r.id === this.request.id || r.tripId === this.request.tripId),
-      );
-      localStorage.setItem('requests', JSON.stringify(requests));
-      this.goBack();
-    }
+    if (!confirm('Delete this draft?')) return;
+
+    this.requestService.deleteRequest(this.request.id).subscribe({
+      next: () => {
+        alert('Deleted');
+
+        this.goBack();
+      },
+    });
   }
 
   //Edit & Cancel
@@ -359,14 +360,15 @@ export class RequestDetailsComponent implements OnInit {
   }
 
   cancelRequest(id: number) {
-    const confirmDelete = confirm(
-      'Are you sure you want to delete/cancel this request?',
-    );
-    if (!confirmDelete) return;
-    let requests = JSON.parse(localStorage.getItem('requests') || '[]');
-    requests = requests.filter((r: any) => r.id !== id);
-    localStorage.setItem('requests', JSON.stringify(requests));
-    this.ngOnInit();
+    if (!confirm('Cancel request?')) return;
+
+    this.requestService.cancelRequest(id).subscribe({
+      next: () => {
+        alert('Cancelled');
+
+        this.goBack();
+      },
+    });
   }
 
   // DATE HELPERS
