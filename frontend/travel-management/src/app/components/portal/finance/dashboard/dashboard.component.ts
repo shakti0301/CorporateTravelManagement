@@ -36,10 +36,20 @@ export class DashboardComponent implements OnInit {
     // reimbursement section
     this.reimbursementService.getFinanceReimbursements().subscribe({
       next: (res: any) => {
-        this.allRequests = res || [];
+        this.allRequests = (res || []).map((r: any) => ({
+          ...r,
+
+          id: r.reimbursementId,
+          userEmail: r.employeeName,
+          reimbursementStatus: r.status,
+          reimbursementRemark: r.remarks,
+          createdAt: r.submittedAt,
+          totalExpense: r.totalExpense,
+          expenses: r.expenses || [],
+        }));
       },
 
-      error: (err) => {
+      error: (err: any) => {
         console.log(err);
         this.allRequests = [];
       },
