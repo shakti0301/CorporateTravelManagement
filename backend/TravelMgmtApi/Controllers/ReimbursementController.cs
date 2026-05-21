@@ -26,7 +26,7 @@ namespace TravelMgmtApi.Controllers
             return Ok(result);
         }
 
-
+        [Authorize(Roles = "Finance")]
         [HttpGet("finance")]
         public async Task<IActionResult>GetFinanceRequests()
         {
@@ -43,14 +43,16 @@ namespace TravelMgmtApi.Controllers
             return Ok(await _service.GetMyReimbursementsAsync(employeeId));
         }
 
+        [Authorize(Roles = "Finance")]
         [HttpPost("approve")]
-        public async Task<IActionResult>Approve(ReimbursementActionDto dto)
+        public async Task<IActionResult>Approve([FromBody] ReimbursementActionDto dto)
         {
             return Ok(await _service.ApproveAsync(dto));
         }
 
+        [Authorize(Roles = "Finance")]
         [HttpPost("reject")]
-        public async Task<IActionResult>Reject(ReimbursementActionDto dto)
+        public async Task<IActionResult>Reject([FromBody] ReimbursementActionDto dto)
         {
             return Ok(await _service.RejectAsync(dto));
         }
