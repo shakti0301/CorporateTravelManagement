@@ -5,6 +5,7 @@ import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { RequestService } from '../../../../services/request/request.service';
 
 @Component({
   selector: 'app-request-details',
@@ -29,28 +30,113 @@ export class RequestDetailsComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
+    private requestService: RequestService,
   ) {}
 
-  ngOnInit() {
-    // Route can be /employee/request/:id — id is the request's id or tripId
-    const id = this.route.snapshot.paramMap.get('id');
-    const requests = JSON.parse(localStorage.getItem('requests') || '[]');
+  loadRequest(id: any) {
+    this.requestService.getRequestById(id).subscribe({
+      next: (res: any) => {
+        this.request = this.normalizeRequest(res);
+      },
 
-    // Match by numeric id OR by tripId string (e.g. "TRP-4823")
-    this.request = requests.find(
-      (r: any) => String(r.id) === String(id) || r.tripId === id,
-    );
+      error: (err) => {
+        console.log(err);
+        alert('Request not found');
+      },
+    });
+  }
+
+  ngOnInit() {
+    const id = this.route.snapshot.paramMap.get('id');
+    this.loadRequest(id);
+  }
+
+  private normalizeStatus(status: string): string {
+    return (status || '').trim().toLowerCase();
+  }
+
+  private normalizeStage(stage: string): string {
+    return (stage || '').trim().toLowerCase();
+  }
+
+  private deriveStatusFlow(status: string, currentStage: string) {
+    const normalizedStatus = this.normalizeStatus(status);
+    const normalizedStage = this.normalizeStage(currentStage);
+
+    const flow = {
+      pmStatus: 'not_applicable',
+      managerStatus: 'not_applicable',
+      financeStatus: 'not_applicable',
+    };
+
+    if (normalizedStatus === 'draft') {
+      return flow;
+    }
+
+    if (normalizedStatus === 'approved') {
+      flow.pmStatus = 'approved';
+      flow.managerStatus = 'approved';
+      flow.financeStatus = 'approved';
+      return flow;
+    }
+
+    if (normalizedStatus === 'rejected') {
+      if (normalizedStage === 'projectmanager') {
+        flow.pmStatus = 'rejected';
+      } else if (normalizedStage === 'manager') {
+        flow.pmStatus = 'approved';
+        flow.managerStatus = 'rejected';
+      } else if (normalizedStage === 'finance') {
+        flow.pmStatus = 'approved';
+        flow.managerStatus = 'approved';
+        flow.financeStatus = 'rejected';
+      } else {
+        flow.pmStatus = 'rejected';
+      }
+
+      return flow;
+    }
+
+    if (normalizedStage === 'projectmanager') {
+      flow.pmStatus = 'pending';
+    } else if (normalizedStage === 'manager') {
+      flow.pmStatus = 'approved';
+      flow.managerStatus = 'pending';
+    } else if (normalizedStage === 'finance') {
+      flow.pmStatus = 'approved';
+      flow.managerStatus = 'approved';
+      flow.financeStatus = 'pending';
+    } else if (normalizedStage === 'completed') {
+      flow.pmStatus = 'approved';
+      flow.managerStatus = 'approved';
+      flow.financeStatus = 'approved';
+    }
+
+    return flow;
+  }
+
+  private normalizeRequest(res: any) {
+    const currentStage = this.normalizeStage(res.currentStage);
+    const finalStatus = this.normalizeStatus(res.status);
+
+    return {
+      ...res,
+      id: res.travelRequestId,
+      fromDate: res.startDate,
+      toDate: res.endDate,
+      cost: res.estimatedCost,
+      finalStatus,
+      currentStage,
+      ...this.deriveStatusFlow(finalStatus, currentStage),
+    };
   }
 
   // TIMELINE STEP HELPERS
   /** Check if request is submitted to a Project Manager */
   get hasPM(): boolean {
-    return (
+    return Boolean(
       this.request &&
-      this.request.pmEmail &&
-      this.request.pmEmail.trim() !== '' &&
-      (this.request.pmStatus || 'not_applicable').toLowerCase() !==
-        'not_applicable'
+      this.normalizeStatus(this.request.pmStatus) !== 'not_applicable',
     );
   }
 
@@ -65,7 +151,7 @@ export class RequestDetailsComponent implements OnInit {
     }
 
     if (step === 'pm') {
-      const status = (this.request.pmStatus || '').toLowerCase();
+      const status = this.normalizeStatus(this.request.pmStatus);
       if (status === 'approved') return 'step-done';
       if (status === 'rejected') return 'step-rejected';
       if (status === 'pending') return 'step-inactive';
@@ -73,19 +159,19 @@ export class RequestDetailsComponent implements OnInit {
     }
 
     if (step === 'manager') {
-      const status = (this.request.managerStatus || '').toLowerCase();
+      const status = this.normalizeStatus(this.request.managerStatus);
       if (status === 'approved') return 'step-done';
       if (status === 'rejected') return 'step-rejected';
       return 'step-inactive';
     }
 
     if (step === 'finance') {
-      const status = (this.request.financeStatus || '').toLowerCase();
+      const status = this.normalizeStatus(this.request.financeStatus);
       if (status === 'approved') return 'step-done';
       if (status === 'rejected') return 'step-rejected';
       // Finance only becomes active after manager approves
       const managerDone =
-        (this.request.managerStatus || '').toLowerCase() === 'approved';
+        this.normalizeStatus(this.request.managerStatus) === 'approved';
       return managerDone ? 'step-inactive' : 'step-inactive';
     }
 
@@ -96,38 +182,38 @@ export class RequestDetailsComponent implements OnInit {
   isStepDone(step: string): boolean {
     if (step === 'submitted') return true;
     if (step === 'pm')
-      return (this.request.pmStatus || '').toLowerCase() === 'approved';
+      return this.normalizeStatus(this.request.pmStatus) === 'approved';
     if (step === 'manager')
-      return (this.request.managerStatus || '').toLowerCase() === 'approved';
+      return this.normalizeStatus(this.request.managerStatus) === 'approved';
     if (step === 'finance')
-      return (this.request.financeStatus || '').toLowerCase() === 'approved';
+      return this.normalizeStatus(this.request.financeStatus) === 'approved';
     return false;
   }
 
   /** Returns true if a step was rejected */
   isStepRejected(step: string): boolean {
     if (step === 'pm')
-      return (this.request.pmStatus || '').toLowerCase() === 'rejected';
+      return this.normalizeStatus(this.request.pmStatus) === 'rejected';
     if (step === 'manager')
-      return (this.request.managerStatus || '').toLowerCase() === 'rejected';
+      return this.normalizeStatus(this.request.managerStatus) === 'rejected';
     if (step === 'finance')
-      return (this.request.financeStatus || '').toLowerCase() === 'rejected';
+      return this.normalizeStatus(this.request.financeStatus) === 'rejected';
     return false;
   }
 
   /** True only when all required approvals have been granted */
   get isFullyApproved(): boolean {
     const managerApproved =
-      (this.request.managerStatus || '').toLowerCase() === 'approved';
+      this.normalizeStatus(this.request.managerStatus) === 'approved';
     const financeApproved =
-      (this.request.financeStatus || '').toLowerCase() === 'approved';
+      this.normalizeStatus(this.request.financeStatus) === 'approved';
     const finalApproved =
-      (this.request.finalStatus || '').toLowerCase() === 'approved';
+      this.normalizeStatus(this.request.finalStatus) === 'approved';
 
     // If PM exists, PM must also approve
     if (this.hasPM) {
       const pmApproved =
-        (this.request.pmStatus || '').toLowerCase() === 'approved';
+        this.normalizeStatus(this.request.pmStatus) === 'approved';
       return pmApproved && managerApproved && financeApproved && finalApproved;
     }
 
@@ -173,10 +259,10 @@ export class RequestDetailsComponent implements OnInit {
   get statusNote(): string {
     if (!this.request) return '';
 
-    const final = (this.request.finalStatus || '').toLowerCase();
-    const pm = (this.request.pmStatus || '').toLowerCase();
-    const manager = (this.request.managerStatus || '').toLowerCase();
-    const finance = (this.request.financeStatus || '').toLowerCase();
+    const final = this.normalizeStatus(this.request.finalStatus);
+    const pm = this.normalizeStatus(this.request.pmStatus);
+    const manager = this.normalizeStatus(this.request.managerStatus);
+    const finance = this.normalizeStatus(this.request.financeStatus);
 
     if (this.request.isDraft) {
       return 'This is a draft. Submit it to start the approval process.';

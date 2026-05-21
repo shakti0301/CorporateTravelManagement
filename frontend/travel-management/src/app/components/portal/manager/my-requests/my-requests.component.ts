@@ -43,10 +43,9 @@ export class MyRequestsComponent implements OnInit {
               id: r.travelRequestId,
               fromDate: r.startDate,
               toDate: r.endDate,
-              finalStatus: r.status,
-              managerStatus: r.currentStage === 'Manager' ? 'pending' : '',
-              financeStatus: r.currentStage === 'Finance' ? 'pending' : '',
-              pmStatus: r.currentStage === 'ProjectManager' ? 'pending' : '',
+              finalStatus: this.normalizeStatus(r.status),
+              currentStage: this.normalizeStage(r.currentStage),
+              ...this.deriveStatusFlow(r.status, r.currentStage),
               isDraft: false,
             }));
 
@@ -55,7 +54,7 @@ export class MyRequestsComponent implements OnInit {
               id: d.travelRequestId,
               fromDate: d.startDate,
               toDate: d.endDate,
-              finalStatus: d.status,
+              finalStatus: this.normalizeStatus(d.status || 'draft'),
               isDraft: true,
             }));
 
@@ -109,7 +108,7 @@ export class MyRequestsComponent implements OnInit {
         if (this.statusFilter === 'draft') return r.isDraft;
         if (this.statusFilter === 'pending')
           return (
-            !r.isDraft && this.normalizeStatus(r.managerStatus) === 'pending'
+            !r.isDraft && this.normalizeStatus(r.finalStatus) === 'pending'
           );
         if (this.statusFilter === 'approved')
           return this.normalizeStatus(r.finalStatus) === 'approved';
@@ -179,6 +178,68 @@ export class MyRequestsComponent implements OnInit {
 
   private normalizeStatus(status: string): string {
     return (status || 'pending').trim().toLowerCase();
+  }
+
+  private normalizeStage(stage: string): string {
+    return (stage || '').trim().toLowerCase();
+  }
+
+  private deriveStatusFlow(status: string, currentStage: string) {
+    const normalizedStatus = this.normalizeStatus(status);
+    const normalizedStage = this.normalizeStage(currentStage);
+
+    const flow = {
+      pmStatus: 'not_applicable',
+      managerStatus: 'not_applicable',
+      financeStatus: 'not_applicable',
+    };
+
+    if (normalizedStatus === 'draft') {
+      return flow;
+    }
+
+    if (normalizedStatus === 'approved') {
+      flow.pmStatus = 'approved';
+      flow.managerStatus = 'approved';
+      flow.financeStatus = 'approved';
+      return flow;
+    }
+
+    if (normalizedStatus === 'rejected') {
+      if (normalizedStage === 'projectmanager') {
+        flow.pmStatus = 'rejected';
+      } else if (normalizedStage === 'manager') {
+        flow.pmStatus = 'approved';
+        flow.managerStatus = 'rejected';
+      } else if (normalizedStage === 'finance') {
+        flow.pmStatus = 'approved';
+        flow.managerStatus = 'approved';
+        flow.financeStatus = 'rejected';
+      } else {
+        flow.pmStatus = 'rejected';
+      }
+
+      return flow;
+    }
+
+    if (normalizedStage === 'projectmanager') {
+      flow.pmStatus = 'pending';
+    } else if (normalizedStage === 'manager') {
+      flow.pmStatus = 'approved';
+      flow.managerStatus = 'pending';
+    } else if (normalizedStage === 'finance') {
+      flow.pmStatus = 'approved';
+      flow.managerStatus = 'approved';
+      flow.financeStatus = 'pending';
+    } else if (normalizedStage === 'completed') {
+      flow.pmStatus = 'approved';
+      flow.managerStatus = 'approved';
+      flow.financeStatus = 'approved';
+    } else {
+      flow.managerStatus = 'pending';
+    }
+
+    return flow;
   }
 
   getPmPillClass(req: any): string {
