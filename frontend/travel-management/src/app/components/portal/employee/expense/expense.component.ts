@@ -29,11 +29,21 @@ const dateRangeValidator = (minDate: string, maxDate: string): ValidatorFn => {
       return null;
     }
 
-    const selectedDate = new Date(control.value);
-    const min = new Date(minDate);
-    const max = new Date(maxDate);
+    // Convert dates to YYYY-MM-DD format for proper comparison
+    const formatDateString = (dateStr: string): string => {
+      const d = new Date(dateStr);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
 
-    if (selectedDate < min || selectedDate > max) {
+    const selectedDateStr = formatDateString(control.value);
+    const minDateStr = formatDateString(minDate);
+    const maxDateStr = formatDateString(maxDate);
+
+    // Compare as strings in YYYY-MM-DD format (avoids timezone issues)
+    if (selectedDateStr < minDateStr || selectedDateStr > maxDateStr) {
       return { dateOutOfRange: { min: minDate, max: maxDate } };
     }
 
@@ -115,7 +125,7 @@ export class ExpenseComponent implements OnInit {
         this.expenses = this.expenseService.getExpenseDraft(this.requestId);
 
         // Block access if travel not fully approved
-        if (this.currentRequest.status !== 'Approved') {
+        if ((this.currentRequest.status || '').toLowerCase() !== 'approved') {
           alert(
             'You can submit expenses only after travel request is fully approved.',
           );
@@ -197,12 +207,21 @@ export class ExpenseComponent implements OnInit {
     return this.expenseForm.get('otherCategory');
   }
 
+  private formatDateForInput(date: string | Date): string {
+    if (!date) return '';
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
   get minDate(): string {
-    return this.currentRequest?.fromDate || '';
+    return this.formatDateForInput(this.currentRequest?.fromDate);
   }
 
   get maxDate(): string {
-    return this.currentRequest?.toDate || '';
+    return this.formatDateForInput(this.currentRequest?.toDate);
   }
 
   openModal() {
@@ -373,20 +392,18 @@ export class ExpenseComponent implements OnInit {
         amount: Number(e.amount),
         date: e.date,
         description: e.description,
-        proofPath: e.proof || '',
       })),
     };
 
     this.reimbursementService.submitExpenses(payload).subscribe({
-      next: (res) => {
+      next: (res: any) => {
         this.expenseService.clearDraft(this.requestId);
-        alert('Submitted successfully');
+        alert(res.message);
         this.router.navigate(['/employee']);
       },
 
       error: (err) => {
         console.log(err);
-
         alert('Submission failed');
       },
     });
