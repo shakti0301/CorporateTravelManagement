@@ -13,6 +13,7 @@ import {
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ExpenseService } from '../../../../services/expense/expense.service';
+import { ReimbursementService } from '../../../../services/reimbursement/reimbursement.service';
 
 const ALLOWED_CATEGORIES = [
   'Food',
@@ -90,6 +91,7 @@ export class ExpenseComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private expenseService: ExpenseService,
+    private reimbursementService: ReimbursementService,
   ) {
     // Get id from route parameter
     this.requestId = this.route.snapshot.paramMap.get('id');
@@ -97,20 +99,29 @@ export class ExpenseComponent implements OnInit {
 
   ngOnInit() {
     this.loadCurrentRequest();
-    this.initializeForm();
   }
 
   loadCurrentRequest() {
-    this.currentRequest = this.expenseService.getRequestById(this.requestId);
+    this.expenseService.getRequestById(this.requestId).subscribe({
+      next: (res: any) => {
+        this.currentRequest = {
+          ...res,
+          id: res.travelRequestId,
+          fromDate: res.startDate,
+          toDate: res.endDate,
+          cost: res.estimatedCost,
+        };
 
-    if (!this.currentRequest) {
-      alert('Travel request not found!');
-      return;
-    }
+        this.expenses = this.expenseService.getExpenseDraft(this.requestId);
+        this.initializeForm();
+      },
 
-    if (this.currentRequest.expenses) {
-      this.expenses = [...this.currentRequest.expenses];
-    }
+      error: (err) => {
+        console.log(err);
+
+        alert('Travel request not found');
+      },
+    });
   }
 
   initializeForm() {
@@ -336,24 +347,42 @@ export class ExpenseComponent implements OnInit {
 
   submitExpenses() {
     if (this.expenses.length === 0) {
-      alert('Please add at least one expense before submitting.');
+      alert('Please add at least one expense');
       return;
     }
 
     if (this.isOverBudget()) {
-      alert('Total expenses exceed the approved amount.');
+      alert('Expenses exceed budget');
       return;
     }
 
-    this.expenseService.saveExpenses(this.requestId, this.expenses);
+    const payload = {
+      travelRequestId: Number(this.requestId),
+      expenses: this.expenses.map((e: any) => ({
+        category: e.category,
+        amount: Number(e.amount),
+        date: e.date,
+        description: e.description,
+        proofPath: e.proof || '',
+      })),
+    };
 
-    alert('Expenses submitted to Finance successfully!');
-    this.expenses = [];
+    this.reimbursementService.submitExpenses(payload).subscribe({
+      next: (res) => {
+        this.expenseService.clearDraft(this.requestId);
+        alert('Submitted successfully');
+        this.router.navigate(['/employee']);
+      },
 
-    this.router.navigate(['/employee']);
+      error: (err) => {
+        console.log(err);
+
+        alert('Submission failed');
+      },
+    });
   }
 
   goBack() {
-    this.router.navigate(['/employee/request-details', this.requestId]);
+    this.router.navigate(['/employee']);
   }
 }
