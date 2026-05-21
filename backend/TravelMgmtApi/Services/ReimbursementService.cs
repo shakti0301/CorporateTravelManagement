@@ -38,6 +38,27 @@ namespace TravelMgmtApi.Services
                 return "At least one expense is required.";
             }
 
+            var existing = await _repo.GetByTravelRequestIdAsync(dto.TravelRequestId);
+            if (existing != null)
+            {
+                existing.Expenses.Clear();
+
+                foreach (var e in dto.Expenses)
+                {
+                    existing.Expenses.Add(new Expense
+                    {
+                        Category = e.Category,
+                        Date = e.Date,
+                        Description = e.Description,
+                        Amount = e.Amount,
+                    });
+                }
+                existing.TotalExpense = dto.Expenses.Sum(e => e.Amount);
+                existing.SubmittedAt = DateTime.UtcNow;
+                await _repo.SaveChangesAsync();
+                return "Reimbursement updated successfully.";
+            }
+
             var reimbursement = new Reimbursement
             {
                 EmployeeId = employeeId,
