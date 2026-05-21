@@ -113,6 +113,16 @@ export class ExpenseComponent implements OnInit {
         };
 
         this.expenses = this.expenseService.getExpenseDraft(this.requestId);
+
+        // Block access if travel not fully approved
+        if (this.currentRequest.status !== 'Approved') {
+          alert(
+            'You can submit expenses only after travel request is fully approved.',
+          );
+
+          this.router.navigate(['/employee']);
+          return;
+        }
         this.initializeForm();
       },
 
