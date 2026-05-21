@@ -22,6 +22,11 @@ namespace TravelMgmtApi.Repositories
                 .FirstOrDefaultAsync(x => x.TravelRequestId == travelRequestId);
         }
 
+        public async Task AddExpenseAsync(Expense expense)
+        {
+            await _context.Expenses.AddAsync(expense);
+        }
+
         public async Task AddReimbursementAsync(Reimbursement reimbursement)
         {
             await _context.Reimbursements.AddAsync(reimbursement);
