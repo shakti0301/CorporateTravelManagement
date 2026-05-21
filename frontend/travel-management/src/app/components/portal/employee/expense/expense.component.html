@@ -34,7 +34,17 @@
       <div class="trip-info-row">
         <span class="trip-icon">📅</span>
         <span class="trip-value"
-          >{{ currentRequest.fromDate }} – {{ currentRequest.toDate }}</span
+          >{{
+            currentRequest.fromDate
+              ? (currentRequest.fromDate | date: "MMM dd")
+              : "-"
+          }}
+          –
+          {{
+            currentRequest.toDate
+              ? (currentRequest.toDate | date: "MMM dd, yyyy")
+              : "-"
+          }}</span
         >
       </div>
     </div>

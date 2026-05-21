@@ -395,6 +395,6 @@ export class ExpenseComponent implements OnInit {
   }
 
   goBack() {
-    this.router.navigate([this.basePath + '/request-details', this.requestId]);
+    this.router.navigate(['/employee/request-details', this.requestId]);
   }
 }

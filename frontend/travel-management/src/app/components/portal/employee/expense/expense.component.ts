@@ -383,6 +383,6 @@ export class ExpenseComponent implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/employee']);
+    this.router.navigate(['/employee/request-details', this.requestId]);
   }
 }
