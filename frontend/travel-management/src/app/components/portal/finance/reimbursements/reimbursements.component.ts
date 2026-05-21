@@ -30,7 +30,27 @@ export class ReimbursementsComponent implements OnInit {
   }
 
   load() {
-    this.allRequests = this.reimbursementService.getAllRequests();
+    this.reimbursementService.getFinanceRequests().subscribe({
+      next: (res: any) => {
+        this.allRequests = (res || []).map((r: any) => ({
+          ...r,
+          id: r.reimbursementId,
+          userEmail: r.employeeName,
+          destination: r.destination,
+          purpose: r.purpose,
+          totalExpense: r.totalExpense,
+          reimbursementStatus: r.status,
+          reimbursementRemark: r.remarks,
+          createdAt: r.submittedAt,
+          expenses: r.expenses || [],
+        }));
+      },
+
+      error: (err) => {
+        console.log(err);
+        this.allRequests = [];
+      },
+    });
   }
 
   // Tab lists
@@ -112,22 +132,28 @@ export class ReimbursementsComponent implements OnInit {
   }
 
   approveRequest() {
-    this.reimbursementService.approve(this.selectedRequest.id);
-    this.closeModal();
-    this.load();
+    this.reimbursementService.approve(this.selectedRequest.id).subscribe({
+      next: () => {
+        this.closeModal();
+        this.load();
+      },
+    });
   }
 
   rejectRequest() {
     if (!this.rejectRemark.trim()) {
-      alert('Please provide a reason for rejection.');
+      alert('Please provide reason');
       return;
     }
-    this.reimbursementService.reject(
-      this.selectedRequest.id,
-      this.rejectRemark,
-    );
-    this.closeModal();
-    this.load();
+
+    this.reimbursementService
+      .reject(this.selectedRequest.id, this.rejectRemark)
+      .subscribe({
+        next: () => {
+          this.closeModal();
+          this.load();
+        },
+      });
   }
 
   // Helpers
