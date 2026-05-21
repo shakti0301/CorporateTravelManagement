@@ -23,7 +23,10 @@ namespace TravelMgmtApi.Controllers
         {
             var employeeId = int .Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
             var result = await _service.SubmitAsync(employeeId, dto);
-            return Ok(result);
+            return Ok(new
+            {
+                message = result
+            });
         }
 
         [Authorize(Roles = "Finance")]
@@ -45,16 +48,25 @@ namespace TravelMgmtApi.Controllers
 
         [Authorize(Roles = "Finance")]
         [HttpPost("approve")]
-        public async Task<IActionResult>Approve([FromBody] ReimbursementActionDto dto)
+        public async Task<IActionResult> Approve(ReimbursementActionDto dto)
         {
-            return Ok(await _service.ApproveAsync(dto));
+            var result = await _service.ApproveAsync(dto);
+
+            return Ok(new
+            {
+                message = result
+            });
         }
 
         [Authorize(Roles = "Finance")]
         [HttpPost("reject")]
-        public async Task<IActionResult>Reject([FromBody] ReimbursementActionDto dto)
+        public async Task<IActionResult> Reject(ReimbursementActionDto dto)
         {
-            return Ok(await _service.RejectAsync(dto));
+            var result = await _service.RejectAsync(dto);
+            return Ok(new
+            {
+                message = result
+            });
         }
     }
 }
