@@ -3,6 +3,7 @@ import { NavbarComponent } from '../../../shared/navbar/navbar.component';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { RequestService } from '../../../../services/request/request.service';
 import { Router } from '@angular/router';
+import { ReimbursementService } from '../../../../services/reimbursement/reimbursement.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -17,6 +18,7 @@ export class DashboardComponent implements OnInit {
 
   constructor(
     private requestService: RequestService,
+    private reimbursementService: ReimbursementService,
     private router: Router,
   ) {}
 
@@ -26,30 +28,45 @@ export class DashboardComponent implements OnInit {
 
   loadRequests() {
     this.requestService.getMyRequests().subscribe({
-      next: (response: any) => {
-        this.requests = response.map((r: any) => ({
-          ...r,
+      next: (travelRes: any) => {
+        this.reimbursementService.getMyReimbursements().subscribe({
+          next: (reimbRes: any) => {
+            const reimbursementMap = new Map();
 
-          // map backend → old UI names
-          id: r.travelRequestId,
+            (reimbRes || []).forEach((r: any) => {
+              reimbursementMap.set(r.travelRequestId, r);
+            });
 
-          fromDate: r.startDate,
-          toDate: r.endDate,
+            this.requests = travelRes.map((r: any) => {
+              const reimbursement = reimbursementMap.get(r.travelRequestId);
 
-          finalStatus: r.status,
+              return {
+                ...r,
 
-          managerStatus: r.currentStage === 'Manager' ? 'pending' : '',
-          financeStatus: r.currentStage === 'Finance' ? 'pending' : '',
-          isDraft: false,
-        }));
-        console.log(this.requests);
-      },
-      error: (err) => {
-        console.log(err);
+                id: r.travelRequestId,
+                fromDate: r.startDate,
+                toDate: r.endDate,
+
+                finalStatus: r.status,
+
+                reimbursementStatus: reimbursement?.status || null,
+
+                totalExpense: reimbursement?.totalExpense || 0,
+
+                expenseSubmitted: !!reimbursement,
+
+                reimbursementRemark: reimbursement?.remarks || '',
+
+                managerStatus: r.currentStage === 'Manager' ? 'pending' : '',
+
+                financeStatus: r.currentStage === 'Finance' ? 'pending' : '',
+              };
+            });
+          },
+        });
       },
     });
   }
-
   // STAT GETTERS
 
   get totalRequests(): number {
@@ -69,13 +86,13 @@ export class DashboardComponent implements OnInit {
 
   get pendingApproval(): number {
     return this.requests.filter(
-      (r) => (r.managerStatus || '').toLowerCase() === 'pending',
+      (r) => (r.finalStatus || '').toLowerCase() === 'pending',
     ).length;
   }
 
   get approvedTrips(): number {
     return this.requests.filter(
-      (r) => (r.finalStatus || '').toLowerCase() === 'approved',
+      (r) => r.finalStatus?.toLowerCase() === 'approved' && !r.expenseSubmitted,
     ).length;
   }
 
@@ -141,60 +158,71 @@ export class DashboardComponent implements OnInit {
   // STATUS HELPERS (for table badges)
 
   getStatusClass(req: any): string {
-    // Completed = finance approved the reimbursement
-    if (
-      req.reimbursementStatus === 'approved' ||
-      (req.finalStatus || '').toLowerCase() === 'completed'
-    ) {
-      return 'badge-completed';
-    }
-
-    if (req.isDraft) return 'badge-draft';
-
     const final = (req.finalStatus || '').toLowerCase();
-    const manager = (req.managerStatus || '').toLowerCase();
-    const finance = (req.financeStatus || '').toLowerCase();
 
-    const reimbursementStatus = (req.reimbursementStatus || '').toLowerCase();
+    const reimb = (req.reimbursementStatus || '').toLowerCase();
 
-    if (reimbursementStatus === 'approved') {
-      return 'badge-approved';
-    }
-
-    if (reimbursementStatus === 'rejected') {
+    if (final === 'rejected') {
       return 'badge-rejected';
     }
 
-    if (reimbursementStatus === 'pending') {
+    if (final !== 'approved') {
       return 'badge-pending';
     }
 
-    if (final === 'approved') {
+    if (!req.expenseSubmitted) {
       return 'badge-approved';
     }
 
-    if (final === 'rejected') return 'badge-rejected';
+    if (reimb === 'pending') {
+      return 'badge-pending';
+    }
 
-    if (manager === 'pending') return 'badge-pending';
+    if (reimb === 'approved') {
+      return 'badge-completed';
+    }
 
-    if (finance === 'pending') return 'badge-pending';
+    if (reimb === 'rejected') {
+      return 'badge-rejected';
+    }
 
-    return 'badge-draft';
+    return 'badge-approved';
   }
 
-  getStatusLabel(req: any): string {
-    if (req.isDraft) return 'Draft';
+  getStatusLabel(req: any) {
+    const final = (req.finalStatus || '').toLowerCase();
 
-    if (req.reimbursementStatus === 'approved') return 'Trip Completed';
-    if (req.reimbursementStatus === 'rejected') return 'Reimbursement Rejected';
-    if (req.reimbursementStatus === 'pending') return 'Reimbursement Pending';
+    const reimb = (req.reimbursementStatus || '').toLowerCase();
 
-    if (req.expenseSubmitted) return 'Expense Submitted';
+    // Travel request rejected
+    if (final === 'rejected') {
+      return 'Travel Request Rejected';
+    }
 
-    if ((req.finalStatus || '').toLowerCase() === 'approved') return 'Approved';
-    if ((req.finalStatus || '').toLowerCase() === 'rejected') return 'Rejected';
+    // Travel still under approval flow
+    if (final !== 'approved') {
+      return 'Pending Approval';
+    }
 
-    return 'Pending Approval';
+    // Approved → expense phase
+    if (!req.expenseSubmitted) {
+      return 'Ready for Expenses';
+    }
+
+    // Reimbursement flow
+    if (reimb === 'pending') {
+      return 'Reimbursement Pending';
+    }
+
+    if (reimb === 'approved') {
+      return 'Trip Completed';
+    }
+
+    if (reimb === 'rejected') {
+      return 'Reimbursement Rejected';
+    }
+
+    return 'Approved';
   }
 
   // TRIP GETTERS
