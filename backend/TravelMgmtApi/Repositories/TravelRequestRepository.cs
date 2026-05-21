@@ -50,6 +50,7 @@ namespace TravelMgmtApi.Repositories
         public async Task<TravelRequest?> GetRequestByIdAsync(int id)
         {
             return await _context.TravelRequests
+                .Include(tr => tr.Employee)
                 .FirstOrDefaultAsync(x => x.TravelRequestId == id);
         }
 
