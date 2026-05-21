@@ -77,6 +77,18 @@ namespace TravelMgmtApi.Controllers
             return Ok(result);
         }
 
+        //Get by id
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var request = await _travelService.GetByIdAsync(id);
+            if(request == null)
+            {
+                return NotFound();
+            }
+            return Ok(request);
+        }
+
         //All PM Requests
         [HttpGet("all/pm")]
         public async Task<IActionResult>GetPMRequests()
