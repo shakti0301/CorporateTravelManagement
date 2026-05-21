@@ -141,21 +141,28 @@
                   </span>
                 </ng-container>
 
-                <!-- NORMAL APPROVAL FLOW (manager → finance) -->
+                <!-- APPROVAL FLOW - BASED ON ROLE -->
                 <ng-container *ngIf="!req.isDraft && !req.expenseSubmitted">
                   <div class="status-flow">
-                    <span class="pill" [ngClass]="getPmPillClass(req)">
-                      PM : {{ formatStatus(req.pmStatus) }}
-                    </span>
-                    <span class="flow-arrow">→</span>
-                    <span class="pill" [ngClass]="getManagerPillClass(req)">
-                      Mgr : {{ formatStatus(req.managerStatus) }}
-                    </span>
-                    <span class="flow-arrow">→</span>
+                    <!-- PM View: Manager + Finance -->
+                    <ng-container *ngIf="isPM">
+                      <span class="pill" [ngClass]="getManagerPillClass(req)">
+                        Mgr : {{ formatStatus(req.managerStatus) }}
+                      </span>
 
-                    <span class="pill" [ngClass]="getFinancePillClass(req)">
-                      Fin : {{ formatStatus(req.financeStatus) }}
-                    </span>
+                      <span class="flow-arrow">→</span>
+
+                      <span class="pill" [ngClass]="getFinancePillClass(req)">
+                        Fin : {{ formatStatus(req.financeStatus) }}
+                      </span>
+                    </ng-container>
+
+                    <!-- Manager View: Finance Only -->
+                    <ng-container *ngIf="isManager">
+                      <span class="pill" [ngClass]="getFinancePillClass(req)">
+                        Fin : {{ formatStatus(req.financeStatus) }}
+                      </span>
+                    </ng-container>
                   </div>
                 </ng-container>
 
@@ -173,7 +180,7 @@
                   title="View details"
                   [routerLink]="[
                     basePath + '/request-details',
-                    req.travelRequestId || req.id
+                    req.travelRequestId || req.id,
                   ]"
                 >
                   <svg

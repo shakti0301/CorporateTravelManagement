@@ -27,7 +27,20 @@ export class MyRequestsComponent implements OnInit {
   currentPage: number = 1;
   pageSize: number = 5;
 
-  constructor(private requestService: RequestService) {}
+  // ROLE DETECTION
+  userRole: string = '';
+
+  constructor(private requestService: RequestService) {
+    this.userRole = (localStorage.getItem('role') || '').toLowerCase();
+  }
+
+  get isPM(): boolean {
+    return this.userRole === 'projectmanager';
+  }
+
+  get isManager(): boolean {
+    return this.userRole === 'manager';
+  }
 
   ngOnInit() {
     this.loadRequests();
@@ -45,7 +58,7 @@ export class MyRequestsComponent implements OnInit {
               toDate: r.endDate,
               finalStatus: this.normalizeStatus(r.status),
               currentStage: this.normalizeStage(r.currentStage),
-              ...this.deriveStatusFlow(r.status, r.currentStage),
+              ...this.deriveStatusFlow(r.status, r.currentStage, r),
               isDraft: false,
             }));
 
@@ -184,59 +197,76 @@ export class MyRequestsComponent implements OnInit {
     return (stage || '').trim().toLowerCase();
   }
 
-  private deriveStatusFlow(status: string, currentStage: string) {
+  private deriveStatusFlow(status: string, currentStage: string, req?: any) {
     const normalizedStatus = this.normalizeStatus(status);
+
     const normalizedStage = this.normalizeStage(currentStage);
 
+    const hasPM = req?.pmEmail && req.pmEmail.trim() !== '';
+
     const flow = {
-      pmStatus: 'not_applicable',
-      managerStatus: 'not_applicable',
+      pmStatus: hasPM ? 'pending' : 'not_applicable',
+
+      managerStatus: hasPM ? 'not_applicable' : 'pending',
+
       financeStatus: 'not_applicable',
     };
 
+    // Draft
     if (normalizedStatus === 'draft') {
       return flow;
     }
 
+    // Fully approved travel
     if (normalizedStatus === 'approved') {
-      flow.pmStatus = 'approved';
+      flow.pmStatus = hasPM ? 'approved' : 'not_applicable';
+
       flow.managerStatus = 'approved';
+
       flow.financeStatus = 'approved';
+
       return flow;
     }
 
+    // Rejected flow
     if (normalizedStatus === 'rejected') {
       if (normalizedStage === 'projectmanager') {
         flow.pmStatus = 'rejected';
       } else if (normalizedStage === 'manager') {
-        flow.pmStatus = 'approved';
+        if (hasPM) {
+          flow.pmStatus = 'approved';
+        }
+
         flow.managerStatus = 'rejected';
       } else if (normalizedStage === 'finance') {
-        flow.pmStatus = 'approved';
+        if (hasPM) {
+          flow.pmStatus = 'approved';
+        }
+
         flow.managerStatus = 'approved';
         flow.financeStatus = 'rejected';
-      } else {
-        flow.pmStatus = 'rejected';
       }
 
       return flow;
     }
 
+    // Pending stages
+
     if (normalizedStage === 'projectmanager') {
       flow.pmStatus = 'pending';
     } else if (normalizedStage === 'manager') {
-      flow.pmStatus = 'approved';
+      if (hasPM) {
+        flow.pmStatus = 'approved';
+      }
+
       flow.managerStatus = 'pending';
     } else if (normalizedStage === 'finance') {
-      flow.pmStatus = 'approved';
+      if (hasPM) {
+        flow.pmStatus = 'approved';
+      }
+
       flow.managerStatus = 'approved';
       flow.financeStatus = 'pending';
-    } else if (normalizedStage === 'completed') {
-      flow.pmStatus = 'approved';
-      flow.managerStatus = 'approved';
-      flow.financeStatus = 'approved';
-    } else {
-      flow.managerStatus = 'pending';
     }
 
     return flow;
