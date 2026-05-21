@@ -148,7 +148,7 @@ namespace TravelMgmtApi.Data
                 .HasOne(r => r.TravelRequest)
                 .WithMany()
                 .HasForeignKey(r => r.TravelRequestId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
 
             // Expense -> Reimbursement
             modelBuilder.Entity<Expense>()
