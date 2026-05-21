@@ -308,11 +308,6 @@ export class RequestDetailsComponent implements OnInit {
     ]);
   }
 
-  downloadPdf() {
-    // Basic print-to-PDF — opens browser print dialog
-    window.print();
-  }
-
   // DRAFT ACTIONS
   /**
    * Edit draft: Open the modal form for editing
