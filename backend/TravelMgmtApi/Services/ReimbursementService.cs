@@ -24,8 +24,15 @@ namespace TravelMgmtApi.Services
             }
             if (request.EmployeeId != employeeId)
             {
-                return "Unauthorized:";
+                return "Unauthorized";
             }
+            var existing = await _repo.GetFinanceRequestsAsync();
+
+            if(existing.Any(x => x.TravelRequestId == dto.TravelRequestId))
+            {
+                return "Reimbursement already submitted";
+            }
+            
             if (dto.Expenses.Count == 0)
             {
                 return "At least one expense is required.";
@@ -33,6 +40,7 @@ namespace TravelMgmtApi.Services
 
             var reimbursement = new Reimbursement
             {
+                EmployeeId = employeeId,
                 TravelRequestId = dto.TravelRequestId,
                 SubmittedAt = DateTime.UtcNow,
                 Status = RequestStatus.Pending,
@@ -43,7 +51,7 @@ namespace TravelMgmtApi.Services
                     Date = e.Date,
                     Description = e.Description,
                     Amount = e.Amount,
-                    ProofPath = "", // File handling to be implemented
+                    ProofPath = e.ProofPath
                 })
                 .ToList()
             };
