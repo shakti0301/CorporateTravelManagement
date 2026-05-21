@@ -1,64 +1,53 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ExpenseService {
-  constructor() {}
+  private apiUrl = 'http://localhost:5212/api/Reimbursement';
 
-  private getRequests() {
-    return JSON.parse(localStorage.getItem('requests') || '[]');
+  constructor(private http: HttpClient) {}
+
+  // Draft storage only
+  saveExpensesAsDraft(requestId: any, expenses: any[]) {
+    localStorage.setItem(`expenseDraft_${requestId}`, JSON.stringify(expenses));
   }
 
-  private saveRequests(requests: any[]) {
-    localStorage.setItem('requests', JSON.stringify(requests));
-  }
-
-  getRequestById(requestId: any) {
-    const requests = this.getRequests();
-    // Search by numeric id first, then by tripId for display
-    return requests.find(
-      (r: any) => String(r.id) === String(requestId) || r.tripId === requestId,
+  getExpenseDraft(requestId: any): any[] {
+    return JSON.parse(
+      localStorage.getItem(`expenseDraft_${requestId}`) || '[]',
     );
   }
 
-  saveExpenses(requestId: any, expenses: any[]) {
-    let requests = this.getRequests();
-
-    requests = requests.map((r: any) => {
-      if (String(r.id) === String(requestId) || r.tripId === requestId) {
-        const totalExpense = expenses.reduce(
-          (sum, e) => sum + Number(e.amount || 0),
-          0,
-        );
-
-        const approvedAmount = Number(r.cost || 0);
-
-        return {
-          ...r,
-          expenses,
-          expenseSubmitted: true,
-          totalExpense,
-          remainingAmount: approvedAmount - totalExpense,
-          reimbursementStatus: 'pending',
-          reimbursementRemark: '',
-        };
-      }
-      return r;
-    });
-    this.saveRequests(requests);
+  clearDraft(requestId: any) {
+    localStorage.removeItem(`expenseDraft_${requestId}`);
   }
 
-  saveExpensesAsDraft(requestId: any, expenses: any[]) {
-    let requests = this.getRequests();
+  // Backend APIs
+  getRequestById(id: any) {
+    return this.http.get(`http://localhost:5212/api/TravelRequest/${id}`);
+  }
 
-    requests = requests.map((r: any) => {
-      if (String(r.id) === String(requestId) || r.tripId === requestId) {
-        return { ...r, expenses }; // only saves expenses, touches nothing else
-      }
-      return r;
+  submitExpenses(data: any) {
+    return this.http.post(`${this.apiUrl}/submit`, data);
+  }
+
+  getMyReimbursements() {
+    return this.http.get(`${this.apiUrl}/my`);
+  }
+
+  getFinanceReimbursements() {
+    return this.http.get(`${this.apiUrl}/finance`);
+  }
+
+  approve(id: number) {
+    return this.http.put(`${this.apiUrl}/approve/${id}`, {});
+  }
+
+  reject(id: number, remarks: string) {
+    return this.http.put(`${this.apiUrl}/reject/${id}`, {
+      remarks,
     });
-
-    this.saveRequests(requests);
   }
 }

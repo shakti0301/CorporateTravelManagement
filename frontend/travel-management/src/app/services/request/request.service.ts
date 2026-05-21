@@ -92,12 +92,23 @@ export class RequestService {
     });
   }
 
-  //Temorary: for removing errors
-  getRequestsByUser() {
-    return [];
+  getRequestById(id: number) {
+    return this.http.get(`${this.apiUrl}/${id}`);
   }
 
-  getAllRequests() {
-    return [];
+  updateDraft(id: number, data: any) {
+    return this.http.put(`${this.apiUrl}/draft/${id}`, data);
+  }
+
+  submitDraft(id: number) {
+    return this.http.put(`${this.apiUrl}/submit/${id}`, {});
+  }
+
+  deleteRequest(id: number) {
+    return this.http.delete(`${this.apiUrl}/${id}`);
+  }
+
+  cancelRequest(id: number) {
+    return this.http.put(`${this.apiUrl}/cancel/${id}`, {});
   }
 }

@@ -1,60 +1,45 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ReimbursementService {
-  constructor() {}
+  private apiUrl = `${environment.apiUrl}/Reimbursement`;
 
-  private getRequests() {
-    return JSON.parse(localStorage.getItem('requests') || '[]');
+  constructor(private http: HttpClient) {}
+
+  getFinanceReimbursements() {
+    return this.http.get(`${this.apiUrl}/finance`);
   }
 
-  private saveRequests(requests: any[]) {
-    localStorage.setItem('requests', JSON.stringify(requests));
+  // employee submit expenses
+  submitExpenses(data: any) {
+    return this.http.post(`${this.apiUrl}/submit`, data);
   }
 
-  getAllRequests(): any[] {
-    const requests = JSON.parse(localStorage.getItem('requests') || '[]');
-    return requests.filter((r: any) => r.expenseSubmitted === true);
+  // finance dashboard
+  getFinanceRequests() {
+    return this.http.get(`${this.apiUrl}/finance`);
   }
 
-  getPendingRequests() {
-    return this.getRequests().filter(
-      (req: any) =>
-        req.expenseSubmitted === true && req.reimbursementStatus === 'pending',
-    );
+  // employee history
+  getMyReimbursements() {
+    return this.http.get(`${this.apiUrl}/my`);
   }
 
-  approve(id: number) {
-    let requests = this.getRequests();
-
-    requests = requests.map((r: any) => {
-      if (r.id === id) {
-        return {
-          ...r,
-          reimbursementStatus: 'approved',
-          reimbursementRemark: 'Approved by manager',
-        };
-      }
-      return r;
+  approve(reimbursementId: number, remarks: string = '') {
+    return this.http.post(`${this.apiUrl}/approve`, {
+      reimbursementId,
+      remarks,
     });
-    this.saveRequests(requests);
   }
 
-  reject(id: number, reason: string) {
-    let requests = this.getRequests();
-
-    requests = requests.map((r: any) => {
-      if (r.id === id) {
-        return {
-          ...r,
-          reimbursementStatus: 'rejected',
-          reimbursementRemark: reason,
-        };
-      }
-      return r;
+  reject(reimbursementId: number, remarks: string) {
+    return this.http.post(`${this.apiUrl}/reject`, {
+      reimbursementId,
+      remarks,
     });
-    this.saveRequests(requests);
   }
 }
