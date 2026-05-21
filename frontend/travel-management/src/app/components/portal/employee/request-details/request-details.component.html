@@ -191,6 +191,7 @@
           <button
             class="edit-itinerary-btn"
             (click)="editItinerary()"
+            [disabled]="request.expenseSubmitted"
             matTooltip="Edit Itinerary"
             matTooltipPosition="left"
           >
@@ -770,7 +771,7 @@
         *ngIf="
           !request.isDraft &&
           request.expenseSubmitted &&
-          request.reimbursementStatus !== 'approved'
+          request.reimbursementStatus === 'pending'
         "
       >
         <svg
@@ -783,7 +784,7 @@
         >
           <polyline points="20 6 9 17 4 12" />
         </svg>
-        Expense Submitted
+        Reimbursement Pending
       </div>
 
       <!-- Trip Complete -->
@@ -806,6 +807,27 @@
           <polyline points="20 6 9 17 4 12" />
         </svg>
         Trip Complete
+      </div>
+      <div
+        class="rejected-tag"
+        *ngIf="
+          request.expenseSubmitted && request.reimbursementStatus === 'rejected'
+        "
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#dc2626"
+          stroke-width="2.5"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <line x1="8" y1="8" x2="16" y2="16" />
+          <line x1="16" y1="8" x2="8" y2="16" />
+        </svg>
+
+        Reimbursement Rejected
       </div>
 
       <!-- Rejected - Not for drafts -->

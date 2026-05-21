@@ -260,61 +260,34 @@ export class RequestDetailsComponent implements OnInit {
     if (!this.request) return '';
 
     const final = this.normalizeStatus(this.request.finalStatus);
-    const pm = this.normalizeStatus(this.request.pmStatus);
-    const manager = this.normalizeStatus(this.request.managerStatus);
-    const finance = this.normalizeStatus(this.request.financeStatus);
+    const reimb = this.normalizeStatus(this.request.reimbursementStatus);
 
     if (this.request.isDraft) {
-      return 'This is a draft. Submit it to start the approval process.';
+      return 'This is a draft. Submit it to start approval.';
     }
 
-    // Check for rejections
-    if (final === 'rejected' || pm === 'rejected') {
-      return 'This request was rejected by Project Manager. See the remarks below for details.';
+    if (final === 'rejected') {
+      return 'Travel request was rejected.';
     }
 
-    if (manager === 'rejected') {
-      return 'This request was rejected by Manager. See the remarks below for details.';
+    // Travel approved but expense not added
+    if (final === 'approved' && !this.request.expenseSubmitted) {
+      return 'Trip approved. Add expenses after your trip starts.';
     }
 
-    if (finance === 'rejected') {
-      return 'Finance rejected this request. Please review and re-submit.';
+    if (reimb === 'pending') {
+      return 'Expense submitted. Waiting for reimbursement approval.';
     }
 
-    // Fully approved states
-    if (this.isFullyApproved && this.request.expenseSubmitted) {
-      return 'Expenses submitted. Awaiting finance reimbursement review.';
+    if (reimb === 'approved') {
+      return 'Trip completed and reimbursement approved.';
     }
 
-    if (this.isFullyApproved) {
-      return 'This request has been fully vetted and approved. You can now start logging expenses against this budget. Final reimbursement requires receipt submission.';
+    if (reimb === 'rejected') {
+      return 'Reimbursement rejected. Please review finance comments.';
     }
 
-    // In-progress states
-    if (this.hasPM) {
-      if (pm === 'pending') {
-        return 'Request submitted and awaiting Project Manager approval.';
-      }
-      if (pm === 'approved' && manager === 'pending') {
-        return 'Project Manager approved. Awaiting Manager review.';
-      }
-      if (
-        pm === 'approved' &&
-        manager === 'approved' &&
-        finance !== 'approved'
-      ) {
-        return 'Manager approved. Awaiting finance department review.';
-      }
-    } else {
-      if (manager === 'pending') {
-        return 'Request submitted and awaiting manager approval.';
-      }
-      if (manager === 'approved' && finance !== 'approved') {
-        return 'Manager approved. Awaiting finance department review.';
-      }
-    }
-
-    return 'Request is under review.';
+    return 'Request under review.';
   }
 
   // ACTIONS
@@ -327,7 +300,12 @@ export class RequestDetailsComponent implements OnInit {
   }
 
   openItinerary() {
-    this.router.navigate(['/employee/itinerary', this.request.id]);
+    console.log(this.request);
+
+    this.router.navigate([
+      '/employee/itinerary',
+      this.request.travelRequestId || this.request.id,
+    ]);
   }
 
   downloadPdf() {
@@ -481,9 +459,13 @@ export class RequestDetailsComponent implements OnInit {
 
   //Itinerary
   editItinerary() {
-    this.router.navigate(['/employee/itinerary', this.request.id]);
-  }
+    console.log(this.request);
 
+    this.router.navigate([
+      '/employee/itinerary',
+      this.request.travelRequestId || this.request.id,
+    ]);
+  }
   // Returns true only for index 0 (used in template)
   isFirst(index: number): boolean {
     return index === 0;
