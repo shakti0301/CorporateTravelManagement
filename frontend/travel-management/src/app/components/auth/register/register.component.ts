@@ -45,6 +45,16 @@ export class RegisterComponent {
 
   submitted = false;
   authErrorMessage = '';
+  showPassword = false;
+  showConfirmPassword = false;
+
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
+  }
+
+  toggleConfirmPasswordVisibility() {
+    this.showConfirmPassword = !this.showConfirmPassword;
+  }
 
   registerForm = new FormGroup(
     {

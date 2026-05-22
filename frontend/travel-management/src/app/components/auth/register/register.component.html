@@ -98,13 +98,27 @@
 
         <div class="field-group">
           <label for="password" class="form-label">Password</label>
-          <input
-            type="password"
-            id="password"
-            formControlName="password"
-            class="form-control"
-            placeholder="At least 8 characters"
-          />
+          <div class="password-field">
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              id="password"
+              formControlName="password"
+              class="form-control"
+              placeholder="At least 8 characters"
+            />
+            <button
+              type="button"
+              class="password-toggle"
+              (click)="togglePasswordVisibility()"
+              [attr.aria-label]="
+                showPassword ? 'Hide password' : 'Show password'
+              "
+            >
+              <span class="toggle-icon">{{
+                showPassword ? "Hide" : "Show"
+              }}</span>
+            </button>
+          </div>
           <small
             class="field-error"
             *ngIf="
@@ -148,13 +162,27 @@
           <label for="confirmPassword" class="form-label"
             >Confirm Password</label
           >
-          <input
-            type="password"
-            id="confirmPassword"
-            formControlName="confirmPassword"
-            class="form-control"
-            placeholder="Re-enter password"
-          />
+          <div class="password-field">
+            <input
+              [type]="showConfirmPassword ? 'text' : 'password'"
+              id="confirmPassword"
+              formControlName="confirmPassword"
+              class="form-control"
+              placeholder="Re-enter password"
+            />
+            <button
+              type="button"
+              class="password-toggle"
+              (click)="toggleConfirmPasswordVisibility()"
+              [attr.aria-label]="
+                showConfirmPassword ? 'Hide password' : 'Show password'
+              "
+            >
+              <span class="toggle-icon">{{
+                showConfirmPassword ? "Hide" : "Show"
+              }}</span>
+            </button>
+          </div>
           <small
             class="field-error"
             *ngIf="

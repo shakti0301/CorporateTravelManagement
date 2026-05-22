@@ -43,14 +43,28 @@
 
         <div class="field-group">
           <label for="password" class="form-label">Password</label>
-          <input
-            type="password"
-            id="password"
-            class="form-control"
-            formControlName="password"
-            placeholder="Enter your password"
-            (input)="authErrorMessage = ''"
-          />
+          <div class="password-field">
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              id="password"
+              class="form-control"
+              formControlName="password"
+              placeholder="Enter your password"
+              (input)="authErrorMessage = ''"
+            />
+            <button
+              type="button"
+              class="password-toggle"
+              (click)="togglePasswordVisibility()"
+              [attr.aria-label]="
+                showPassword ? 'Hide password' : 'Show password'
+              "
+            >
+              <span class="toggle-icon">{{
+                showPassword ? "Hide" : "Show"
+              }}</span>
+            </button>
+          </div>
           <small
             class="field-error"
             *ngIf="
