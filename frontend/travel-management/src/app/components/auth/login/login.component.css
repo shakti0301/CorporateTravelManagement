@@ -218,6 +218,46 @@
   text-decoration: underline;
 }
 
+.password-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-field .form-control {
+  padding-right: 2.8rem;
+  width: 100%;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 0.92rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.4rem 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: opacity 0.2s ease;
+  color: var(--auth-primary);
+}
+
+.password-toggle:hover {
+  opacity: 0.8;
+}
+
+.password-toggle:active {
+  opacity: 0.6;
+}
+
+.toggle-icon {
+  user-select: none;
+  pointer-events: none;
+}
+
 @keyframes card-enter {
   from {
     opacity: 0;
