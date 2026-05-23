@@ -88,32 +88,34 @@ public class TravelRequestService : ITravelRequestService
             firstStage = ApprovalStage.Manager;
         }
 
-        var request =
-            new TravelRequest
-            {
-                EmployeeId=employeeId,
-                ProjectManagerId=dto.ProjectManagerId,
-                ManagerId=manager.UserId,
-                FinanceId=finance.UserId,
+        var request = new TravelRequest
+        {
+            EmployeeId = employeeId,
+            ProjectManagerId = dto.ProjectManagerId,
+            ManagerId = manager.UserId,
+            FinanceId = finance.UserId,
 
-                Source=dto.Source ?? "",
-                Destination=dto.Destination ?? "",
-                Purpose=dto.Purpose ?? "",
+            Source = dto.Source ?? "",
+            Destination = dto.Destination ?? "",
+            Purpose = dto.Purpose ?? "",
 
-                StartDate=dto.StartDate,
-                EndDate=dto.EndDate,
+            StartDate = dto.StartDate,
+            EndDate = dto.EndDate,
 
-                EstimatedCost=
-                    dto.EstimatedCost ?? 0,
+            EstimatedCost = dto.EstimatedCost ?? 0,
 
-                IsDraft=dto.IsDraft,
+            IsDraft = dto.IsDraft,
 
-                Status=RequestStatus.Pending,
+            Status = dto.IsDraft
+                ? RequestStatus.Draft
+                : RequestStatus.Pending,
 
-                CurrentStage=firstStage,
+            CurrentStage = dto.IsDraft
+                ? ApprovalStage.Completed
+                : firstStage,
 
-                CreatedAt=DateTime.UtcNow
-            };
+            CreatedAt = DateTime.UtcNow
+        };
 
         await _travelRepository.AddRequestAsync(request);
         await _travelRepository.SaveChangesAsync();
@@ -155,6 +157,8 @@ public class TravelRequestService : ITravelRequestService
             EndDate = tr.EndDate,
             EstimatedCost = tr.EstimatedCost,
             Status = tr.Status.ToString(),
+            IsDraft = tr.IsDraft,
+            PmEmail = tr.ProjectManager?.Email,
             CurrentStage = tr.CurrentStage.ToString(),
             CreatedAt = tr.CreatedAt
         };
