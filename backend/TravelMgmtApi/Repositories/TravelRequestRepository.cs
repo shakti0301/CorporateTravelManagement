@@ -56,6 +56,8 @@ namespace TravelMgmtApi.Repositories
                 .Include(tr => tr.Finance)
                 .Include(tr => tr.Approvals)
                     .ThenInclude(a => a.Approver)
+                .Include(tr => tr.ItineraryDays)
+                    .ThenInclude(d => d.Activities)
                 .FirstOrDefaultAsync(x => x.TravelRequestId == id);
         }
 
@@ -352,6 +354,21 @@ namespace TravelMgmtApi.Repositories
                         IsDraft = tr.IsDraft
                     })
                 .ToListAsync();
+        }
+
+        public async Task SaveItineraryAsync(List<ItineraryDay> days)
+        {
+            await _context.ItineraryDays.AddRangeAsync(days);
+        }
+
+        public async Task DeleteExistingItineraryAsync(int requestId)
+        {
+            var existing = await _context.ItineraryDays
+                .Include(x => x.Activities)
+                .Where(x => x.TravelRequestId == requestId)
+                .ToListAsync();
+
+            _context.ItineraryDays.RemoveRange(existing);
         }
     }
 }
