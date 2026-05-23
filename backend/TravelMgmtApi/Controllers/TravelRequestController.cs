@@ -191,5 +191,15 @@ namespace TravelMgmtApi.Controllers
                 message = result
             });
         }
+
+        [HttpPost("itinerary")]
+        public async Task<IActionResult> SaveItinerary(CreateItineraryDto dto)
+        {
+            var result = await _travelService.SaveItineraryAsync(dto);
+            return Ok(new
+            {
+                message = result
+            });
+        }
     }
 }
