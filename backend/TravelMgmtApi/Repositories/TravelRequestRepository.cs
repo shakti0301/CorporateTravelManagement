@@ -52,6 +52,10 @@ namespace TravelMgmtApi.Repositories
             return await _context.TravelRequests
                 .Include(tr => tr.Employee)
                 .Include(tr => tr.ProjectManager)
+                .Include(tr => tr.Manager)
+                .Include(tr => tr.Finance)
+                .Include(tr => tr.Approvals)
+                    .ThenInclude(a => a.Approver)
                 .FirstOrDefaultAsync(x => x.TravelRequestId == id);
         }
 
