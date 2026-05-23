@@ -4,6 +4,7 @@ import { ItineraryService } from '../../../../services/itinerary/itinerary.servi
 import { NavbarComponent } from '../../../shared/navbar/navbar.component';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RequestService } from '../../../../services/request/request.service';
 
 @Component({
   selector: 'app-itinerary',
@@ -28,25 +29,38 @@ export class ItineraryComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private itineraryService: ItineraryService,
+    private requestService: RequestService,
   ) {}
 
   ngOnInit() {
-    //Get request id from route
-    const id = this.route.snapshot.paramMap.get('id');
+    const id = Number(this.route.snapshot.paramMap.get('id'));
 
-    //Get request details
-    this.request = this.itineraryService.getRequestById(id);
-    if (!this.request) return;
-
-    //If itinerary exists, load it. Otherwise generate days shells from the request dates
-    if (this.request.itinerary && this.request.itinerary.length > 0) {
-      this.days = this.request.itinerary;
-    } else {
-      this.days = this.itineraryService.generateDays(
-        this.request.fromDate,
-        this.request.toDate,
-      );
+    if (!id) {
+      return;
     }
+
+    this.requestService.getRequestById(id).subscribe({
+      next: (res: any) => {
+        this.request = {
+          ...res,
+          id: res.travelRequestId,
+          fromDate: res.startDate,
+          toDate: res.endDate,
+        };
+
+        if (this.request.itinerary && this.request.itinerary.length > 0) {
+          this.days = this.request.itinerary;
+        } else {
+          this.days = this.itineraryService.generateDays(
+            this.request.fromDate,
+            this.request.toDate,
+          );
+        }
+      },
+      error: () => {
+        console.log('request not found');
+      },
+    });
   }
 
   //Activity Management
@@ -65,13 +79,24 @@ export class ItineraryComponent implements OnInit {
   saveItinerary() {
     this.saving = true;
 
-    setTimeout(() => {
-      this.itineraryService.saveItinerary(this.request.id, this.days);
-      this.saving = false;
-      alert('Itinerary saved successfully!');
+    const payload = {
+      travelRequestId: this.request.id,
+      days: this.days,
+    };
 
-      //Navigate back to request details
-      this.router.navigate([this.basePath + '/request-details', this.request.id]);
+    this.itineraryService.saveItinerary(payload).subscribe({
+      next: () => {
+        this.saving = false;
+        alert('Itinerary saved');
+        this.router.navigate([
+          this.basePath + '/request-details',
+          this.request.id,
+        ]);
+      },
+      error: () => {
+        this.saving = false;
+        alert('Save failed');
+      },
     });
   }
 
