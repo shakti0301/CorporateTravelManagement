@@ -17,6 +17,7 @@ public class TravelRequestResponseDto
     public string? PmEmail { get; set; }
     public string CurrentStage { get; set; } = "";
     public bool IsDraft { get; set; }
+    public List<ItineraryDayDto> Itinerary{ get; set; } = new();
     public string? Comments { get; set; }
     // Latest rejection comment and who made it (if any)
     public string? RejectionComment { get; set; }
