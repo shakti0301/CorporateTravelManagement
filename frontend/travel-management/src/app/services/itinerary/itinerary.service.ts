@@ -12,8 +12,8 @@ export class ItineraryService {
   generateDays(fromDate: string, toDate: string): any[] {
     const days = [];
 
-    const start = new Date(fromDate);
-    const end = new Date(toDate);
+    const start = new Date(fromDate + 'T00:00:00');
+    const end = new Date(toDate + 'T00:00:00');
 
     let current = new Date(start);
     let dayNumber = 1;
@@ -25,13 +25,10 @@ export class ItineraryService {
         label: '',
         activities: [this.blankActivity()],
       });
-
       current = new Date(current);
       current.setDate(current.getDate() + 1);
-
       dayNumber++;
     }
-
     return days;
   }
 

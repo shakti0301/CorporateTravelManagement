@@ -66,7 +66,15 @@ export class ItineraryComponent implements OnInit {
 
   /** Add a blank activity to a day */
   addActivity(dayIndex: any) {
-    this.days[dayIndex].activities.push(this.itineraryService.blankActivity());
+    const activities = this.days[dayIndex].activities;
+    const last = activities[activities.length - 1];
+
+    if (!last.title?.trim()) {
+      alert('Please fill current activity first');
+      return;
+    }
+
+    activities.push(this.itineraryService.blankActivity());
   }
 
   /** Remove an activity from a day */
@@ -76,6 +84,15 @@ export class ItineraryComponent implements OnInit {
 
   //Save Itinerary
   saveItinerary() {
+    const hasActivity = this.days.some((day: any) =>
+      day.activities.some((a: any) => a.title?.trim()),
+    );
+
+    if (!hasActivity) {
+      alert('Add at least one activity');
+      return;
+    }
+
     this.saving = true;
 
     const payload = {
