@@ -18,5 +18,10 @@ public class TravelRequestResponseDto
     public string CurrentStage { get; set; } = "";
     public bool IsDraft { get; set; }
     public string? Comments { get; set; }
+    // Latest rejection comment and who made it (if any)
+    public string? RejectionComment { get; set; }
+    public string? RejectionByEmail { get; set; }
+    public string? RejectionByName { get; set; }
+    public string? RejectionStage { get; set; }
     public DateTime CreatedAt { get; set; }
 }
