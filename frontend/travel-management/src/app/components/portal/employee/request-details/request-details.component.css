@@ -184,6 +184,67 @@
   box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
 }
 
+.add-expense-btn:disabled {
+  background: #e2e8f0;
+  color: #475569;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.add-expense-btn:disabled:hover {
+  background: #e2e8f0;
+  box-shadow: none;
+}
+
+.add-expense-btn.expense-state-pending {
+  background: #facc15;
+  border-color: #eab308;
+  color: #713f12;
+}
+
+.add-expense-btn.expense-state-pending:hover {
+  background: #facc15;
+  box-shadow: none;
+}
+
+.add-expense-btn.expense-state-approved {
+  background: #16a34a;
+  border-color: #15803d;
+  color: #ffffff;
+}
+
+.add-expense-btn.expense-state-approved:hover {
+  background: #16a34a;
+  box-shadow: none;
+}
+
+.add-expense-btn.expense-state-rejected {
+  background: #dc2626;
+  border-color: #b91c1c;
+  color: #ffffff;
+}
+
+.add-expense-btn.expense-state-rejected:hover {
+  background: #dc2626;
+  box-shadow: none;
+}
+
+.add-expense-btn.expense-state-neutral {
+  background: #e2e8f0;
+  border-color: #cbd5e1;
+  color: #475569;
+}
+
+.trip-complete-gray {
+  color: #64748b;
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.trip-complete-gray svg {
+  stroke: currentColor;
+}
+
 .add-itinerary-btn {
   width: 100%;
   background: white;

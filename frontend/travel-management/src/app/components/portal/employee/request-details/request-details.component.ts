@@ -6,6 +6,7 @@ import { FormsModule, NgForm } from '@angular/forms';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RequestService } from '../../../../services/request/request.service';
+import { ReimbursementService } from '../../../../services/reimbursement/reimbursement.service';
 
 @Component({
   selector: 'app-request-details',
@@ -31,12 +32,25 @@ export class RequestDetailsComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private requestService: RequestService,
+    private reimbursementService: ReimbursementService,
   ) {}
 
   loadRequest(id: any) {
     this.requestService.getRequestById(id).subscribe({
       next: (res: any) => {
-        this.request = this.normalizeRequest(res);
+        this.reimbursementService.getMyReimbursements().subscribe({
+          next: (reimbursements: any) => {
+            const reimbursement = (reimbursements || []).find(
+              (item: any) =>
+                Number(item.travelRequestId) === Number(res.travelRequestId),
+            );
+
+            this.request = this.normalizeRequest(res, reimbursement);
+          },
+          error: () => {
+            this.request = this.normalizeRequest(res);
+          },
+        });
       },
 
       error: (err) => {
@@ -115,9 +129,10 @@ export class RequestDetailsComponent implements OnInit {
     return flow;
   }
 
-  private normalizeRequest(res: any) {
+  private normalizeRequest(res: any, reimbursement: any = null) {
     const currentStage = this.normalizeStage(res.currentStage);
     const finalStatus = this.normalizeStatus(res.status);
+    const reimbursementStatus = this.normalizeStatus(reimbursement?.status);
 
     return {
       ...res,
@@ -125,8 +140,12 @@ export class RequestDetailsComponent implements OnInit {
       fromDate: res.startDate,
       toDate: res.endDate,
       cost: res.estimatedCost,
+      totalExpense: reimbursement?.totalExpense || 0,
       finalStatus,
       currentStage,
+      expenseSubmitted: !!reimbursement,
+      reimbursementStatus,
+      reimbursementRemark: reimbursement?.remarks || '',
       ...this.deriveStatusFlow(finalStatus, currentStage),
     };
   }
@@ -243,7 +262,7 @@ export class RequestDetailsComponent implements OnInit {
     let days = Math.floor((utcTo - utcFrom) / msPerDay) + 1;
     if (isNaN(days) || days < 1) days = 1;
 
-    const overview = `Business trip from ${this.request.source || 'unknown location'} to ${this.request.destination} scheduled for ${days} day${days !== 1 ? 's' : ''} (${new Date(this.request.fromDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${new Date(this.request.toDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}). Allocated budget: ${this.request.cost || this.request.budget || 0}, Total Expenses: ${this.request.expenses || 'Not submitted yet'}.`;
+    const overview = `Business trip from ${this.request.source || 'unknown location'} to ${this.request.destination} scheduled for ${days} day${days !== 1 ? 's' : ''} (${new Date(this.request.fromDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${new Date(this.request.toDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}). Allocated budget: ${'₹'}${this.request.cost || this.request.budget || 0}, Total Expenses: ${'₹'}${this.request.totalExpense || 'Not submitted yet'}.`;
     return overview;
   }
 
@@ -253,6 +272,43 @@ export class RequestDetailsComponent implements OnInit {
     const today = new Date();
     const fromDate = new Date(this.request.fromDate);
     return today >= fromDate;
+  }
+
+  getExpenseActionLabel(): string {
+    const status = this.normalizeStatus(this.request?.reimbursementStatus);
+
+    if (!this.request?.expenseSubmitted) {
+      return 'Add Expense';
+    }
+
+    if (status === 'pending') {
+      return 'Reimbursement Pending';
+    }
+
+    if (status === 'approved') {
+      return 'Reimbursement Approved';
+    }
+
+    if (status === 'rejected') {
+      return 'Reimbursement Rejected';
+    }
+
+    return 'Expense Submitted';
+  }
+
+  getExpenseActionClass(): string {
+    const status = this.normalizeStatus(this.request?.reimbursementStatus);
+
+    if (status === 'approved') return 'expense-state-approved';
+    if (status === 'rejected') return 'expense-state-rejected';
+    if (status === 'pending') return 'expense-state-pending';
+    return 'expense-state-neutral';
+  }
+
+  get showTripCompletedTag(): boolean {
+    return (
+      this.normalizeStatus(this.request?.reimbursementStatus) === 'approved'
+    );
   }
 
   // DYNAMIC INFO NOTE (bottom of actions panel)

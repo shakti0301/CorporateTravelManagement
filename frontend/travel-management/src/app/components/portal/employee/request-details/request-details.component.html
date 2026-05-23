@@ -714,7 +714,7 @@
         Add Itinerary
       </button>
 
-      <!-- Add Expense — only if approved and not yet submitted and not draft -->
+      <!-- Add Expense / Reimbursement state -->
       <button
         class="add-expense-btn"
         *ngIf="
@@ -740,6 +740,48 @@
         Add Expense
       </button>
 
+      <button
+        class="add-expense-btn"
+        *ngIf="
+          !request.isDraft &&
+          request.finalStatus === 'approved' &&
+          request.expenseSubmitted
+        "
+        [ngClass]="getExpenseActionClass()"
+        [disabled]="true"
+        type="button"
+      >
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+        {{ getExpenseActionLabel() }}
+      </button>
+
+      <div
+        class="trip-complete-tag trip-complete-gray"
+        *ngIf="showTripCompletedTag"
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+        Trip Completed
+      </div>
+
       <!-- Waiting for trip to start to add expenses. -->
       <div
         class="not-started-tag"
@@ -763,71 +805,6 @@
           <circle cx="12" cy="16" r="0.5" fill="#f97316" />
         </svg>
         Trip Not Started
-      </div>
-
-      <!-- Expense already submitted - Not for drafts -->
-      <div
-        class="expense-submitted-tag"
-        *ngIf="
-          !request.isDraft &&
-          request.expenseSubmitted &&
-          request.reimbursementStatus === 'pending'
-        "
-      >
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="#16a34a"
-          stroke-width="2"
-        >
-          <polyline points="20 6 9 17 4 12" />
-        </svg>
-        Reimbursement Pending
-      </div>
-
-      <!-- Trip Complete -->
-      <div
-        class="trip-complete-tag"
-        *ngIf="
-          !request.isDraft &&
-          request.expenseSubmitted &&
-          request.reimbursementStatus === 'approved'
-        "
-      >
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="#16a34a"
-          stroke-width="2"
-        >
-          <polyline points="20 6 9 17 4 12" />
-        </svg>
-        Trip Complete
-      </div>
-      <div
-        class="rejected-tag"
-        *ngIf="
-          request.expenseSubmitted && request.reimbursementStatus === 'rejected'
-        "
-      >
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="#dc2626"
-          stroke-width="2.5"
-        >
-          <circle cx="12" cy="12" r="10" />
-          <line x1="8" y1="8" x2="16" y2="16" />
-          <line x1="16" y1="8" x2="8" y2="16" />
-        </svg>
-
-        Reimbursement Rejected
       </div>
 
       <!-- Rejected - Not for drafts -->

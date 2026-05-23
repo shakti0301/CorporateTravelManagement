@@ -45,7 +45,7 @@ export class MyRequestsComponent implements OnInit {
               toDate: r.endDate,
               finalStatus: this.normalizeStatus(r.status),
               currentStage: this.normalizeStage(r.currentStage),
-              ...this.deriveStatusFlow(r.status, r.currentStage),
+              ...this.deriveStatusFlow(r.status, r.currentStage, r),
               isDraft: false,
             }));
 
