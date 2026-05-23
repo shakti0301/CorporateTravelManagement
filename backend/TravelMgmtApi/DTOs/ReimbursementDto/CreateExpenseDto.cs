@@ -6,6 +6,6 @@ namespace TravelMgmtApi.DTOs
         public DateOnly Date { get; set; }
         public string Description { get; set; } = "";
         public decimal Amount { get; set; }
-        public string ProofPath { get; set; } = ""; 
+        public IFormFile? ProofPath { get; set; } 
     }
 }
