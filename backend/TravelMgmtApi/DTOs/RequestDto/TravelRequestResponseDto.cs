@@ -11,7 +11,12 @@ public class TravelRequestResponseDto
     public DateTime? StartDate { get; set; }
     public DateTime? EndDate { get; set; }
     public string Status { get; set; } = "";
+    public string PmStatus { get; set; } = "not_applicable";
+    public string ManagerStatus { get; set; } = "not_applicable";
+    public string FinanceStatus { get; set; } = "not_applicable";
+    public string? PmEmail { get; set; }
     public string CurrentStage { get; set; } = "";
+    public bool IsDraft { get; set; }
     public string? Comments { get; set; }
     public DateTime CreatedAt { get; set; }
 }
