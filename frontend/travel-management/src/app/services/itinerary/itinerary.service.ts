@@ -1,22 +1,20 @@
 import { Injectable } from '@angular/core';
+import { environment } from '../../../environments/environment';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ItineraryService {
-  constructor() {}
-
-  //Get Single Request
-  getRequestById(id: any) {
-    const requests = JSON.parse(localStorage.getItem('requests') || '[]');
-    return requests.find((r: any) => r.id == id || r.tripId == id);
-  }
+  constructor(private http: HttpClient) {}
 
   //Generate Days
   generateDays(fromDate: string, toDate: string): any[] {
     const days = [];
-    const start = new Date(fromDate + 'T00:00:00');
-    const end = new Date(toDate + 'T00:00:00');
+
+    const start = new Date(fromDate);
+    const end = new Date(toDate);
+
     let current = new Date(start);
     let dayNumber = 1;
 
@@ -30,8 +28,10 @@ export class ItineraryService {
 
       current = new Date(current);
       current.setDate(current.getDate() + 1);
+
       dayNumber++;
     }
+
     return days;
   }
 
@@ -47,33 +47,19 @@ export class ItineraryService {
   }
 
   // SAVE ITINERARY
-  saveItinerary(requestId: any, itineraryDays: any[]) {
-    let requests = JSON.parse(localStorage.getItem('requests') || '[]');
-
-    requests = requests.map((r: any) => {
-      if (r.id == requestId) {
-        return {
-          ...r,
-          itinerary: itineraryDays,
-          itineraryUpdatedAt: new Date().toISOString(),
-        };
-      }
-      return r;
-    });
-    localStorage.setItem('requests', JSON.stringify(requests));
+  saveItinerary(data: any) {
+    return this.http.post(
+      environment.apiUrl + '/TravelRequest/itinerary',
+      data,
+    );
   }
 
-  // GET ITINERARY (for reading in other components e.g. request-details)
-  getItinerary(requestId: any): any[] {
-    const request = this.getRequestById(requestId);
+  getItinerary(request: any): any[] {
     return request?.itinerary || [];
   }
 
-  // HAS ITINERARY (to show/hide Itinerary tab or badge)
-  hasItinerary(requestId: any): boolean {
-    const itinerary = this.getItinerary(requestId);
-    // Returns true only if at least one activity has a title filled
-    return itinerary.some((day: any) =>
+  hasItinerary(request: any): boolean {
+    return request?.itinerary?.some((day: any) =>
       day.activities?.some((a: any) => a.title?.trim()),
     );
   }
