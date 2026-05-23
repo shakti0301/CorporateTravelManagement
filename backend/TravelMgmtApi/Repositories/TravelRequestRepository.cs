@@ -51,6 +51,7 @@ namespace TravelMgmtApi.Repositories
         {
             return await _context.TravelRequests
                 .Include(tr => tr.Employee)
+                .Include(tr => tr.ProjectManager)
                 .FirstOrDefaultAsync(x => x.TravelRequestId == id);
         }
 
@@ -64,6 +65,9 @@ namespace TravelMgmtApi.Repositories
             return await _context.TravelRequests
             .Where( tr => tr.EmployeeId == employeeId && !tr.IsDraft )
             .Include(tr => tr.Employee)
+            .Include(tr => tr.Approvals)
+            .Include(tr => tr.ProjectManager)
+
             .OrderByDescending(tr => tr.CreatedAt)
             .Select( tr => new TravelRequestResponseDto
             {
@@ -76,12 +80,51 @@ namespace TravelMgmtApi.Repositories
                 EndDate = tr.EndDate,
                 EstimatedCost = tr.EstimatedCost,
                 Status = tr.Status.ToString(),
+                IsDraft = tr.IsDraft,
                 CurrentStage = tr.CurrentStage.ToString(),
                 Comments = tr.Approvals
                     .OrderByDescending(a => a.ActionDate)
                     .Select(a => a.Comments)
                     .FirstOrDefault(),
-                CreatedAt = tr.CreatedAt
+                CreatedAt = tr.CreatedAt,
+                PmEmail = (tr.ProjectManagerId == null || tr.ProjectManagerId == 0)
+                    ? null
+                    : tr.ProjectManager!.Email,
+                PmStatus = (tr.ProjectManagerId == null || tr.ProjectManagerId == 0)
+                    ? "not_applicable"
+                    : tr.Approvals
+                        .Where(a => a.ApprovalStage == ApprovalStage.ProjectManager)
+                        .OrderByDescending(a => a.ActionDate)
+                        .Select(a => a.Status.ToString())
+                        .FirstOrDefault()
+                        ?? (
+                            tr.CurrentStage == ApprovalStage.ProjectManager
+                                ? "Pending"
+                                : "not_applicable"
+                        ),
+
+                ManagerStatus =
+                    tr.CurrentStage == ApprovalStage.ProjectManager
+                        ? "not_applicable"
+                        : tr.CurrentStage == ApprovalStage.Manager
+                            ? "Pending"
+                            : tr.CurrentStage == ApprovalStage.Finance ||
+                            tr.Status == RequestStatus.Approved
+                                ? "Approved"
+                                : tr.Status == RequestStatus.Rejected &&
+                                tr.Approvals.Any(a => a.ApprovalStage == ApprovalStage.Manager && a.Status == RequestStatus.Rejected)
+                                    ? "Rejected"
+                                    : "not_applicable",
+
+                FinanceStatus =
+                    tr.CurrentStage == ApprovalStage.Finance
+                        ? "Pending"
+                        : tr.Status == RequestStatus.Approved
+                            ? "Approved"
+                            : tr.Status == RequestStatus.Rejected &&
+                            tr.Approvals.Any(a => a.ApprovalStage==ApprovalStage.Finance && a.Status == RequestStatus.Rejected)
+                                ? "Rejected"
+                                : "not_applicable",
             })
             .ToListAsync();
         }
@@ -107,6 +150,7 @@ namespace TravelMgmtApi.Repositories
                     EstimatedCost = tr.EstimatedCost,
                     Status = tr.Status.ToString(),
                     CurrentStage = tr.CurrentStage.ToString(),
+                    IsDraft = tr.IsDraft,
                     Comments = tr.Approvals
                         .OrderByDescending(a => a.ActionDate)
                         .Select(a => a.Comments)
@@ -138,7 +182,8 @@ namespace TravelMgmtApi.Repositories
                     .OrderByDescending(a => a.ActionDate)
                     .Select(a => a.Comments)
                     .FirstOrDefault(),
-                CreatedAt=tr.CreatedAt
+                CreatedAt=tr.CreatedAt,
+                IsDraft=tr.IsDraft
             })
             .ToListAsync();
         }
@@ -166,7 +211,8 @@ namespace TravelMgmtApi.Repositories
                         .OrderByDescending(a => a.ActionDate)
                         .Select(a => a.Comments)
                         .FirstOrDefault(),
-                    CreatedAt=tr.CreatedAt
+                    CreatedAt=tr.CreatedAt,
+                    IsDraft=tr.IsDraft
                 })
                 .ToListAsync();
         }
@@ -194,7 +240,8 @@ namespace TravelMgmtApi.Repositories
                         .OrderByDescending(a => a.ActionDate)
                         .Select(a => a.Comments)
                         .FirstOrDefault(),
-                    CreatedAt = tr.CreatedAt
+                    CreatedAt = tr.CreatedAt,
+                    IsDraft = tr.IsDraft
                 })
                 .ToListAsync();
         }
@@ -228,7 +275,8 @@ namespace TravelMgmtApi.Repositories
                         .OrderByDescending(a => a.ActionDate)
                         .Select(a => a.Comments)
                         .FirstOrDefault(),
-                    CreatedAt =tr.CreatedAt
+                    CreatedAt =tr.CreatedAt,
+                    IsDraft = tr.IsDraft
                 })
             .ToListAsync();
         }
@@ -262,7 +310,8 @@ namespace TravelMgmtApi.Repositories
                             .OrderByDescending(a => a.ActionDate)
                             .Select(a => a.Comments)
                             .FirstOrDefault(),
-                        CreatedAt = tr.CreatedAt
+                        CreatedAt = tr.CreatedAt,
+                        IsDraft = tr.IsDraft
                     })
                 .ToListAsync();
         }
@@ -295,7 +344,8 @@ namespace TravelMgmtApi.Repositories
                             .OrderByDescending(a => a.ActionDate)
                             .Select(a => a.Comments)
                             .FirstOrDefault(),
-                        CreatedAt = tr.CreatedAt
+                        CreatedAt = tr.CreatedAt,
+                        IsDraft = tr.IsDraft
                     })
                 .ToListAsync();
         }
