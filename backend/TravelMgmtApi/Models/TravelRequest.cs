@@ -54,5 +54,6 @@ namespace TravelMgmtApi.Models
         //Approval history
         public ICollection<TravelRequestApproval> Approvals { get; set; } = new List<TravelRequestApproval>();
 
+        public ICollection<ItineraryDay> ItineraryDays { get; set; } = new List<ItineraryDay>();
     }
 }
