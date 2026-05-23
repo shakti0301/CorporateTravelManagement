@@ -34,6 +34,8 @@ export class ItineraryComponent implements OnInit {
 
     this.requestService.getRequestById(id).subscribe({
       next: (res: any) => {
+        console.log('API response:', res);
+
         this.request = {
           ...res,
           id: res.travelRequestId,
@@ -41,8 +43,9 @@ export class ItineraryComponent implements OnInit {
           toDate: res.endDate,
         };
 
-        // Existing itinerary?
-        if (this.request.itinerary && this.request.itinerary.length > 0) {
+        console.log('request:', this.request);
+
+        if (this.request.itinerary?.length > 0) {
           this.days = this.request.itinerary;
         } else {
           this.days = this.itineraryService.generateDays(
@@ -50,6 +53,8 @@ export class ItineraryComponent implements OnInit {
             this.request.toDate,
           );
         }
+
+        console.log('days:', this.days);
       },
 
       error: () => {
@@ -73,18 +78,29 @@ export class ItineraryComponent implements OnInit {
   saveItinerary() {
     this.saving = true;
 
-    setTimeout(() => {
-      this.itineraryService.saveItinerary(this.request.id, this.days);
-      this.saving = false;
-      alert('Itinerary saved successfully!');
+    const payload = {
+      travelRequestId: this.request.id,
+      days: this.days,
+    };
 
-      //Navigate back to request details
-      this.router.navigate(['employee/request-details', this.request.id]);
+    this.itineraryService.saveItinerary(payload).subscribe({
+      next: () => {
+        this.saving = false;
+
+        alert('Itinerary saved');
+
+        this.router.navigate(['/employee/request-details', this.request.id]);
+      },
+
+      error: () => {
+        this.saving = false;
+        alert('Save failed');
+      },
     });
   }
 
   //Navigation
   goBack() {
-    this.router.navigate(['employee/request-details', this.request.id]);
+    this.router.navigate(['/employee/request-details', this.request.id]);
   }
 }
