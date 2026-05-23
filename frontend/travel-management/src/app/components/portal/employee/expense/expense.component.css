@@ -1,8 +1,13 @@
 /* Page */
 .exp-page {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 2rem 1.5rem 6rem; /* bottom padding for fixed bar */
+  padding: 28px 32px 48px;
+  background: #f8fafc;
+  min-height: calc(100vh - 64px);
+  font-family:
+    "Segoe UI",
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
 }
 
 .exp-back-row {
