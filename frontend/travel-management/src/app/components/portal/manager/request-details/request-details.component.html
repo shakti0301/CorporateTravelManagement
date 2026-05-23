@@ -391,54 +391,19 @@
             </div>
           </div>
 
-          <!-- Line before PM approval (if applicable) -->
+          <!-- Line before manager approval for PM portal -->
           <div
             class="timeline-line"
             [ngClass]="{ 'line-active': isStepDone('pm') }"
-            *ngIf="hasPM"
+            *ngIf="showManagerApprovalStep"
           ></div>
 
-          <!-- STEP 2A: Project Manager Approval (if hasPM) -->
-          <div class="step" [ngClass]="getStepClass('pm')" *ngIf="hasPM">
-            <div class="step-circle">
-              <svg
-                *ngIf="isStepDone('pm')"
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="white"
-                stroke-width="3"
-              >
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-              <svg
-                *ngIf="isStepRejected('pm')"
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="white"
-                stroke-width="3"
-              >
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </div>
-            <div class="step-label">Project Manager Approval</div>
-            <div class="step-sub">
-              {{ request.pmEmail || "Project Manager" }}
-            </div>
-          </div>
-
-          <!-- Line before manager approval -->
+          <!-- STEP 2: Manager Approval shown in PM portal -->
           <div
-            class="timeline-line"
-            [ngClass]="{ 'line-active': isStepDone('manager') }"
-          ></div>
-
-          <!-- STEP 2B/3: Manager Approval -->
-          <div class="step" [ngClass]="getStepClass('manager')">
+            class="step"
+            [ngClass]="getStepClass('manager')"
+            *ngIf="showManagerApprovalStep"
+          >
             <div class="step-circle">
               <svg
                 *ngIf="isStepDone('manager')"
@@ -468,9 +433,10 @@
             <div class="step-sub">{{ request.managerName || "Manager" }}</div>
           </div>
 
+          <!-- Line before finance approval -->
           <div
             class="timeline-line"
-            [ngClass]="{ 'line-active': isStepDone('finance') }"
+            [ngClass]="{ 'line-active': isStepDone('manager') }"
           ></div>
 
           <!-- STEP 3/4: Finance Approval -->

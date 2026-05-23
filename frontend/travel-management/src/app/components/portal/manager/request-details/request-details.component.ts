@@ -51,6 +51,18 @@ export class RequestDetailsComponent implements OnInit {
     this.loadRequest(id);
   }
 
+  private get currentRole(): string {
+    return (localStorage.getItem('role') || '').trim().toLowerCase();
+  }
+
+  get isProjectManagerView(): boolean {
+    return this.currentRole === 'projectmanager';
+  }
+
+  get showManagerApprovalStep(): boolean {
+    return this.isProjectManagerView;
+  }
+
   private normalizeStatus(status: string): string {
     return (status || '').trim().toLowerCase();
   }
