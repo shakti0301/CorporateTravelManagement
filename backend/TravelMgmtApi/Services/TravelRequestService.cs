@@ -167,6 +167,23 @@ public class TravelRequestService : ITravelRequestService
                 PmEmail = tr.ProjectManager?.Email,
                 CurrentStage = tr.CurrentStage.ToString(),
                 CreatedAt = tr.CreatedAt,
+                Itinerary = tr.ItineraryDays
+                    .OrderBy(x => x.DayNumber)
+                    .Select(day => new ItineraryDayDto
+                    {
+                        DayNumber = day.DayNumber,
+                        Date = day.Date,
+                        Label = day.Label,
+                        
+                        Activities = day.Activities.Select(a => new ActivityDto
+                        {
+                            Title = a.Title,
+                            Time = a.Time,
+                            Location = a.Location,
+                            Description = a.Description
+                        }).ToList()
+                    })
+                    .ToList(),
                 // Manager name for display in UI timeline
                 Comments = tr.Approvals
                     .OrderByDescending(a => a.ActionDate)
@@ -271,5 +288,38 @@ public class TravelRequestService : ITravelRequestService
 
         await _travelRepository.SaveChangesAsync();
         return "Action completed";
+    }
+
+    public async Task<string> SaveItineraryAsync(CreateItineraryDto dto)
+    {
+        var request = await _travelRepository.GetRequestByIdAsync(dto.TravelRequestId);
+
+        if(request == null)
+        {
+            return "Travel request not found";
+        }
+
+        await _travelRepository.DeleteExistingItineraryAsync(dto.TravelRequestId);
+
+        var days = dto.Days.Select(day => new ItineraryDay
+        {
+            TravelRequestId = dto.TravelRequestId,
+            DayNumber = day.DayNumber,
+            Date = day.Date,
+            Label = day.Label,
+            Activities = day.Activities.Select(a => new Activity
+                {
+                    Title=a.Title,
+                    Time=a.Time,
+                    Location=a.Location,
+                    Description=a.Description
+                }
+            ).ToList()
+        })
+        .ToList();
+
+        await _travelRepository.SaveItineraryAsync(days);
+        await _travelRepository.SaveChangesAsync();
+        return "Itinerary saved successfully";
     }
 }
