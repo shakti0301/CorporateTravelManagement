@@ -46,6 +46,7 @@ export class RequestDetailsComponent implements OnInit {
             );
 
             this.request = this.normalizeRequest(res, reimbursement);
+            console.log(this.request);
           },
           error: () => {
             this.request = this.normalizeRequest(res);
@@ -73,57 +74,77 @@ export class RequestDetailsComponent implements OnInit {
     return (stage || '').trim().toLowerCase();
   }
 
-  private deriveStatusFlow(status: string, currentStage: string) {
+  private deriveStatusFlow(
+    status: string,
+    currentStage: string,
+    hasPM: boolean,
+  ) {
     const normalizedStatus = this.normalizeStatus(status);
     const normalizedStage = this.normalizeStage(currentStage);
 
     const flow = {
-      pmStatus: 'not_applicable',
+      pmStatus: hasPM ? 'pending' : 'not_applicable',
       managerStatus: 'not_applicable',
       financeStatus: 'not_applicable',
     };
 
+    // DRAFT
     if (normalizedStatus === 'draft') {
-      return flow;
+      return {
+        pmStatus: 'not_applicable',
+        managerStatus: 'not_applicable',
+        financeStatus: 'not_applicable',
+      };
     }
 
+    // FULLY APPROVED
     if (normalizedStatus === 'approved') {
-      flow.pmStatus = 'approved';
-      flow.managerStatus = 'approved';
-      flow.financeStatus = 'approved';
-      return flow;
+      return {
+        pmStatus: hasPM ? 'approved' : 'not_applicable',
+        managerStatus: 'approved',
+        financeStatus: 'approved',
+      };
     }
 
+    // REJECTED
     if (normalizedStatus === 'rejected') {
       if (normalizedStage === 'projectmanager') {
         flow.pmStatus = 'rejected';
       } else if (normalizedStage === 'manager') {
-        flow.pmStatus = 'approved';
+        if (hasPM) {
+          flow.pmStatus = 'approved';
+        }
+
         flow.managerStatus = 'rejected';
       } else if (normalizedStage === 'finance') {
-        flow.pmStatus = 'approved';
+        if (hasPM) {
+          flow.pmStatus = 'approved';
+        }
+
         flow.managerStatus = 'approved';
         flow.financeStatus = 'rejected';
-      } else {
-        flow.pmStatus = 'rejected';
       }
 
       return flow;
     }
 
+    // PENDING STAGES
+
     if (normalizedStage === 'projectmanager') {
       flow.pmStatus = 'pending';
     } else if (normalizedStage === 'manager') {
-      flow.pmStatus = 'approved';
+      if (hasPM) {
+        flow.pmStatus = 'approved';
+      }
+
       flow.managerStatus = 'pending';
     } else if (normalizedStage === 'finance') {
-      flow.pmStatus = 'approved';
+      if (hasPM) {
+        flow.pmStatus = 'approved';
+      }
+
       flow.managerStatus = 'approved';
       flow.financeStatus = 'pending';
-    } else if (normalizedStage === 'completed') {
-      flow.pmStatus = 'approved';
-      flow.managerStatus = 'approved';
-      flow.financeStatus = 'approved';
     }
 
     return flow;
@@ -133,39 +154,42 @@ export class RequestDetailsComponent implements OnInit {
     const currentStage = this.normalizeStage(res.currentStage);
     const finalStatus = this.normalizeStatus(res.status);
     const reimbursementStatus = this.normalizeStatus(reimbursement?.status);
-
     return {
       ...res,
       id: res.travelRequestId,
       fromDate: res.startDate,
       toDate: res.endDate,
       cost: res.estimatedCost,
+
+      isDraft: res.isDraft,
+
       totalExpense: reimbursement?.totalExpense || 0,
       finalStatus,
       currentStage,
+
       expenseSubmitted: !!reimbursement,
       reimbursementStatus,
+
       reimbursementRemark: reimbursement?.remarks || '',
-      ...this.deriveStatusFlow(finalStatus, currentStage),
+
+      ...this.deriveStatusFlow(finalStatus, currentStage, !!res.pmEmail),
     };
   }
 
   // TIMELINE STEP HELPERS
   /** Check if request is submitted to a Project Manager */
   get hasPM(): boolean {
-    return Boolean(
-      this.request &&
-      this.normalizeStatus(this.request.pmStatus) !== 'not_applicable',
-    );
+    return this.request?.pmStatus !== 'not_applicable';
   }
-
   /**
     Returns CSS class for each timeline step based on current request status.
     Steps: 'submitted' | 'pm' | 'manager' | 'finance' (depends on hasPM)
    */
   getStepClass(step: string): string {
     if (step === 'submitted') {
-      // Always done once request exists
+      if (this.request?.isDraft) {
+        return 'step-inactive';
+      }
       return 'step-done';
     }
 
@@ -442,21 +466,19 @@ export class RequestDetailsComponent implements OnInit {
 
   //Edit & Cancel
   canModify(req: any): boolean {
-    // Check if request has a Project Manager assigned
-    const hasPM = req.pmEmail && req.pmEmail.trim() !== '';
-    const pmApproved = (req.pmStatus || '').toLowerCase() === 'approved';
-
-    // If PM exists and PM has approved, employee CANNOT edit/cancel
-    if (hasPM && pmApproved) {
-      return false;
-    } else if (hasPM) {
-      // If PM exists but hasn't approved, employee CAN edit/cancel
+    if (req.isDraft) {
       return true;
     }
 
-    // Otherwise, original logic: can modify if not draft and manager status is pending
-    const managerStatus = (req.managerStatus || '').toLowerCase();
-    return !req.isDraft && managerStatus === 'pending';
+    const hasPM = !!req.pmEmail || req.pmStatus !== 'not_applicable';
+
+    const pmApproved = (req.pmStatus || '').toLowerCase() === 'approved';
+
+    if (hasPM) {
+      return !pmApproved;
+    }
+
+    return (req.managerStatus || '').toLowerCase() === 'pending';
   }
 
   cancelRequest(id: number) {

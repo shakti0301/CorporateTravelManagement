@@ -466,6 +466,33 @@
 }
 
 /* ── APPROVAL TIMELINE ── */
+.draft-status-box {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 18px;
+  border-radius: 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.draft-icon {
+  font-size: 28px;
+}
+
+.draft-title {
+  font-weight: 600;
+  font-size: 15px;
+  color: #0f172a;
+  margin-bottom: 6px;
+}
+
+.draft-message {
+  color: #64748b;
+  line-height: 1.6;
+  font-size: 14px;
+}
+
 .timeline-card {
   margin-bottom: 20px;
 }
