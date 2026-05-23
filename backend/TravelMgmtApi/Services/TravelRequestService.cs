@@ -1,3 +1,4 @@
+using System.Linq;
 using TravelMgmtApi.DTOs;
 using TravelMgmtApi.Enums;
 using TravelMgmtApi.Interfaces;
@@ -146,22 +147,38 @@ public class TravelRequestService : ITravelRequestService
             return null;
         }
 
-        return new TravelRequestResponseDto
-        {
-            TravelRequestId = tr.TravelRequestId,
-            EmployeeName = tr.Employee!.UserName,
-            Source = tr.Source,
-            Destination = tr.Destination,
-            Purpose = tr.Purpose,
-            StartDate = tr.StartDate,
-            EndDate = tr.EndDate,
-            EstimatedCost = tr.EstimatedCost,
-            Status = tr.Status.ToString(),
-            IsDraft = tr.IsDraft,
-            PmEmail = tr.ProjectManager?.Email,
-            CurrentStage = tr.CurrentStage.ToString(),
-            CreatedAt = tr.CreatedAt
-        };
+            // find latest rejection comment (if any)
+            var lastRejected = tr.Approvals
+                .OrderByDescending(a => a.ActionDate)
+                .FirstOrDefault(a => a.Status == RequestStatus.Rejected && !string.IsNullOrWhiteSpace(a.Comments));
+
+            return new TravelRequestResponseDto
+            {
+                TravelRequestId = tr.TravelRequestId,
+                EmployeeName = tr.Employee!.UserName,
+                Source = tr.Source,
+                Destination = tr.Destination,
+                Purpose = tr.Purpose,
+                StartDate = tr.StartDate,
+                EndDate = tr.EndDate,
+                EstimatedCost = tr.EstimatedCost,
+                Status = tr.Status.ToString(),
+                IsDraft = tr.IsDraft,
+                PmEmail = tr.ProjectManager?.Email,
+                CurrentStage = tr.CurrentStage.ToString(),
+                CreatedAt = tr.CreatedAt,
+                // Manager name for display in UI timeline
+                Comments = tr.Approvals
+                    .OrderByDescending(a => a.ActionDate)
+                    .Select(a => a.Comments)
+                    .FirstOrDefault(),
+                // Manager display name
+                // (added to DTO as RejectionByName if needed elsewhere)
+                RejectionComment = lastRejected?.Comments,
+                RejectionByEmail = lastRejected?.Approver?.Email,
+                RejectionByName = lastRejected?.Approver?.UserName,
+                RejectionStage = lastRejected?.ApprovalStage.ToString(),
+            };
     }
 
 
