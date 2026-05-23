@@ -470,6 +470,10 @@ export class RequestDetailsComponent implements OnInit {
       return true;
     }
 
+    if (this.normalizeStatus(req.finalStatus) === 'rejected') {
+      return false;
+    }
+
     const hasPM = !!req.pmEmail || req.pmStatus !== 'not_applicable';
 
     const pmApproved = (req.pmStatus || '').toLowerCase() === 'approved';
