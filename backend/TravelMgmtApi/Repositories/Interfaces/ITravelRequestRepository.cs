@@ -21,5 +21,8 @@ namespace TravelMgmtApi.Interfaces
         Task<TravelRequest?> GetRequestByIdAsync(int id);
         Task AddApprovalAsync(TravelRequestApproval approval);
         Task SaveChangesAsync();
+    
+        Task SaveItineraryAsync(List<ItineraryDay> days);
+        Task DeleteExistingItineraryAsync(int requestId);
     }
 }
