@@ -419,20 +419,29 @@ export class MyRequestsComponent implements OnInit {
 
   // ACTIONS
   canModify(req: any): boolean {
-    if (req.isDraft) return true;
+    // Draft always editable
+    if (req.isDraft) {
+      return true;
+    }
 
-    const hasPM = req.pmEmail && req.pmEmail.trim() !== '';
+    // Rejected request = locked
+    if (this.normalizeStatus(req.finalStatus) === 'rejected') {
+      return false;
+    }
+
+    const hasPM = !!req.pmEmail;
+
     const pmApproved = this.normalizeStatus(req.pmStatus) === 'approved';
 
     const managerApproved =
       this.normalizeStatus(req.managerStatus) === 'approved';
 
-    // Has PM → editable until PM approval
+    // Employee → PM flow
     if (hasPM) {
       return !pmApproved;
     }
 
-    // No PM → editable until manager approval
+    // Direct Manager flow
     return !managerApproved;
   }
 

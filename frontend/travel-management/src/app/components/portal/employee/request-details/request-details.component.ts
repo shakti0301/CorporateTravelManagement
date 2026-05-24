@@ -393,7 +393,16 @@ export class RequestDetailsComponent implements OnInit {
    * Edit draft: Open the modal form for editing
    */
   openEditModal() {
-    this.selectedRequest = { ...this.request };
+    this.selectedRequest = {
+      ...this.request,
+
+      fromDate: this.request.fromDate
+        ? this.request.fromDate.substring(0, 10)
+        : '',
+
+      toDate: this.request.toDate ? this.request.toDate.substring(0, 10) : '',
+    };
+
     this.modalSubmitted = false;
     this.showModal = true;
   }
@@ -415,8 +424,15 @@ export class RequestDetailsComponent implements OnInit {
       return;
     }
 
+    const payload = {
+      ...this.selectedRequest,
+      startDate: this.selectedRequest.fromDate,
+      endDate: this.selectedRequest.toDate,
+      estimatedCost: this.selectedRequest.cost,
+    };
+
     this.requestService
-      .updateDraft(this.selectedRequest.id, this.selectedRequest)
+      .updateDraft(this.selectedRequest.id, payload)
       .subscribe({
         next: () => {
           this.closeModal();
@@ -456,9 +472,8 @@ export class RequestDetailsComponent implements OnInit {
     if (!confirm('Delete this draft?')) return;
 
     this.requestService.deleteRequest(this.request.id).subscribe({
-      next: () => {
-        alert('Deleted');
-
+      next: (res: any) => {
+        alert(res.message);
         this.goBack();
       },
     });
@@ -466,33 +481,43 @@ export class RequestDetailsComponent implements OnInit {
 
   //Edit & Cancel
   canModify(req: any): boolean {
+    // Draft always editable
     if (req.isDraft) {
       return true;
     }
 
+    // Rejected request = locked
     if (this.normalizeStatus(req.finalStatus) === 'rejected') {
       return false;
     }
 
-    const hasPM = !!req.pmEmail || req.pmStatus !== 'not_applicable';
+    const hasPM = !!req.pmEmail;
 
-    const pmApproved = (req.pmStatus || '').toLowerCase() === 'approved';
+    const pmApproved = this.normalizeStatus(req.pmStatus) === 'approved';
 
+    const managerApproved =
+      this.normalizeStatus(req.managerStatus) === 'approved';
+
+    // Employee → PM flow
     if (hasPM) {
       return !pmApproved;
     }
 
-    return (req.managerStatus || '').toLowerCase() === 'pending';
+    // Direct Manager flow
+    return !managerApproved;
   }
 
   cancelRequest(id: number) {
-    if (!confirm('Cancel request?')) return;
+    if (!confirm('Delete/Cancel request?')) return;
 
     this.requestService.cancelRequest(id).subscribe({
-      next: () => {
-        alert('Cancelled');
-
+      next: (res: any) => {
+        alert(res.message);
         this.goBack();
+      },
+
+      error: () => {
+        alert('Operation failed');
       },
     });
   }

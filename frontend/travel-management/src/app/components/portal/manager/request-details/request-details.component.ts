@@ -358,9 +358,18 @@ export class RequestDetailsComponent implements OnInit {
    * Edit draft: Open the modal form for editing
    */
   openEditModal() {
-    this.selectedRequest = { ...this.request };
+    this.selectedRequest = {
+      ...this.request,
+
+      fromDate: this.request.fromDate
+        ? this.request.fromDate.split('T')[0]
+        : '',
+
+      toDate: this.request.toDate ? this.request.toDate.split('T')[0] : '',
+    };
+
     this.modalSubmitted = false;
-    this.show = true;
+    this.showModal = true;
   }
 
   show = false;
@@ -385,103 +394,113 @@ export class RequestDetailsComponent implements OnInit {
    */
   saveDraft(editForm: NgForm) {
     this.modalSubmitted = true;
-    if (this.hasDateValidationErrors()) {
+
+    if (editForm.invalid || this.hasDateValidationErrors()) {
       editForm.form.markAllAsTouched();
       return;
     }
-    let requests = JSON.parse(localStorage.getItem('requests') || '[]');
-    requests = requests.map((r: any) =>
-      r.id === this.selectedRequest.id ||
-      r.tripId === this.selectedRequest.tripId
-        ? { ...this.selectedRequest, isDraft: true }
-        : r,
-    );
-    localStorage.setItem('requests', JSON.stringify(requests));
-    this.closeModal();
-    this.ngOnInit();
+
+    const payload = {
+      source: this.selectedRequest.source,
+      destination: this.selectedRequest.destination,
+      purpose: this.selectedRequest.purpose,
+      startDate: this.selectedRequest.fromDate,
+      endDate: this.selectedRequest.toDate,
+      estimatedCost: this.selectedRequest.cost,
+    };
+
+    this.requestService
+      .updateDraft(this.selectedRequest.id, payload)
+      .subscribe({
+        next: (res: any) => {
+          alert(res.message);
+
+          this.closeModal();
+
+          this.loadRequest(this.request.id);
+        },
+        error: () => alert('Update failed'),
+      });
   }
 
-  /**
-   * Submit draft with validation: Mark isDraft as false and set initial statuses
-   */
   submitDraft(editForm?: NgForm) {
-    this.modalSubmitted = true;
-    if (editForm && (editForm.invalid || this.hasDateValidationErrors())) {
-      editForm.form.markAllAsTouched();
-      return;
-    }
-    if (!editForm && this.hasDateValidationErrors()) {
-      return;
-    }
-    if (confirm('Submit this draft for manager approval?')) {
-      const dataToSubmit = editForm ? this.selectedRequest : this.request;
-      let requests = JSON.parse(localStorage.getItem('requests') || '[]');
-      requests = requests.map((r: any) =>
-        r.id === dataToSubmit.id || r.tripId === dataToSubmit.tripId
-          ? {
-              ...dataToSubmit,
-              isDraft: false,
-              managerStatus: 'pending',
-              financeStatus: 'not_applicable',
-              finalStatus: 'pending',
-            }
-          : r,
-      );
-      localStorage.setItem('requests', JSON.stringify(requests));
-      if (editForm) {
-        this.closeModal();
+    if (editForm) {
+      this.modalSubmitted = true;
+
+      if (editForm.invalid || this.hasDateValidationErrors()) {
+        editForm.form.markAllAsTouched();
+        return;
       }
-      this.ngOnInit();
     }
+
+    this.requestService.submitDraft(this.request.id).subscribe({
+      next: (res: any) => {
+        alert(res.message);
+
+        this.closeModal();
+
+        this.loadRequest(this.request.id);
+      },
+    });
   }
 
-  /**
-   * Delete draft: Remove it from localStorage and go back
-   */
   deleteDraft() {
-    if (
-      confirm(
-        'Are you sure you want to delete this draft? This action cannot be undone.',
-      )
-    ) {
-      let requests = JSON.parse(localStorage.getItem('requests') || '[]');
-      requests = requests.filter(
-        (r: any) =>
-          !(r.id === this.request.id || r.tripId === this.request.tripId),
-      );
-      localStorage.setItem('requests', JSON.stringify(requests));
-      this.goBack();
-    }
+    if (!confirm('Delete draft?')) return;
+
+    this.requestService.deleteRequest(this.request.id).subscribe({
+      next: (res: any) => {
+        alert(res.message);
+
+        this.goBack();
+      },
+    });
   }
 
   //Edit & Cancel
   canModify(req: any): boolean {
-    // Check if request has a Project Manager assigned
-    const hasPM = req.pmEmail && req.pmEmail.trim() !== '';
-    const pmApproved = (req.pmStatus || '').toLowerCase() === 'approved';
-
-    // If PM exists and PM has approved, employee CANNOT edit/cancel
-    if (hasPM && pmApproved) {
-      return false;
-    } else if (hasPM) {
-      // If PM exists but hasn't approved, employee CAN edit/cancel
+    // Draft always editable
+    if (req.isDraft) {
       return true;
     }
 
-    // Otherwise, original logic: can modify if not draft and manager status is pending
-    const managerStatus = (req.managerStatus || '').toLowerCase();
-    return !req.isDraft && managerStatus === 'pending';
+    // Rejected request = locked
+    if (this.normalizeStatus(req.finalStatus) === 'rejected') {
+      return false;
+    }
+
+    const role = (localStorage.getItem('role') || '').trim().toLowerCase();
+
+    const managerApproved =
+      this.normalizeStatus(req.managerStatus) === 'approved';
+
+    const financeApproved =
+      this.normalizeStatus(req.financeStatus) === 'approved';
+
+    // PM flow:
+    // editable until Manager approves
+    if (role === 'projectmanager') {
+      return !managerApproved;
+    }
+
+    // Manager flow:
+    // editable until Finance approves
+    if (role === 'manager') {
+      return !financeApproved;
+    }
+
+    return false;
   }
 
   cancelRequest(id: number) {
-    const confirmDelete = confirm(
-      'Are you sure you want to delete/cancel this request?',
-    );
-    if (!confirmDelete) return;
-    let requests = JSON.parse(localStorage.getItem('requests') || '[]');
-    requests = requests.filter((r: any) => r.id !== id);
-    localStorage.setItem('requests', JSON.stringify(requests));
-    this.ngOnInit();
+    if (!confirm('Delete/Cancel request?')) return;
+
+    this.requestService.cancelRequest(id).subscribe({
+      next: (res: any) => {
+        alert(res.message);
+
+        this.goBack();
+      },
+    });
   }
 
   // DATE HELPERS

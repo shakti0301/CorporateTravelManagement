@@ -433,23 +433,33 @@ export class MyRequestsComponent implements OnInit {
 
   // ACTIONS
   canModify(req: any): boolean {
-    if (req.isDraft) return true;
+    // Draft always editable
+    if (req.isDraft) {
+      return true;
+    }
 
-    // PM's own requests:
-    // PM -> Manager -> Finance
-    if (this.isPM) {
-      const managerApproved =
-        this.normalizeStatus(req.managerStatus) === 'approved';
+    // Rejected request = locked
+    if (this.normalizeStatus(req.finalStatus) === 'rejected') {
+      return false;
+    }
 
+    const role = (localStorage.getItem('role') || '').trim().toLowerCase();
+
+    const managerApproved =
+      this.normalizeStatus(req.managerStatus) === 'approved';
+
+    const financeApproved =
+      this.normalizeStatus(req.financeStatus) === 'approved';
+
+    // PM flow:
+    // editable until Manager approves
+    if (role === 'projectmanager') {
       return !managerApproved;
     }
 
-    // Manager's own requests:
-    // Manager -> Finance
-    if (this.isManager) {
-      const financeApproved =
-        this.normalizeStatus(req.financeStatus) === 'approved';
-
+    // Manager flow:
+    // editable until Finance approves
+    if (role === 'manager') {
       return !financeApproved;
     }
 

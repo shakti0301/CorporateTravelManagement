@@ -613,7 +613,7 @@
       <!-- NON-DRAFT ACTIONS -->
       <button
         class="edit-btn"
-        *ngIf="canModify(request)"
+        *ngIf="!request.isDraft && canModify(request)"
         (click)="openEditModal()"
       >
         <svg
@@ -634,7 +634,7 @@
 
       <button
         class="delete-btn"
-        *ngIf="canModify(request)"
+        *ngIf="!request.isDraft && canModify(request)"
         (click)="cancelRequest(request.id)"
       >
         <svg
@@ -1131,6 +1131,7 @@
           Cancel
         </button>
         <button
+          *ngIf="request.isDraft"
           type="button"
           class="modal-btn success"
           (click)="saveDraft(editForm)"

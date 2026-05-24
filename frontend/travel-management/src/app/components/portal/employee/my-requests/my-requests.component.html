@@ -597,6 +597,7 @@
           Cancel
         </button>
         <button
+          *ngIf="selectedRequest.isDraft"
           type="button"
           class="modal-btn success"
           (click)="saveDraft(editForm)"
