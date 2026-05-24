@@ -329,11 +329,17 @@ export class MyRequestsComponent implements OnInit {
 
   // MODAL
   openEditModal(request: any) {
-    this.selectedRequest = { ...request };
+    this.selectedRequest = {
+      ...request,
+
+      fromDate: request.fromDate ? request.fromDate.substring(0, 10) : '',
+
+      toDate: request.toDate ? request.toDate.substring(0, 10) : '',
+    };
+
     this.modalSubmitted = false;
     this.showModal = true;
   }
-
   closeModal() {
     this.showModal = false;
     this.selectedRequest = null;
@@ -341,32 +347,121 @@ export class MyRequestsComponent implements OnInit {
   }
 
   saveDraft(editForm: NgForm) {
-    alert('Backend update API not connected yet');
+    this.modalSubmitted = true;
+
+    if (editForm.invalid || this.hasDateValidationErrors()) {
+      return;
+    }
+
+    const payload = {
+      source: this.selectedRequest.source,
+      destination: this.selectedRequest.destination,
+      purpose: this.selectedRequest.purpose,
+      startDate: this.selectedRequest.fromDate,
+      endDate: this.selectedRequest.toDate,
+      estimatedCost: this.selectedRequest.estimatedCost,
+    };
+
+    this.requestService
+      .updateDraft(this.selectedRequest.id, payload)
+      .subscribe({
+        next: () => {
+          alert('Draft updated');
+
+          this.loadRequests();
+          this.closeModal();
+        },
+
+        error: (err) => {
+          console.log(err);
+          alert('Update failed');
+        },
+      });
   }
 
   submitFromModal(editForm: NgForm) {
-    alert('Backend update API not connected yet');
+    this.modalSubmitted = true;
+
+    if (editForm.invalid || this.hasDateValidationErrors()) {
+      return;
+    }
+
+    // save latest changes first
+
+    const payload = {
+      source: this.selectedRequest.source,
+      destination: this.selectedRequest.destination,
+      purpose: this.selectedRequest.purpose,
+      startDate: this.selectedRequest.fromDate,
+      endDate: this.selectedRequest.toDate,
+      estimatedCost: this.selectedRequest.estimatedCost,
+    };
+
+    this.requestService
+      .updateDraft(this.selectedRequest.id, payload)
+      .subscribe({
+        next: () => {
+          this.requestService.submitDraft(this.selectedRequest.id).subscribe({
+            next: () => {
+              alert('Request submitted');
+
+              this.loadRequests();
+              this.closeModal();
+            },
+
+            error: () => {
+              alert('Submit failed');
+            },
+          });
+        },
+      });
   }
 
   // ACTIONS
   canModify(req: any): boolean {
-    // Check if request has a Project Manager assigned
+    if (req.isDraft) return true;
+
     const hasPM = req.pmEmail && req.pmEmail.trim() !== '';
     const pmApproved = this.normalizeStatus(req.pmStatus) === 'approved';
 
-    // If PM exists and PM has approved, employee CANNOT edit/cancel
-    if (hasPM && pmApproved) {
-      return false;
-    } else if (hasPM) {
-      // If PM exists but hasn't approved, employee CAN edit/cancel
-      return true;
+    const managerApproved =
+      this.normalizeStatus(req.managerStatus) === 'approved';
+
+    // Has PM → editable until PM approval
+    if (hasPM) {
+      return !pmApproved;
     }
 
-    // Otherwise, original logic: can edit if draft or manager status is pending
-    return req.isDraft || this.normalizeStatus(req.managerStatus) === 'pending';
+    // No PM → editable until manager approval
+    return !managerApproved;
   }
 
   deleteRequest(id: number) {
-    alert('Delete API pending');
+    const req = this.requests.find((x) => x.id === id);
+
+    if (!req) return;
+
+    const confirmAction = confirm(
+      req.isDraft ? 'Delete this draft?' : 'Cancel this request?',
+    );
+
+    if (!confirmAction) return;
+
+    const requestCall = req.isDraft
+      ? this.requestService.deleteRequest(id)
+      : this.requestService.cancelRequest(id);
+
+    requestCall.subscribe({
+      next: () => {
+        alert(req.isDraft ? 'Draft deleted' : 'Request cancelled');
+
+        this.loadRequests();
+      },
+
+      error: (err) => {
+        console.log(err);
+        alert('Action failed');
+      },
+    });
   }
 }

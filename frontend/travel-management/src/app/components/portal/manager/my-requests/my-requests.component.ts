@@ -342,7 +342,14 @@ export class MyRequestsComponent implements OnInit {
 
   // MODAL
   openEditModal(request: any) {
-    this.selectedRequest = { ...request };
+    this.selectedRequest = {
+      ...request,
+
+      fromDate: request.fromDate ? request.fromDate.substring(0, 10) : '',
+
+      toDate: request.toDate ? request.toDate.substring(0, 10) : '',
+    };
+
     this.modalSubmitted = false;
     this.showModal = true;
   }
@@ -354,33 +361,127 @@ export class MyRequestsComponent implements OnInit {
   }
 
   saveDraft(editForm: NgForm) {
-    alert('Backend update API not connected yet');
+    this.modalSubmitted = true;
+
+    if (editForm.invalid || this.hasDateValidationErrors()) {
+      return;
+    }
+
+    const payload = {
+      source: this.selectedRequest.source,
+      destination: this.selectedRequest.destination,
+      purpose: this.selectedRequest.purpose,
+      startDate: this.selectedRequest.fromDate,
+      endDate: this.selectedRequest.toDate,
+      estimatedCost: this.selectedRequest.estimatedCost,
+    };
+
+    this.requestService
+      .updateDraft(this.selectedRequest.id, payload)
+      .subscribe({
+        next: () => {
+          alert('Draft updated');
+
+          this.loadRequests();
+          this.closeModal();
+        },
+
+        error: (err) => {
+          console.log(err);
+          alert('Update failed');
+        },
+      });
   }
 
   submitFromModal(editForm: NgForm) {
-    alert('Backend update API not connected yet');
+    this.modalSubmitted = true;
+
+    if (editForm.invalid || this.hasDateValidationErrors()) {
+      return;
+    }
+
+    const payload = {
+      source: this.selectedRequest.source,
+      destination: this.selectedRequest.destination,
+      purpose: this.selectedRequest.purpose,
+      startDate: this.selectedRequest.fromDate,
+      endDate: this.selectedRequest.toDate,
+      estimatedCost: this.selectedRequest.estimatedCost,
+    };
+
+    // save latest edits first
+    this.requestService
+      .updateDraft(this.selectedRequest.id, payload)
+      .subscribe({
+        next: () => {
+          this.requestService.submitDraft(this.selectedRequest.id).subscribe({
+            next: () => {
+              alert('Submitted');
+
+              this.loadRequests();
+
+              this.closeModal();
+            },
+
+            error: () => {
+              alert('Submit failed');
+            },
+          });
+        },
+      });
   }
 
   // ACTIONS
   canModify(req: any): boolean {
-    // Check if request has a Project Manager assigned
-    const hasPM = req.pmEmail && req.pmEmail.trim() !== '';
-    const pmApproved = this.normalizeStatus(req.pmStatus) === 'approved';
+    if (req.isDraft) return true;
 
-    // If PM exists and PM has approved, employee CANNOT edit/cancel
-    if (hasPM && pmApproved) {
-      return false;
-    } else if (hasPM) {
-      // If PM exists but hasn't approved, employee CAN edit/cancel
-      return true;
+    // PM's own requests:
+    // PM -> Manager -> Finance
+    if (this.isPM) {
+      const managerApproved =
+        this.normalizeStatus(req.managerStatus) === 'approved';
+
+      return !managerApproved;
     }
 
-    // Otherwise, original logic: can edit if draft or manager status is pending
-    return req.isDraft || this.normalizeStatus(req.managerStatus) === 'pending';
+    // Manager's own requests:
+    // Manager -> Finance
+    if (this.isManager) {
+      const financeApproved =
+        this.normalizeStatus(req.financeStatus) === 'approved';
+
+      return !financeApproved;
+    }
+
+    return false;
   }
 
   deleteRequest(id: number) {
-    alert('Delete API pending');
+    const req = this.requests.find((x) => x.id === id);
+
+    if (!req) return;
+
+    const message = req.isDraft ? 'Delete this draft?' : 'Delete this request?';
+
+    if (!confirm(message)) return;
+
+    const apiCall = req.isDraft
+      ? this.requestService.deleteRequest(id)
+      : this.requestService.cancelRequest(id);
+
+    apiCall.subscribe({
+      next: () => {
+        alert(req.isDraft ? 'Draft deleted' : 'Request deleted');
+
+        this.loadRequests();
+      },
+
+      error: (err) => {
+        console.log(err);
+
+        alert('Action failed');
+      },
+    });
   }
 
   get basePath(): string {
