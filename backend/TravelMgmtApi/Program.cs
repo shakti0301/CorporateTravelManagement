@@ -7,6 +7,7 @@ using TravelMgmtApi.Interfaces;
 using TravelMgmtApi.Services;
 using Microsoft.OpenApi.Models;
 using TravelMgmtApi.Repositories;
+using Microsoft.Extensions.FileProviders;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -114,6 +115,19 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseStaticFiles();
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(
+            Directory.GetCurrentDirectory(),
+            "Uploads"
+        )),
+    RequestPath = "/Uploads"
+
+});
 
 app.UseAuthentication();
 
