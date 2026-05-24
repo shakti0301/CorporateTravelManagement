@@ -18,11 +18,21 @@ namespace TravelMgmtApi.Controllers
             _service = service;
         }
 
+
         [HttpPost("submit")]
-        public async Task<IActionResult> Submit([FromBody] SubmitReimbursementDto dto)
+        public async Task<IActionResult> Submit(
+            [FromForm] SubmitReimbursementDto dto
+        )
         {
-            var employeeId = int .Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            var result = await _service.SubmitAsync(employeeId, dto);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if(userId == null)
+            {
+                return Unauthorized();
+            }
+            var result = await _service.SubmitAsync(
+                Convert.ToInt32(userId),
+                dto
+            );
             return Ok(new
             {
                 message = result
