@@ -59,6 +59,20 @@ namespace TravelMgmtApi.Services
                 return "Reimbursement updated successfully.";
             }
 
+            var expenses = new List<Expense>();
+
+            foreach (var e in dto.Expenses)
+            {
+                expenses.Add(new Expense
+                {
+                    Category = e.Category,
+                    Date = e.Date,
+                    Description = e.Description,
+                    Amount = e.Amount,
+                    ProofPath = await SaveFile(e.ProofFile)
+                });
+            }
+
             var reimbursement = new Reimbursement
             {
                 EmployeeId = employeeId,
@@ -66,15 +80,7 @@ namespace TravelMgmtApi.Services
                 SubmittedAt = DateTime.UtcNow,
                 Status = RequestStatus.Pending,
                 TotalExpense = dto.Expenses.Sum(e => e.Amount),
-                Expenses = dto.Expenses.Select(e => new Expense
-                {
-                    Category = e.Category,
-                    Date = e.Date,
-                    Description = e.Description,
-                    Amount = e.Amount,
-                    ProofPath = e.ProofPath
-                })
-                .ToList()
+                Expenses = expenses
             };
             await _repo.AddReimbursementAsync(reimbursement);
             await _repo.SaveChangesAsync();
@@ -127,6 +133,31 @@ namespace TravelMgmtApi.Services
 
             await _repo.SaveChangesAsync();
             return "Rejected";
+        }
+
+        //helper 
+        private async Task<string?> SaveFile(IFormFile? file)
+        {
+            if (file == null || file.Length == 0)
+                return null;
+
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Uploads", "Bills");
+
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
+            var fileName = Guid.NewGuid() +  Path.GetExtension(file.FileName);
+
+            var path = Path.Combine(uploadsFolder, fileName);
+
+            using(var stream = new FileStream(path, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return fileName;
         }
     }
 }
