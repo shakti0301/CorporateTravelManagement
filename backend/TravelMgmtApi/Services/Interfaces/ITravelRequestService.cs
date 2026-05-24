@@ -6,6 +6,10 @@ namespace TravelMgmtApi.Interfaces
     public interface ITravelRequestService
     {
         Task<string> CreateRequestAsync(int employeeId, CreateTravelRequestDto dto);
+        Task<string> UpdateDraftAsync(int id, CreateTravelRequestDto dto);
+        Task<string> SubmitDraftAsync(int id);
+        Task<string> DeleteRequestAsync(int id);
+        Task<string> CancelRequestAsync(int id);
         Task<List<TravelRequestResponseDto>> GetMyRequestsAsync(int employeeId);
         Task<List<TravelRequestResponseDto>> GetDraftRequestsAsync(int employeeId);
         Task<TravelRequestResponseDto?> GetByIdAsync(int requestId);

@@ -19,10 +19,7 @@ public class TravelRequestService : ITravelRequestService
 
     // Create Travel Request
 
-    public async Task<string> CreateRequestAsync(
-        int employeeId,
-        CreateTravelRequestDto dto
-    )
+    public async Task<string> CreateRequestAsync(int employeeId,CreateTravelRequestDto dto)
     {
         var employee =
             await _travelRepository
@@ -124,6 +121,149 @@ public class TravelRequestService : ITravelRequestService
         return "Travel request created successfully";
     }
 
+    //Update Draft
+    public async Task<string> UpdateDraftAsync(int id, CreateTravelRequestDto dto)
+    {
+        var request = await _travelRepository.GetRequestByIdAsync(id);
+        if(request == null)
+            return "Request not found";
+
+        // only draft OR not PM approved
+
+        // Draft always editable
+        if (!request.IsDraft)
+        {
+            var pmApproved = request.Approvals.Any(a =>
+                a.ApprovalStage == ApprovalStage.ProjectManager &&
+                a.Status == RequestStatus.Approved
+            );
+
+            var managerApproved = request.Approvals.Any(a =>
+                a.ApprovalStage == ApprovalStage.Manager &&
+                a.Status == RequestStatus.Approved
+            );
+
+            // If PM exists -> lock after PM approval
+            if (request.ProjectManagerId.HasValue && pmApproved)
+            {
+                return "Request cannot be edited";
+            }
+
+            // If no PM -> lock after manager approval
+            if (!request.ProjectManagerId.HasValue && managerApproved)
+            {
+                return "Request cannot be edited";
+            }
+        }
+
+        request.Source= dto.Source ?? request.Source;
+        request.Destination=dto.Destination ?? request.Destination;
+        request.Purpose=dto.Purpose ?? request.Purpose;
+        request.StartDate=dto.StartDate;
+        request.EndDate=dto.EndDate;
+        request.EstimatedCost=dto.EstimatedCost ?? request.EstimatedCost;
+        await _travelRepository.SaveChangesAsync();
+        return "Updated successfully";
+    }
+    
+    // Submit Draft
+    public async Task<string> SubmitDraftAsync(int id)
+    {
+        var request = await _travelRepository.GetRequestByIdAsync(id);
+
+        if(request == null)
+            return "Request not found";
+
+        request.IsDraft = false;
+        request.Status = RequestStatus.Pending;
+        var roleName = request.Employee?.Role?.Name;
+
+Console.WriteLine("ROLE = " + roleName);
+Console.WriteLine("EMPLOYEE ID = " + request.EmployeeId);
+        var userRole = request.Employee?.Role?.Name?
+                            .Trim()
+                            .ToLower();
+
+        // PM flow:
+        // PM → Manager → Finance
+        if(userRole == "projectmanager")
+        {
+            request.CurrentStage = ApprovalStage.Manager;
+        }
+
+        // Manager flow:
+        // Manager → Finance
+        else if(userRole == "manager")
+        {
+            request.CurrentStage = ApprovalStage.Finance;
+        }
+
+        // Employee flow:
+        // Employee → PM(optional) → Manager
+        else
+        {
+            if(request.ProjectManagerId.HasValue)
+            {
+                request.CurrentStage =
+                    ApprovalStage.ProjectManager;
+            }
+            else
+            {
+                request.CurrentStage =
+                    ApprovalStage.Manager;
+            }
+        }
+
+        await _travelRepository.SaveChangesAsync();
+        Console.WriteLine(request.Employee?.Role?.Name);
+
+        return "Draft submitted";
+    }
+
+   
+    // Delete Draft
+    public async Task<string> DeleteRequestAsync(int id)
+    {
+        var request = await _travelRepository.GetRequestByIdAsync(id);
+
+        if(request==null)
+            return "Request not found";
+
+        if(!request.IsDraft)
+        {
+            return "Only draft can be deleted";
+        }
+        await _travelRepository.DeleteAsync(request);
+        return "Draft deleted";
+    }
+
+    // Cancel Request
+    public async Task<string> CancelRequestAsync(int id)
+    {
+        var request = await _travelRepository.GetRequestByIdAsync(id);
+
+        if(request==null)
+            return "Request not found";
+
+        var pmApproved = request.Approvals.Any(a =>
+            a.ApprovalStage == ApprovalStage.ProjectManager &&
+            a.Status == RequestStatus.Approved
+        );
+
+        var managerApproved = request.Approvals.Any(a =>
+            a.ApprovalStage == ApprovalStage.Manager &&
+            a.Status == RequestStatus.Approved
+        );
+
+        if(pmApproved || managerApproved)
+        {
+            return "Cannot cancel after approval";
+        }
+
+        await _travelRepository.DeleteAsync(request);
+
+        return "Request deleted";
+    }
 
     // Get Methods
 
