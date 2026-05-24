@@ -51,14 +51,20 @@ namespace TravelMgmtApi.Repositories
         {
             return await _context.TravelRequests
                 .Include(tr => tr.Employee)
+                    .ThenInclude(e => e.Role)
+
                 .Include(tr => tr.ProjectManager)
                 .Include(tr => tr.Manager)
                 .Include(tr => tr.Finance)
+
                 .Include(tr => tr.Approvals)
                     .ThenInclude(a => a.Approver)
+
                 .Include(tr => tr.ItineraryDays)
                     .ThenInclude(d => d.Activities)
-                .FirstOrDefaultAsync(x => x.TravelRequestId == id);
+
+                .FirstOrDefaultAsync(x =>
+                    x.TravelRequestId == id);
         }
 
         public async Task AddApprovalAsync(TravelRequestApproval approval)
@@ -369,6 +375,12 @@ namespace TravelMgmtApi.Repositories
                 .ToListAsync();
 
             _context.ItineraryDays.RemoveRange(existing);
+        }
+
+        public async Task DeleteAsync(TravelRequest request)
+        {
+            _context.TravelRequests.Remove(request);
+            await _context.SaveChangesAsync();
         }
     }
 }

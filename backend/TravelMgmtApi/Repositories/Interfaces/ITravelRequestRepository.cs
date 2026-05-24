@@ -24,5 +24,7 @@ namespace TravelMgmtApi.Interfaces
     
         Task SaveItineraryAsync(List<ItineraryDay> days);
         Task DeleteExistingItineraryAsync(int requestId);
+
+        Task DeleteAsync(TravelRequest request);
     }
 }
