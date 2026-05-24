@@ -390,21 +390,31 @@ export class ExpenseComponent implements OnInit {
       return;
     }
 
-    const payload = {
-      travelRequestId: Number(this.requestId),
+    const formData = new FormData();
 
-      expenses: this.expenses.map((e: any) => ({
-        category: e.category,
-        amount: Number(e.amount),
-        date: e.date,
-        description: e.description,
-      })),
-    };
+    formData.append('travelRequestId', Number(this.requestId).toString());
 
-    this.expenseService.submitExpenses(payload).subscribe({
+    this.expenses.forEach((e: any, index: number) => {
+      formData.append(`expenses[${index}].category`, e.category);
+
+      formData.append(`expenses[${index}].amount`, Number(e.amount).toString());
+
+      formData.append(`expenses[${index}].date`, e.date);
+
+      formData.append(`expenses[${index}].description`, e.description);
+
+      // bill image/pdf
+      if (e.proofFile) {
+        formData.append(`expenses[${index}].proofFile`, e.proofFile);
+      }
+    });
+
+    this.expenseService.submitExpenses(formData).subscribe({
       next: (res: any) => {
         this.expenseService.clearDraft(this.requestId);
+
         alert(res.message);
+
         const currentUrl = this.router.url;
 
         if (currentUrl.includes('project-manager')) {
@@ -418,7 +428,6 @@ export class ExpenseComponent implements OnInit {
 
       error: (err) => {
         console.log(err);
-
         alert('Submission failed');
       },
     });
