@@ -385,20 +385,31 @@ export class ExpenseComponent implements OnInit {
       return;
     }
 
-    const payload = {
-      travelRequestId: Number(this.requestId),
-      expenses: this.expenses.map((e: any) => ({
-        category: e.category,
-        amount: Number(e.amount),
-        date: e.date,
-        description: e.description,
-      })),
-    };
+    const formData = new FormData();
 
-    this.reimbursementService.submitExpenses(payload).subscribe({
+    formData.append('travelRequestId', Number(this.requestId).toString());
+
+    this.expenses.forEach((e: any, index: number) => {
+      formData.append(`expenses[${index}].category`, e.category);
+
+      formData.append(`expenses[${index}].amount`, e.amount.toString());
+
+      formData.append(`expenses[${index}].date`, e.date);
+
+      formData.append(`expenses[${index}].description`, e.description);
+
+      // important
+      if (e.proofFile) {
+        formData.append(`expenses[${index}].proofFile`, e.proofFile);
+      }
+    });
+
+    this.reimbursementService.submitExpenses(formData).subscribe({
       next: (res: any) => {
         this.expenseService.clearDraft(this.requestId);
+
         alert(res.message);
+
         this.router.navigate(['/employee']);
       },
 
