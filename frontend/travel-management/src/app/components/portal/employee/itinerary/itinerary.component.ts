@@ -43,8 +43,6 @@ export class ItineraryComponent implements OnInit {
           toDate: res.endDate,
         };
 
-        console.log('request:', this.request);
-
         if (this.request.itinerary?.length > 0) {
           this.days = this.request.itinerary;
         } else {
