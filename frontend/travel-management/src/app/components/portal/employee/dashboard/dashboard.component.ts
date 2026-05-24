@@ -256,7 +256,7 @@ export class DashboardComponent implements OnInit {
 
   isTripCompleted(trip: any): boolean {
     return (
-      trip.reimbursementStatus === 'approved' ||
+      (trip.reimbursementStatus || '').toLowerCase() === 'approved' ||
       (trip.finalStatus || '').toLowerCase() === 'completed'
     );
   }
