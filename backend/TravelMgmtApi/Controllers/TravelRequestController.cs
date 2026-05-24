@@ -38,6 +38,46 @@ namespace TravelMgmtApi.Controllers
             });
         }
 
+        [HttpPut("draft/{id}")]
+       public async Task <IActionResult> UpdateDraft(int id, CreateTravelRequestDto dto)
+        {
+            var result = await _travelService.UpdateDraftAsync(id, dto);
+            return Ok(new
+            {
+                message = result
+            });
+        } 
+
+        [HttpPost("submit/{id}")]
+        public async Task<IActionResult> SubmitDraft(int id)
+        {
+            var result = await _travelService.SubmitDraftAsync(id);
+            return Ok(new
+            {
+                message = result
+            });
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteRequest(int id)
+        {
+            var result = await _travelService.DeleteRequestAsync(id);
+            return Ok(new
+            {
+                message = result
+            });
+        }
+
+        [HttpPut("cancel/{id}")]
+        public async Task<IActionResult> CancelRequest(int id)
+        {
+            var result = await _travelService.CancelRequestAsync(id);
+            return Ok(new
+            {
+                message = result
+            });
+        }
+
         //My Requests
         [HttpGet("my")]
         public async Task<IActionResult> GetMyRequests()
