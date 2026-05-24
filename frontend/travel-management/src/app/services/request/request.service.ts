@@ -101,7 +101,7 @@ export class RequestService {
   }
 
   submitDraft(id: number) {
-    return this.http.put(`${this.apiUrl}/submit/${id}`, {});
+    return this.http.post(`${this.apiUrl}/submit/${id}`, {});
   }
 
   deleteRequest(id: number) {
