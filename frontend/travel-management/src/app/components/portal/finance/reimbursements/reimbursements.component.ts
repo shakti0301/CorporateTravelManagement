@@ -3,6 +3,7 @@ import { NavbarComponent } from '../../../shared/navbar/navbar.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ReimbursementService } from '../../../../services/reimbursement/reimbursement.service';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-reimbursements',
@@ -16,6 +17,9 @@ export class ReimbursementsComponent implements OnInit {
   selectedRequest: any = null;
   showModal = false;
   rejectRemark = '';
+  selectedProof: SafeResourceUrl | null = null;
+  showProofModal = false;
+  isPdf = false;
 
   activeTab: 'pending' | 'approved' | 'rejected' = 'pending';
 
@@ -23,7 +27,10 @@ export class ReimbursementsComponent implements OnInit {
   pageSize = 10;
   currentPage = 1;
 
-  constructor(private reimbursementService: ReimbursementService) {}
+  constructor(
+    private reimbursementService: ReimbursementService,
+    private sanitizer: DomSanitizer,
+  ) {}
 
   ngOnInit() {
     this.load();
@@ -134,6 +141,18 @@ export class ReimbursementsComponent implements OnInit {
     this.rejectRemark = '';
   }
 
+  openProof(fileName: string) {
+    const url = 'http://localhost:5212/Uploads/Bills/' + fileName;
+    console.log('Opening proof URL:', url);
+    this.isPdf = fileName.toLowerCase().endsWith('.pdf');
+    this.selectedProof = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+    this.showProofModal = true;
+  }
+
+  closeProof() {
+    this.showProofModal = false;
+    this.selectedProof = null;
+  }
   approveRequest() {
     this.reimbursementService.approve(this.selectedRequest.id).subscribe({
       next: () => {
