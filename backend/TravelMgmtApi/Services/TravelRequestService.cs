@@ -430,6 +430,11 @@ Console.WriteLine("EMPLOYEE ID = " + request.EmployeeId);
         return "Action completed";
     }
 
+    public async Task<List<TravelRequestResponseDto>> GetAllRequestsAsync()
+    {
+        return await _travelRepository.GetAllRequestsAsync();
+    }
+
     public async Task<string> SaveItineraryAsync(CreateItineraryDto dto)
     {
         var request = await _travelRepository.GetRequestByIdAsync(dto.TravelRequestId);

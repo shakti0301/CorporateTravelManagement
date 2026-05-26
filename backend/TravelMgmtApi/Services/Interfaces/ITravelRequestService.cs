@@ -19,8 +19,9 @@ namespace TravelMgmtApi.Interfaces
         Task<List<TravelRequestResponseDto>>GetPendingPMRequestsAsync(int projectManagerId);   
         Task<List<TravelRequestResponseDto>>GetPendingManagerRequestsAsync(int managerId);
         Task<List<TravelRequestResponseDto>>GetPendingFinanceRequestsAsync(int financeId);
-        Task<string> ApproveOrRejectAsync(int approverId, ApprovalActionDto dto);
+        Task<List<TravelRequestResponseDto>> GetAllRequestsAsync();
 
+        Task<string> ApproveOrRejectAsync(int approverId, ApprovalActionDto dto);
         Task<string> SaveItineraryAsync(CreateItineraryDto dto);
     }
 }
