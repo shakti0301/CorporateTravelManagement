@@ -53,7 +53,7 @@ namespace TravelMgmtApi.Repositories
         {
             return await _context.TravelRequests
                 .Include(tr => tr.Employee)
-                    .ThenInclude(e => e.Role)
+                    .ThenInclude(e => e!.Role)
 
                 .Include(tr => tr.ProjectManager)
                 .Include(tr => tr.Manager)
@@ -361,6 +361,24 @@ namespace TravelMgmtApi.Repositories
                         CreatedAt = tr.CreatedAt,
                         IsDraft = tr.IsDraft
                     })
+                .ToListAsync();
+        }
+
+        public async Task<List<TravelRequestResponseDto>> GetAllRequestsAsync()
+        {
+            return await _context.TravelRequests
+                .Include(x => x.Employee)
+                .OrderByDescending(x=>x.CreatedAt)
+
+                .Select(x => new TravelRequestResponseDto
+                {
+                    TravelRequestId = x.TravelRequestId,
+                    EmployeeName = x.Employee!.UserName,
+                    Source = x.Source,
+                    Destination = x.Destination,
+                    Status = x.Status.ToString(),
+                    CreatedAt = x.CreatedAt
+                })
                 .ToListAsync();
         }
 
