@@ -1,0 +1,425 @@
+<app-navbar></app-navbar>
+
+<div class="details-page" *ngIf="request; else notFound">
+  <!-- ── BACK LINK ── -->
+  <div class="back-link" (click)="goBack()">
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2.5"
+    >
+      <polyline points="15 18 9 12 15 6" />
+    </svg>
+    Back to Approvals
+  </div>
+
+  <!-- ── PAGE TITLE ── -->
+  <div class="title-row">
+    <h1 class="page-title">
+      Request Details: {{ request.destination }} ({{
+        request.travelRequestId || "REQ-" + request.id
+      }})
+    </h1>
+    <span class="draft-badge" *ngIf="request.isDraft">DRAFT</span>
+  </div>
+
+  <!-- ── MAIN LAYOUT: Two Column (Left Content + Right Actions) ── -->
+  <div class="main-layout">
+    <!-- LEFT COLUMN: All content stacked -->
+    <div class="left-column">
+      <!-- Info card -->
+      <div class="info-card">
+        <div class="info-row">
+          <div class="info-col">
+            <span class="info-label">SOURCE</span>
+            <div class="info-value">
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#94a3b8"
+                stroke-width="2"
+              >
+                <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              {{ request.source || "Not specified" }}
+            </div>
+          </div>
+
+          <div class="info-col">
+            <span class="info-label">DESTINATION</span>
+            <div class="info-value">
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#94a3b8"
+                stroke-width="2"
+              >
+                <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              {{ request.destination }}
+            </div>
+          </div>
+
+          <div class="info-col">
+            <span class="info-label">DATES</span>
+            <div class="info-value">
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#94a3b8"
+                stroke-width="2"
+              >
+                <rect x="3" y="4" width="18" height="18" rx="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
+              {{ request.fromDate | date: "MMM dd" }} –
+              {{ request.toDate | date: "MMM dd, yyyy" }}
+            </div>
+          </div>
+
+          <div class="info-col">
+            <span class="info-label">PURPOSE</span>
+            <div class="info-value">
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#94a3b8"
+                stroke-width="2"
+              >
+                <rect x="3" y="4" width="18" height="18" rx="2" />
+                <line x1="9" y1="9" x2="15" y2="9" />
+                <line x1="9" y1="13" x2="15" y2="13" />
+              </svg>
+              {{ request.purpose }}
+            </div>
+          </div>
+
+          <div class="info-col">
+            <span class="info-label">TOTAL BUDGET</span>
+            <div class="info-value budget-value">
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#94a3b8"
+                stroke-width="2"
+              >
+                <rect x="3" y="5" width="18" height="14" rx="2" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
+              {{
+                request.cost || 0 | currency: "INR" : "symbol-narrow" : "1.0-0"
+              }}
+            </div>
+          </div>
+
+          <!-- Employee Name -->
+          <div class="info-col">
+            <span class="info-label">EMPLOYEE</span>
+            <div class="info-value">
+              <div class="emp-cell">
+                <div
+                  class="emp-avatar"
+                  [style.background]="getAvatarColor(request.employeeName)"
+                >
+                  {{ getInitials(request.employeeName) }}
+                </div>
+                <div>
+                  <div class="emp-name">{{ request.employeeName }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TRIP ITINERARY ── -->
+      <div
+        class="card itinerary-card"
+        *ngIf="request.itinerary && request.itinerary.length > 0"
+      >
+        <h3>Trip Itinerary</h3>
+
+        <div class="itinerary-timeline">
+          <div
+            class="itinerary-day"
+            *ngFor="
+              let day of request.itinerary;
+              let i = index;
+              let last = last
+            "
+          >
+            <!-- Left: icon + vertical line -->
+            <div class="day-left">
+              <div class="day-circle" [ngClass]="getDayIconClass(day)">
+                <!-- Day 1 : plane icon -->
+                <svg
+                  *ngIf="i === 0"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="white"
+                  stroke-width="2"
+                >
+                  <path d="M22 16.5H2l2-9h16l2 9z" />
+                  <path d="M12 7.5V3m-4 4.5V4m8 3.5V4" />
+                </svg>
+                <!-- Last day : flag icon -->
+                <svg
+                  *ngIf="last && !isFirst(i)"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="white"
+                  stroke-width="2"
+                >
+                  <path
+                    d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"
+                  />
+                  <line x1="4" y1="22" x2="4" y2="15" />
+                </svg>
+                <!-- Middle days : calendar icon -->
+                <svg
+                  *ngIf="!isFirst(i) && !last"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="white"
+                  stroke-width="2"
+                >
+                  <rect x="3" y="4" width="18" height="18" rx="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+              </div>
+              <!-- Vertical connecting line (not on last item) -->
+              <div class="day-line" *ngIf="!last"></div>
+            </div>
+
+            <!-- Right: content -->
+            <div class="day-content" [class.mb-4]="!last">
+              <div class="day-label">
+                DAY {{ day.dayNumber }}:
+                {{ day.date | date: "MMM dd" | uppercase }}
+              </div>
+              <div class="day-activities">
+                <ng-container *ngFor="let activity of day.activities">
+                  <ng-container *ngIf="activity.title?.trim()">
+                    <div class="activity-title">{{ activity.title }}</div>
+                    <div
+                      class="activity-desc"
+                      *ngIf="activity.description?.trim()"
+                    >
+                      {{ activity.description }}
+                    </div>
+                    <div
+                      class="activity-meta"
+                      *ngIf="activity.time || activity.location"
+                    >
+                      <span class="meta-item" *ngIf="activity.time">
+                        <svg
+                          width="11"
+                          height="11"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="#94a3b8"
+                          stroke-width="2"
+                        >
+                          <circle cx="12" cy="12" r="10" />
+                          <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                        {{ activity.time }}
+                      </span>
+                      <span class="meta-item" *ngIf="activity.location">
+                        <svg
+                          width="11"
+                          height="11"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="#94a3b8"
+                          stroke-width="2"
+                        >
+                          <path
+                            d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"
+                          />
+                          <circle cx="12" cy="10" r="3" />
+                        </svg>
+                        {{ activity.location }}
+                      </span>
+                    </div>
+                  </ng-container>
+                </ng-container>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- No itinerary yet -->
+      <div
+        class="card no-itinerary-card"
+        *ngIf="!request.itinerary || request.itinerary.length === 0"
+      >
+        <div class="no-itinerary-content">
+          <div class="no-itinerary-icon">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#94a3b8"
+              stroke-width="1.5"
+            >
+              <rect x="3" y="4" width="18" height="18" rx="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
+          </div>
+          <div>
+            <div class="no-itinerary-title">No itinerary added yet</div>
+            <div class="no-itinerary-sub">
+              The employee has not planned a day-by-day schedule for this trip
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN: Actions panel (sticky) -->
+    <div class="actions-panel">
+      <div class="actions-label">ACTIONS</div>
+
+      <!-- Show Approve/Reject buttons if pending -->
+      <div *ngIf="canApprove" class="approval-actions">
+        <button class="approve-btn" (click)="approve()">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+          Approve
+        </button>
+
+        <button class="reject-btn" (click)="openReject()">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+          Reject
+        </button>
+      </div>
+
+      <!-- Rejection form -->
+      <div *ngIf="isRejecting" class="reject-form">
+        <p class="reject-form-title">⚑ Reason for rejection</p>
+        <textarea
+          class="reject-textarea"
+          rows="4"
+          placeholder="Please provide details..."
+          [(ngModel)]="rejectReason"
+        ></textarea>
+        <div class="reject-actions">
+          <button class="btn-cancel" (click)="cancelReject()">Cancel</button>
+          <button class="btn-confirm" (click)="confirmReject()">
+            Confirm Reject
+          </button>
+        </div>
+      </div>
+
+      <!-- Show Status if action already taken -->
+      <div *ngIf="!canApprove && !isRejecting" class="status-info">
+        <div
+          class="status-badge"
+          [ngClass]="{
+            'status-approved':
+              request.managerStatus === 'approved' ||
+              request.pmStatus === 'approved' ||
+              request.financeStatus === 'approved',
+            'status-rejected':
+              request.managerStatus === 'rejected' ||
+              request.pmStatus === 'rejected' ||
+              request.financeStatus === 'rejected',
+          }"
+        >
+          <svg
+            *ngIf="
+              request.managerStatus === 'approved' ||
+              request.pmStatus === 'approved' ||
+              request.financeStatus === 'approved'
+            "
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+          <svg
+            *ngIf="
+              request.managerStatus === 'rejected' ||
+              request.pmStatus === 'rejected' ||
+              request.financeStatus === 'rejected'
+            "
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+          <span>
+            {{
+              request.managerStatus === "approved" ||
+              request.pmStatus === "approved" ||
+              request.financeStatus === "approved"
+                ? "Approved"
+                : "Rejected"
+            }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #notFound>
+  <div class="not-found">Request not found</div>
+</ng-template>
