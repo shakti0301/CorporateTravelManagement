@@ -50,6 +50,10 @@ export class AuthService {
     return JSON.parse(localStorage.getItem('currentUser') || 'null');
   }
 
+  getAllUsers() {
+    return this.http.get(`${environment.apiUrl}/Auth/users`);
+  }
+
   // Logout
   logout() {
     localStorage.removeItem('token');
