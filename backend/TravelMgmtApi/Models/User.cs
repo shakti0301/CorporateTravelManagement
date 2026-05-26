@@ -23,7 +23,7 @@ namespace TravelMgmtApi.Models
         public Role? Role { get; set; }
 
         [ForeignKey("Department")]
-        public int DepartmentId { get; set; }
+        public int? DepartmentId { get; set; }
         public Department? Department { get; set; }
 
         [ForeignKey("Manager")]
