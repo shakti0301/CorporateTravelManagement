@@ -15,8 +15,7 @@ namespace TravelMgmtApi.DTOs
         [Required]
         public int RoleId { get; set; }
 
-        [Required]
-        public int DepartmentId { get; set; }
+        public int? DepartmentId { get; set; }
 
         public int? ManagerId { get; set; }
     }
