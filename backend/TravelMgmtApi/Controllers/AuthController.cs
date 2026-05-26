@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TravelMgmtApi.DTOs;
 using TravelMgmtApi.Interfaces;
@@ -38,6 +39,14 @@ namespace TravelMgmtApi.Controllers
                     message = "Invalid username or password"
                 });
             }
+            return Ok(result);
+        }
+
+        [Authorize(Roles="Admin")]
+        [HttpGet("users")]
+        public async Task<IActionResult> GetUsers()
+        {
+            var result = await _authService.GetAllUsersAsync();
             return Ok(result);
         }
     }
