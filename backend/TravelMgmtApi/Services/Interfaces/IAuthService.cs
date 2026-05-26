@@ -1,4 +1,5 @@
 using TravelMgmtApi.DTOs;
+using TravelMgmtApi.Models;
 
 namespace TravelMgmtApi.Interfaces
 {
@@ -6,5 +7,6 @@ namespace TravelMgmtApi.Interfaces
     {
         Task<AuthResponseDto?> LoginAsync(LoginDto loginDto);
         Task<string> RegisterAsync(RegisterDto registerDto);
+        Task<List<UserResponseDto>> GetAllUsersAsync();
     }
 }

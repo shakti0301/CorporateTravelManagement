@@ -101,6 +101,12 @@ namespace TravelMgmtApi.Services
             };
         }
 
+        //All User 
+        public async Task<List<UserResponseDto>> GetAllUsersAsync()
+        {
+            return await _authRepository.GetAllUsersAsync();
+        }
+
         //Generate JWT token
         private string GenerateJwtToken(User user)
         {
