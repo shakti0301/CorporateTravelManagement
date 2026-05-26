@@ -8,9 +8,7 @@ namespace TravelMgmtApi.Interfaces
         Task<User?> GetUserByEmailAsync(string email);
         Task<Department?> GetDepartmentAsync(int departmentId);
         Task AddUserAsync(User user);
-        Task<User?> LoginUserAsync(
-            string email,
-            string passwordHash
-        );
+        Task<User?> LoginUserAsync(string email, string passwordHash);
+        Task<List<UserResponseDto>> GetAllUsersAsync();
     }
 }
