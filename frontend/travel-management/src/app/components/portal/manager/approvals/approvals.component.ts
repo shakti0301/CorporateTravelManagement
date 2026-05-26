@@ -2,12 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { NavbarComponent } from '../../../shared/navbar/navbar.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { RequestService } from '../../../../services/request/request.service';
 
 @Component({
   selector: 'app-approvals',
   standalone: true,
-  imports: [CommonModule, NavbarComponent, FormsModule],
+  imports: [CommonModule, NavbarComponent, FormsModule, RouterLink],
   templateUrl: './approvals.component.html',
   styleUrl: './approvals.component.css',
 })
@@ -109,10 +110,18 @@ export class ApprovalsComponent implements OnInit {
     }
   }
 
-  // Filter by role scope
+  get basePath(): string {
+    return this.role === 'projectmanager' ? '/pm' : '/manager';
+  }
+
+  // Filter by role scope — exclude the current user's own requests
   private scopedRequests(): any[] {
+    const myName = this.currentUser?.userName || '';
     return this.allRequests.filter((req) => {
-      return !req.isDraft;
+      if (req.isDraft) return false;
+      // Exclude manager's own requests (they go directly to finance)
+      if (myName && req.userEmail === myName) return false;
+      return true;
     });
   }
 

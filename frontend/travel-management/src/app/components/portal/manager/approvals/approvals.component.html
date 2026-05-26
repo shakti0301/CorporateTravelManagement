@@ -69,8 +69,8 @@
             <th>Purpose</th>
             <th>Dates</th>
             <th>Total Budget</th>
-
-            <th *ngIf="activeTab === 'pending'">Actions</th>
+            <th>Action</th>
+            <th *ngIf="activeTab === 'pending'">Approval</th>
             <th *ngIf="activeTab === 'rejected'">Reason</th>
           </tr>
         </thead>
@@ -111,7 +111,31 @@
                 {{ req.cost | currency: "INR" : "symbol" : "1.0-0" }}
               </td>
 
-              <!-- Actions (Pending tab) -->
+              <!-- View Details Action -->
+              <td class="actions-cell">
+                <button
+                  class="icon-btn"
+                  title="View details"
+                  [routerLink]="[
+                    basePath + '/empreq-details',
+                    req.id || req.travelRequestId,
+                  ]"
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                </button>
+              </td>
+
+              <!-- Approval Actions (Pending tab) -->
               <td *ngIf="activeTab === 'pending'">
                 <div class="row-actions" *ngIf="rejectingId !== req.id">
                   <button class="action-approve" (click)="approve(req.id)">
@@ -131,7 +155,7 @@
 
             <!-- Inline Reject Box -->
             <tr *ngIf="rejectingId === req.id" class="reject-inline-row">
-              <td colspan="6">
+              <td colspan="7">
                 <div class="reject-inline-box">
                   <p class="reject-inline-title">⚑ Reason for rejection</p>
                   <textarea
