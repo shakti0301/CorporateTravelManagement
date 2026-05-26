@@ -7,7 +7,7 @@ import { Router, RouterLink } from '@angular/router';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [NavbarComponent, CommonModule],
+  imports: [NavbarComponent, CommonModule, RouterLink],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
 })
@@ -98,6 +98,10 @@ export class DashboardComponent implements OnInit {
         },
       });
     }
+  }
+
+  get basePath(): string {
+    return this.role === 'projectmanager' ? '/pm' : '/manager';
   }
 
   createRequest() {

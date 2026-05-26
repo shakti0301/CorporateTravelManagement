@@ -100,7 +100,14 @@
             </td>
             <td class="nowrap">{{ req.createdAt | date: "MMM dd, yyyy" }}</td>
             <td>
-              <button class="btn-view-req" (click)="goToApprovals()">
+              <button
+                class="btn-view-req"
+                [routerLink]="
+                  basePath +
+                  '/empreq-details/' +
+                  (req.id || req.travelRequestId)
+                "
+              >
                 Review →
               </button>
             </td>
