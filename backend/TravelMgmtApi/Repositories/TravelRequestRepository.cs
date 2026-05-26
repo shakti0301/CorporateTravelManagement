@@ -34,7 +34,9 @@ namespace TravelMgmtApi.Repositories
         {
             return await _context.Users
                 .Include(x => x.Role)
-                .FirstOrDefaultAsync(x => x.Role!.Name == "Finance");
+                .Where(x => x.Role!.Name == "Finance")
+                .OrderByDescending(x => x.UserId)
+                .FirstOrDefaultAsync();
         }
 
         public async Task AddRequestAsync(TravelRequest request)
