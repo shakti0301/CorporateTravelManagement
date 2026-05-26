@@ -130,6 +130,7 @@ namespace TravelMgmtApi.Controllers
         }
 
         //All PM Requests
+        [Authorize(Roles="ProjectManager")]
         [HttpGet("all/pm")]
         public async Task<IActionResult>GetPMRequests()
         {
@@ -140,6 +141,7 @@ namespace TravelMgmtApi.Controllers
         }
 
         //Pending PM Requests
+        [Authorize(Roles="ProjectManager")]
         [HttpGet("pending/pm")]
         public async Task<IActionResult> GetPendingPMRequests()
         {
@@ -153,6 +155,7 @@ namespace TravelMgmtApi.Controllers
         }
 
         //All Manager Requests
+        [Authorize(Roles="Manager")]
         [HttpGet("all/manager")]
         public async Task<IActionResult>GetManagerRequests()
         {
@@ -163,6 +166,7 @@ namespace TravelMgmtApi.Controllers
         }
 
         //Pending Manager Requests
+        [Authorize(Roles="Manager")]
         [HttpGet("pending/manager")]
         public async Task<IActionResult> GetPendingManagerRequests()
         {
@@ -176,6 +180,7 @@ namespace TravelMgmtApi.Controllers
         }
 
         //All Finance Requests
+        [Authorize(Roles="Finance")]
         [HttpGet("all/finance")]
         public async Task<IActionResult>GetFinanceRequests()
         {
@@ -192,7 +197,7 @@ namespace TravelMgmtApi.Controllers
 
     
         // Pending Finance Requests
-
+        [Authorize(Roles="Finance")]
         [HttpGet("pending/finance")]
         public async Task<IActionResult> GetPendingFinanceRequests()
         {
@@ -240,6 +245,15 @@ namespace TravelMgmtApi.Controllers
             {
                 message = result
             });
+        }
+
+        [Authorize(Roles="Admin")]
+        [HttpGet("admin/all")]
+        public async Task<IActionResult> GetAllRequestForAdmin()
+        {
+            var result = await _travelService.GetAllRequestsAsync();
+
+            return Ok(result);
         }
     }
 }
