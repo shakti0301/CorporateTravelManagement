@@ -111,4 +111,8 @@ export class RequestService {
   cancelRequest(id: number) {
     return this.http.put(`${this.apiUrl}/cancel/${id}`, {});
   }
+
+  getAllRequestsForAdmin() {
+    return this.http.get(`${environment.apiUrl}/TravelRequest/admin/all`);
+  }
 }
