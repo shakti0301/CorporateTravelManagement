@@ -6,6 +6,7 @@ import { MyRequestsComponent } from './my-requests/my-requests.component';
 import { RequestDetailsComponent } from './request-details/request-details.component';
 import { ExpenseComponent } from './expense/expense.component';
 import { ItineraryComponent } from './itinerary/itinerary.component';
+import { EmpreqDetailsComponent } from './empreq-details/empreq-details.component';
 
 export const managerRoutes: Routes = [
   {
@@ -35,5 +36,9 @@ export const managerRoutes: Routes = [
   {
     path: 'itinerary/:id',
     component: ItineraryComponent,
+  },
+  {
+    path: 'empreq-details/:id',
+    component: EmpreqDetailsComponent,
   },
 ];
