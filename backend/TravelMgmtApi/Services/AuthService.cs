@@ -25,33 +25,57 @@ namespace TravelMgmtApi.Services
         //Register
         public async Task<string> RegisterAsync(RegisterDto registerDto)
         {
-            var existingUser = await _authRepository.GetUserByEmailAsync(registerDto.Email);
+            var existingUser =
+                await _authRepository.GetUserByEmailAsync(registerDto.Email);
 
-            //Checks email if it is exist
             if (existingUser != null)
             {
                 return "Email already exists";
             }
 
-            //Create User
             int? managerId = null;
-            // Employee OR PM
-            if(registerDto.RoleId == 2 || registerDto.RoleId == 5)
-            {
-                var department = await _authRepository.GetDepartmentAsync(registerDto.DepartmentId);
-                managerId = department?.ManagerId;
-            }
 
+            // For Employee, PM, Manager roles, Department is required
+            if(registerDto.RoleId == 2 || registerDto.RoleId == 3 || registerDto.RoleId == 5)  
+            {
+                if(!registerDto.DepartmentId.HasValue)
+                {
+                    return "Department required";
+                }
+
+                var department =
+                    await _authRepository.GetDepartmentAsync(
+                        registerDto.DepartmentId.Value
+                    );
+
+                if(department == null)
+                {
+                    return "Department not found";
+                }
+
+                // ONLY Employee + PM
+                if(registerDto.RoleId == 2 ||
+                registerDto.RoleId == 5)
+                {
+                    managerId = department.ManagerId;
+                }
+            }
             var user = new User
             {
                 UserName = registerDto.UserName,
                 Email = registerDto.Email,
-                PasswordHash = PasswordHelper.HashPassword(registerDto.Password),
+                PasswordHash =
+                    PasswordHelper.HashPassword(registerDto.Password),
+
                 RoleId = registerDto.RoleId,
+
                 DepartmentId = registerDto.DepartmentId,
+
                 ManagerId = managerId
             };
+
             await _authRepository.AddUserAsync(user);
+
             return "User registered successfully";
         }
 
