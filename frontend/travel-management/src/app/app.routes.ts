@@ -43,7 +43,15 @@ export const routes: Routes = [
         (m) => m.financeRoutes,
       ),
   },
-
+  {
+    path: 'admin',
+    canActivate: [authGuard],
+    data: { role: 'admin' },
+    loadChildren: () =>
+      import('./components/portal/admin/admin.routes').then(
+        (m) => m.adminRoutes,
+      ),
+  },
   {
     path: '**',
     redirectTo: '',
