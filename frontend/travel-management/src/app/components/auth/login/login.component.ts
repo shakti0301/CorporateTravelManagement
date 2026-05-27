@@ -13,7 +13,7 @@ import { AuthService } from '../../../services/auth/auth.service';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, RouterLink],
+  imports: [ReactiveFormsModule, CommonModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
@@ -68,8 +68,10 @@ export class LoginComponent {
         error: (error) => {
           console.log(error.error);
 
-          this.authErrorMessage = 'Invalid email or password';
+          this.authErrorMessage =
+            error?.error?.message || 'Invalid email or password';
 
+          // clear password
           this.loginForm.patchValue({
             password: '',
           });
