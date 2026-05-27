@@ -13,6 +13,7 @@ import { NavbarComponent } from '../../../shared/navbar/navbar.component';
 import { RequestService } from '../../../../services/request/request.service';
 import { Router } from '@angular/router';
 import { UserService } from '../../../../services/user/user.service';
+import { AuthService } from '../../../../services/auth/auth.service';
 
 const travelDateRangeValidator: ValidatorFn = (
   control: AbstractControl,
@@ -65,8 +66,11 @@ export class TravelRequestComponent {
     private requestService: RequestService,
     private router: Router,
     private userService: UserService,
+    private authService: AuthService,
   ) {}
   submitted = false;
+  maxBudget = 0;
+  budgetExceeded = false;
 
   requestForm = new FormGroup(
     {
@@ -153,6 +157,26 @@ export class TravelRequestComponent {
         console.error('Error fetching project managers', err);
       },
     });
+
+    const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+
+    if (user.departmentId) {
+      this.authService.getPolicyByDepartment(user.departmentId).subscribe({
+        next: (res: any) => {
+          console.log(res);
+
+          this.maxBudget = res.maxBudget || res.MaxBudget || 0;
+        },
+
+        error: (err) => {
+          console.log('Policy fetch failed', err);
+        },
+      });
+    }
+
+    this.cost?.valueChanges.subscribe(() => {
+      this.checkBudget();
+    });
   }
 
   hasDateValidationErrors() {
@@ -163,11 +187,27 @@ export class TravelRequestComponent {
     );
   }
 
+  checkBudget() {
+    const enteredCost = Number(this.requestForm.value.cost);
+
+    if (this.maxBudget <= 0) {
+      this.budgetExceeded = false;
+      return;
+    }
+
+    this.budgetExceeded = enteredCost > this.maxBudget;
+  }
+
   onSubmit() {
     this.submitted = true;
 
     if (this.requestForm.invalid) {
       this.requestForm.markAllAsTouched();
+      return;
+    }
+
+    if (this.budgetExceeded) {
+      alert('Estimated cost exceeds department budget policy');
       return;
     }
 
@@ -200,6 +240,7 @@ export class TravelRequestComponent {
       },
     });
   }
+
   saveDraft() {
     const requestData = {
       source: this.requestForm.value.source || null,

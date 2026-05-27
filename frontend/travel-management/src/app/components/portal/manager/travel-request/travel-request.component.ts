@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   AbstractControl,
@@ -13,6 +13,7 @@ import { NavbarComponent } from '../../../shared/navbar/navbar.component';
 import { RequestService } from '../../../../services/request/request.service';
 import { Router } from '@angular/router';
 import { UserService } from '../../../../services/user/user.service';
+import { AuthService } from '../../../../services/auth/auth.service';
 
 const travelDateRangeValidator: ValidatorFn = (
   control: AbstractControl,
@@ -61,10 +62,30 @@ const formatDateForInput = (date: Date): string => {
   styleUrl: './travel-request.component.css',
 })
 export class TravelRequestComponent {
+  ngOnInit() {
+    const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+
+    if (user.departmentId) {
+      this.authService.getPolicyByDepartment(user.departmentId).subscribe({
+        next: (res: any) => {
+          this.maxBudget = res.maxBudget || res.MaxBudget || 0;
+        },
+        error: (err) => {
+          console.log('Policy fetch failed', err);
+        },
+      });
+    }
+
+    this.cost?.valueChanges.subscribe(() => this.checkBudget());
+  }
+
+  maxBudget = 0;
+  budgetExceeded = false;
   constructor(
     private requestService: RequestService,
     private router: Router,
     private userService: UserService,
+    private authService: AuthService,
   ) {}
   submitted = false;
   role = localStorage.getItem('role') || '';
@@ -148,8 +169,6 @@ export class TravelRequestComponent {
     return fromDateValue > this.today ? fromDateValue : this.today;
   }
 
-
-
   hasDateValidationErrors() {
     return Boolean(
       this.fromDate?.hasError('pastDateNotAllowed') ||
@@ -158,11 +177,27 @@ export class TravelRequestComponent {
     );
   }
 
+  checkBudget() {
+    const enteredCost = Number(this.requestForm.value.cost);
+
+    if (this.maxBudget <= 0) {
+      this.budgetExceeded = false;
+      return;
+    }
+
+    this.budgetExceeded = enteredCost > this.maxBudget;
+  }
+
   onSubmit() {
     this.submitted = true;
 
     if (this.requestForm.invalid) {
       this.requestForm.markAllAsTouched();
+      return;
+    }
+
+    if (this.budgetExceeded) {
+      alert('Estimated cost exceeds department budget policy');
       return;
     }
 

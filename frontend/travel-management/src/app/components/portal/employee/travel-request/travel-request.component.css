@@ -23,6 +23,12 @@
   box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.12);
 }
 
+.budget-error-txt {
+  color: #d9534f;
+  font-size: 0.9rem;
+  margin-top: 0.25rem;
+}
+
 .request-hint {
   align-self: flex-start;
   padding: 0.9rem 1rem;

@@ -269,6 +269,13 @@
                       (cost?.touched || submitted) && cost?.invalid
                     "
                   />
+                  <div class="form-text text-secondary mt-1">
+                    Department Budget Limit: ₹{{ maxBudget }}
+                  </div>
+
+                  <div class="budget-error-txt" *ngIf="budgetExceeded">
+                    Estimated cost exceeds department budget policy
+                  </div>
                   <div
                     class="invalid-feedback d-block"
                     *ngIf="
@@ -284,14 +291,6 @@
                     "
                   >
                     Cost must be at least 1.
-                  </div>
-                  <div
-                    class="invalid-feedback d-block"
-                    *ngIf="
-                      (cost?.touched || submitted) && cost?.errors?.['max']
-                    "
-                  >
-                    Cost looks too high for a single request.
                   </div>
                 </div>
                 <!-- Project Manager (Optional) -->
@@ -336,7 +335,11 @@
                       >
                         <i class="bi bi-download me-2"></i>Save as Draft
                       </button>
-                      <button class="btn btn-success btn-lg px-4" type="submit">
+                      <button
+                        class="btn btn-success btn-lg px-4"
+                        type="submit"
+                        [disabled]="budgetExceeded"
+                      >
                         <i class="bi bi-check-circle me-2"></i>Submit Request
                       </button>
                     </div>
