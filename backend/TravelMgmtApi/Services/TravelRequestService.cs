@@ -9,12 +9,12 @@ namespace TravelMgmtApi.Services;
 public class TravelRequestService : ITravelRequestService
 {
     private readonly ITravelRequestRepository _travelRepository;
+    private readonly IAuthRepository _authRepository;
 
-    public TravelRequestService(
-        ITravelRequestRepository travelRepository
-    )
+    public TravelRequestService(ITravelRequestRepository travelRepository, IAuthRepository authRepository)
     {
         _travelRepository = travelRepository;
+        _authRepository = authRepository;
     }
 
     // Create Travel Request
@@ -28,6 +28,16 @@ public class TravelRequestService : ITravelRequestService
         if(employee == null)
         {
             return "Employee not found";
+        }
+
+        if(!dto.IsDraft && employee.DepartmentId.HasValue && dto.EstimatedCost.HasValue)
+        {
+            var policy = await _authRepository.GetPolicyByDepartmentAsync(employee.DepartmentId.Value);
+
+            if(policy != null && dto.EstimatedCost.Value > policy.MaxBudget)
+            {
+                return $"Budget exceeded. Department limit is ₹{policy.MaxBudget}";
+            }
         }
 
         if(!dto.IsDraft)

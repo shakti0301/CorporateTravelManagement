@@ -10,5 +10,9 @@ namespace TravelMgmtApi.Interfaces
         Task<List<UserResponseDto>> GetAllUsersAsync();
         Task<string> ChangePasswordAsync(int userId, ChangePasswordDto changePasswordDto);
         Task<string> AdminUpdateUserAsync(int userId, AdminUpdateUserDto dto);
+
+        Task<string> AddPolicyAsync(CreatePolicyDto dto);
+        Task<List<PolicyResponseDto>>GetAllPoliciesAsync();
+        Task<string>UpdatePolicyAsync(int id, UpdatePolicyDto dto);
     }
 }

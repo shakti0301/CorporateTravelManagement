@@ -235,5 +235,44 @@ namespace TravelMgmtApi.Services
 
             return "User updated successfully";
         }
+
+        public async Task<string> AddPolicyAsync(CreatePolicyDto dto)
+        {
+            var existingPolicy = await _authRepository.GetPolicyByDepartmentAsync(dto.DepartmentId);
+
+            if(existingPolicy != null)
+            {
+                return "Policy already exists";
+            }
+
+            var policy = new TravelPolicy
+            {
+                DepartmentId = dto.DepartmentId,
+                MaxBudget = dto.MaxBudget
+            };
+
+            await _authRepository.SavePolicyAsync(policy);
+
+            return "Policy added successfully";
+        }
+
+        public async Task<List<PolicyResponseDto>>GetAllPoliciesAsync()
+        {
+            return await _authRepository.GetAllPoliciesAsync();
+        }
+
+        public async Task<string>UpdatePolicyAsync(int id, UpdatePolicyDto dto)
+        {
+            var policy = await _authRepository.GetPolicyByIdAsync(id);
+
+            if(policy==null)
+            {
+                return "Policy not found";
+            }
+
+            policy.MaxBudget = dto.MaxBudget;
+            await _authRepository.SaveChangesAsync();
+            return "Policy updated";
+        }
     }
 }
