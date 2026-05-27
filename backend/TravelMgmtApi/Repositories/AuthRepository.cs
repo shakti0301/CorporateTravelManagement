@@ -49,7 +49,8 @@ namespace TravelMgmtApi.Repositories
                 .FirstOrDefaultAsync(
                     x =>
                     x.Email == email &&
-                    x.PasswordHash == passwordHash
+                    x.PasswordHash == passwordHash &&
+                    x.IsActive == true
                 );
         }
 
@@ -64,7 +65,9 @@ namespace TravelMgmtApi.Repositories
                 UserName = x.UserName,
                 Email = x.Email,
                 Role = x.Role != null ? x.Role.Name : "",
-                Department = x.Department!=null ? x.Department.DepartmentName : "",
+                RoleId = x.RoleId,
+                Department = x.Department != null ? x.Department.DepartmentName : "",
+                DepartmentId = x.DepartmentId,
                 Status = x.IsActive ? "Active" : "Inactive"
             })
             .OrderBy(x => x.UserName)
