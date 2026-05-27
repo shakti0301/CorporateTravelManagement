@@ -157,13 +157,9 @@ export class ApprovalsComponent implements OnInit {
   }
 
   approveAll() {
-    const toApprove = this.pendingList.filter(
-      (req) => Number(req.cost || 0) <= 50000,
-    );
-    toApprove.forEach((req) => {
-      this.requestService.updateFinanceStatus(req.id, 'approved');
-    });
-    this.load();
+    if (!confirm(`Approve all ${this.pendingList.length} pending requests?`))
+      return;
+    this.pendingList.forEach((req) => this.approve(req.id));
   }
 
   // Helpers
