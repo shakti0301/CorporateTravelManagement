@@ -142,5 +142,26 @@ namespace TravelMgmtApi.Services
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
+        // Change Password
+        public async Task<string> ChangePasswordAsync(int userId, ChangePasswordDto changePasswordDto)
+        {
+            var user = await _authRepository.GetUserByIdAsync(userId);
+            if (user == null)
+            {
+                return "User not found";
+            }
+
+            var currentHashedPassword = PasswordHelper.HashPassword(changePasswordDto.CurrentPassword);
+            if (user.PasswordHash != currentHashedPassword)
+            {
+                return "Current password is incorrect";
+            }
+
+            user.PasswordHash = PasswordHelper.HashPassword(changePasswordDto.NewPassword);
+            await _authRepository.UpdateUserAsync(user);
+
+            return "Password changed successfully";
+        }
     }
 }
