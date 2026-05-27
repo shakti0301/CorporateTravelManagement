@@ -30,17 +30,29 @@ namespace TravelMgmtApi.Controllers
 
         //Login Api
         [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginDto loginDto)
+        public async Task<IActionResult> Login(LoginDto dto)
         {
-            var result = await _authService.LoginAsync(loginDto);
-            if (result == null)
+            try
             {
-                return BadRequest(new
+                var result = await _authService.LoginAsync(dto);
+
+                if(result == null)
                 {
-                    message = "Invalid username or password"
-                });
+                    return BadRequest(
+                        new {
+                            message="Invalid email or password"
+                        });
+                }
+                return Ok(result);
             }
-            return Ok(result);
+
+            catch(Exception ex)
+            {
+                return BadRequest(
+                    new {
+                        message=ex.Message
+                    });
+            }
         }
 
         [Authorize(Roles="Admin")]
@@ -76,6 +88,14 @@ namespace TravelMgmtApi.Controllers
             }
 
             return Ok(new { message = result });
+        }
+
+        [Authorize(Roles ="Admin")]
+        [HttpPut("admin/update/{id}")]
+        public async Task<IActionResult> UpdateUser(int id,AdminUpdateUserDto dto)
+        {
+            var result = await _authService.AdminUpdateUserAsync(id,dto);
+            return Ok(new {message=result});
         }
     }
 }
