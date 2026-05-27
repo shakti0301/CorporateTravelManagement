@@ -163,6 +163,36 @@
           Expenses
         </a>
       </li>
+
+      <!-- Admin Links -->
+      <li *ngIf="user?.role === 'admin'" (click)="closeMobileMenu()">
+        <a
+          routerLink="/admin"
+          routerLinkActive="nx-link--active"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="nx-link"
+        >
+          Dashboard
+        </a>
+      </li>
+      <li *ngIf="user?.role === 'admin'" (click)="closeMobileMenu()">
+        <a
+          routerLink="/admin/requests"
+          routerLinkActive="nx-link--active"
+          class="nx-link"
+        >
+          All Requests
+        </a>
+      </li>
+      <li *ngIf="user?.role === 'admin'" (click)="closeMobileMenu()">
+        <a
+          routerLink="/admin/users"
+          routerLinkActive="nx-link--active"
+          class="nx-link"
+        >
+          User Management
+        </a>
+      </li>
     </ul>
 
     <!-- Right Icons -->
@@ -199,6 +229,7 @@
       </button>
 
       <!-- Settings -->
+
       <button class="nx-icon-btn" title="Settings">
         <svg
           viewBox="0 0 24 24"
@@ -236,6 +267,24 @@
           </div>
           <hr class="nx-dropdown__divider" />
           <button
+            class="nx-dropdown__item"
+            (click)="changePassword()"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"
+              />
+            </svg>
+            Change Password
+          </button>
+          <button
             class="nx-dropdown__item nx-dropdown__item--danger"
             (click)="logout()"
           >
@@ -258,3 +307,10 @@
     </div>
   </div>
 </nav>
+
+<!-- Change Password Modal -->
+<app-change-password
+  *ngIf="showChangePassword"
+  (closed)="closeChangePassword()"
+></app-change-password>
+

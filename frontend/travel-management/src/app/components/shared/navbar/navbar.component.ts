@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, HostListener, OnInit } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { ChangePasswordComponent } from '../change-password/change-password.component';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterLink, RouterLinkActive, ChangePasswordComponent],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css',
 })
@@ -15,6 +16,8 @@ export class NavbarComponent implements OnInit {
   menuOpen = false;
 
   mobileMenuOpen = false;
+
+  showChangePassword = false;
 
   ngOnInit(): void {
     const data = localStorage.getItem('currentUser');
@@ -91,6 +94,15 @@ export class NavbarComponent implements OnInit {
     ) {
       this.mobileMenuOpen = false;
     }
+  }
+
+  changePassword(): void {
+    this.menuOpen = false;
+    this.showChangePassword = true;
+  }
+
+  closeChangePassword(): void {
+    this.showChangePassword = false;
   }
 
   logout(): void {
