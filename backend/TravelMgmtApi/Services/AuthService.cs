@@ -82,6 +82,20 @@ namespace TravelMgmtApi.Services
         //Login
         public async Task<AuthResponseDto?> LoginAsync(LoginDto loginDto)
         {
+            var existingUser = await _authRepository.GetUserByEmailAsync(loginDto.Email);
+
+            if(existingUser == null)
+            {
+                return null;
+            }
+
+            if(!existingUser.IsActive)
+            {
+                throw new Exception(
+                    "Your account has been deactivated. Contact admin."
+                );
+            }
+
             var hashedPassword = PasswordHelper.HashPassword(loginDto.Password);
 
             var user = await _authRepository
@@ -89,6 +103,7 @@ namespace TravelMgmtApi.Services
                     loginDto.Email,
                     hashedPassword
                 );
+
             if(user == null)
             {
                 return null;
@@ -189,6 +204,7 @@ namespace TravelMgmtApi.Services
             user.Email = dto.Email;
             user.RoleId = dto.RoleId;
             user.DepartmentId = dto.DepartmentId;
+            user.IsActive = dto.IsActive;
 
             // Change password only if admin entered one
             if(!string.IsNullOrWhiteSpace(dto.Password))
