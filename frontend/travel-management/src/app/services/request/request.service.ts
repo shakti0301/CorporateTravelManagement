@@ -113,6 +113,6 @@ export class RequestService {
   }
 
   getAllRequestsForAdmin() {
-    return this.http.get(`${environment.apiUrl}/TravelRequest/admin/all`);
+    return this.http.get(`${this.apiUrl}/admin/all`);
   }
 }
