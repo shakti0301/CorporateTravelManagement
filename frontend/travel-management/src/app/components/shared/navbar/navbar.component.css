@@ -6,6 +6,11 @@
   font-family: "Inter", "Segoe UI", sans-serif;
 }
 
+.nav-logo {
+  height: 32px;
+  width: auto;
+}
+
 .nx-navbar__inner {
   display: flex;
   align-items: center;

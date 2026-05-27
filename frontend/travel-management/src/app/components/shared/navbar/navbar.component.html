@@ -19,9 +19,10 @@
     </button>
 
     <!-- Brand -->
-    <a class="nx-navbar__brand" [routerLink]="dashboardRoute">
-      NexTravel Enterprise
-    </a>
+    <a class="nx-navbar__brand" [routerLink]="dashboardRoute"> Traventra </a>
+    <!-- <a class="nx-navbar__brand" [routerLink]="dashboardRoute">
+      <img src="/assets/logo.svg" alt="Traventra" class="nav-logo" />
+    </a> -->
 
     <!-- Nav Links -->
     <ul class="nx-navbar__links" [class.mobile-open]="mobileMenuOpen">
@@ -193,6 +194,15 @@
           User Management
         </a>
       </li>
+      <li *ngIf="user?.role === 'admin'" (click)="closeMobileMenu()">
+        <a
+          routerLink="/admin/register"
+          routerLinkActive="nx-link--active"
+          class="nx-link"
+        >
+          Register User
+        </a>
+      </li>
     </ul>
 
     <!-- Right Icons -->
@@ -266,10 +276,7 @@
             >
           </div>
           <hr class="nx-dropdown__divider" />
-          <button
-            class="nx-dropdown__item"
-            (click)="changePassword()"
-          >
+          <button class="nx-dropdown__item" (click)="changePassword()">
             <svg
               viewBox="0 0 24 24"
               fill="none"
@@ -313,4 +320,3 @@
   *ngIf="showChangePassword"
   (closed)="closeChangePassword()"
 ></app-change-password>
-
