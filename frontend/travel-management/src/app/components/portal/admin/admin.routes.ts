@@ -3,6 +3,7 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { UsersComponent } from './users/users.component';
 import { RequestsComponent } from './requests/requests.component';
 import { RegisterComponent } from './register/register.component';
+import { PoliciesComponent } from './policies/policies.component';
 
 export const adminRoutes: Route[] = [
   {
@@ -25,4 +26,9 @@ export const adminRoutes: Route[] = [
     path: 'register',
     component: RegisterComponent,
   },
+  {
+    path: 'policies',
+    component: PoliciesComponent,
+  },
 ];
+

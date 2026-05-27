@@ -25,7 +25,7 @@ export class DashboardComponent implements OnInit {
     private requestService: RequestService,
     private authService: AuthService,
     private router: Router,
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.loadData();

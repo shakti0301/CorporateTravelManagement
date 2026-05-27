@@ -32,6 +32,35 @@
   margin: 0.25rem 0 0;
 }
 
+/* ── POLICY BUTTON ── */
+.btn-policy {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #4f46e5;
+  color: #fff;
+  border: none;
+  padding: 0.6rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.1s ease;
+}
+
+.btn-policy:hover {
+  background: #4338ca;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
+}
+
+.btn-policy:active {
+  transform: scale(0.97);
+}
+
 /* ── STATS ROW ── */
 .stats-row {
   display: grid;
@@ -70,12 +99,15 @@
 .icon-blue {
   background: #1d4ed8;
 }
+
 .icon-indigo {
   background: #4f46e5;
 }
+
 .icon-orange {
   background: #ea580c;
 }
+
 .icon-teal {
   background: #0891b2;
 }
@@ -143,6 +175,7 @@
   cursor: pointer;
   padding: 0;
 }
+
 .btn-view-all:hover {
   text-decoration: underline;
 }
@@ -192,6 +225,7 @@
 .req-table tbody tr:last-child td {
   border-bottom: none;
 }
+
 .req-table tbody tr:hover {
   background: #fafafa;
 }
@@ -252,14 +286,17 @@
   background: #fef9c3;
   color: #92400e;
 }
+
 .status-approved {
   background: #dcfce7;
   color: #15803d;
 }
+
 .status-rejected {
   background: #fee2e2;
   color: #dc2626;
 }
+
 .status-draft {
   background: #f1f5f9;
   color: #475569;
@@ -288,9 +325,11 @@
   color: #374151;
   transition: background 0.15s;
 }
+
 .page-arrow:hover:not(:disabled) {
   background: #f3f4f6;
 }
+
 .page-arrow:disabled {
   opacity: 0.35;
   cursor: not-allowed;
@@ -365,6 +404,7 @@
 .online-dot.online {
   background: #22c55e;
 }
+
 .online-dot.offline {
   background: #d1d5db;
 }
@@ -397,6 +437,7 @@
   transition: background 0.15s;
   text-align: center;
 }
+
 .btn-manage-users:hover {
   background: #f9fafb;
 }
@@ -424,6 +465,7 @@
   text-decoration: none;
   font-size: 0.78rem;
 }
+
 .footer-links a:hover {
   color: #1d4ed8;
 }
@@ -433,14 +475,17 @@
   .content-row {
     grid-template-columns: 1fr;
   }
+
   .users-card {
     order: -1;
   }
+
   .users-list {
     flex-direction: row;
     flex-wrap: wrap;
     gap: 0.75rem;
   }
+
   .user-row {
     border-bottom: none;
     padding-bottom: 0;
@@ -452,6 +497,7 @@
   .stats-row {
     grid-template-columns: repeat(2, 1fr);
   }
+
   .page-title {
     font-size: 1.4rem;
   }
@@ -461,9 +507,11 @@
   .stats-row {
     grid-template-columns: 1fr;
   }
+
   .user-row {
     width: 100%;
   }
+
   .admin-footer {
     flex-direction: column;
     text-align: center;

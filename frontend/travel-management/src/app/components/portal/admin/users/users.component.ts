@@ -105,7 +105,7 @@ export class UsersComponent implements OnInit {
     const q = this.searchQuery.toLowerCase();
     return this.tabUsers.filter(
       (u) =>
-        (u.name || '').toLowerCase().includes(q) ||
+        this.getDisplayName(u).toLowerCase().includes(q) ||
         (u.email || '').toLowerCase().includes(q) ||
         (u.department || '').toLowerCase().includes(q),
     );
@@ -320,6 +320,10 @@ export class UsersComponent implements OnInit {
     let hash = 0;
     for (let i = 0; i < (name || '').length; i++) hash += name.charCodeAt(i);
     return colors[hash % colors.length];
+  }
+
+  getDisplayName(user: any): string {
+    return user?.userName || user?.name || user?.email || 'Unknown User';
   }
 
   getStatusClass(status: string): string {

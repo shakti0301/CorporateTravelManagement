@@ -192,11 +192,11 @@
               <div class="name-cell">
                 <div
                   class="user-avatar"
-                  [style.background]="getAvatarColor(user.name || user.email)"
+                  [style.background]="getAvatarColor(getDisplayName(user))"
                 >
-                  {{ getInitials(user.name || user.email) }}
+                  {{ getInitials(getDisplayName(user)) }}
                 </div>
-                <span class="user-name">{{ user.name || user.email }}</span>
+                <span class="user-name">{{ getDisplayName(user) }}</span>
               </div>
             </td>
 
