@@ -130,5 +130,19 @@ namespace TravelMgmtApi.Controllers
                 new {message=result}
             );
         }
+
+        [HttpGet("policy/department/{departmentId}")]
+        public async Task<IActionResult> GetPolicyByDepartment(int departmentId)
+        {
+            var result =
+                await _authService.GetPolicyByDepartmentAsync(departmentId);
+
+            if(result == null)
+            {
+                return NotFound("Policy not found");
+            }
+
+            return Ok(result);
+        }
     }
 }

@@ -8,5 +8,6 @@ namespace TravelMgmtApi.DTOs
 
         [Required]
         public string Password { get; set; } = string.Empty;
+        public int? DepartmentId { get; set; }
     }
 }

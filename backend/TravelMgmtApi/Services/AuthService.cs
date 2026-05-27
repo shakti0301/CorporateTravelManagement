@@ -124,7 +124,8 @@ namespace TravelMgmtApi.Services
                 Token = token,
                 Email = user.Email,
                 Role = user.Role?.Name ?? "",
-                UserName = user.UserName
+                UserName = user.UserName,
+                departmentId = user.DepartmentId
             };
         }
 
@@ -273,6 +274,12 @@ namespace TravelMgmtApi.Services
             policy.MaxBudget = dto.MaxBudget;
             await _authRepository.SaveChangesAsync();
             return "Policy updated";
+        }
+
+        public async Task<TravelPolicy?> GetPolicyByDepartmentAsync(int departmentId)
+        {
+            return await _authRepository
+                .GetPolicyByDepartmentAsync(departmentId);
         }
     }
 }
