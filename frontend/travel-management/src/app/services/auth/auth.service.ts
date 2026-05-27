@@ -54,11 +54,27 @@ export class AuthService {
     return this.http.get(`${environment.apiUrl}/Auth/users`);
   }
 
+  createUser(userData: any) {
+    return this.http.post(`${this.apiUrl}/admin/create`, userData);
+  }
+
+  updateUser(userId: number, userData: any) {
+    return this.http.put(`${this.apiUrl}/admin/users/${userId}`, userData);
+  }
+
   // Logout
   logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('currentUser');
     localStorage.removeItem('role');
     localStorage.removeItem('userName');
+  }
+
+  // Change Password
+  changePassword(data: {
+    currentPassword: string;
+    newPassword: string;
+  }): Observable<any> {
+    return this.http.post(`${this.apiUrl}/change-password`, data);
   }
 }
