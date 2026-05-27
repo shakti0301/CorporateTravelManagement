@@ -363,20 +363,29 @@ namespace TravelMgmtApi.Repositories
                     })
                 .ToListAsync();
         }
-
-        public async Task<List<TravelRequestResponseDto>> GetAllRequestsAsync()
+                
+        public async Task<List<AdminTravelRequestDto>> GetAllRequestsForAdminAsync()
         {
             return await _context.TravelRequests
-                .Include(x => x.Employee)
-                .OrderByDescending(x=>x.CreatedAt)
+                .Include(x=>x.Employee)
+                    .ThenInclude(x=>x!.Role)
 
-                .Select(x => new TravelRequestResponseDto
+                .Include(x=>x.Employee)
+                    .ThenInclude(x=>x!.Department)
+
+                .Select(x=>new AdminTravelRequestDto
                 {
-                    TravelRequestId = x.TravelRequestId,
+                    TravelRequestId=x.TravelRequestId,
                     EmployeeName = x.Employee!.UserName,
+                    EmployeeEmail = x.Employee.Email,
+                    UserRole = x.Employee.Role!.Name,
+                    Department = x.Employee.Department!.DepartmentName,
                     Source = x.Source,
                     Destination = x.Destination,
+                    EstimatedCost = x.EstimatedCost,
                     Status = x.Status.ToString(),
+                    StartDate = x.StartDate,
+                    EndDate = x.EndDate,
                     CreatedAt = x.CreatedAt
                 })
                 .ToListAsync();
