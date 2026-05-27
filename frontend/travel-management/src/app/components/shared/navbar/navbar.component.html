@@ -203,6 +203,15 @@
           Register User
         </a>
       </li>
+      <li *ngIf="user?.role === 'admin'" (click)="closeMobileMenu()">
+        <a
+          routerLink="/admin/policies"
+          routerLinkActive="nx-link--active"
+          class="nx-link"
+        >
+          Policies
+        </a>
+      </li>
     </ul>
 
     <!-- Right Icons -->
