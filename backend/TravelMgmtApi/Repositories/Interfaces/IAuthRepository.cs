@@ -11,6 +11,8 @@ namespace TravelMgmtApi.Interfaces
         Task<User?> LoginUserAsync(string email, string passwordHash);
         Task<List<UserResponseDto>> GetAllUsersAsync();
         Task<User?> GetUserByIdAsync(int userId);
+        Task SaveChangesAsync();
         Task UpdateUserAsync(User user);
+        
     }
 }

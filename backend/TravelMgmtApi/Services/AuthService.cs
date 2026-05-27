@@ -83,15 +83,27 @@ namespace TravelMgmtApi.Services
         public async Task<AuthResponseDto?> LoginAsync(LoginDto loginDto)
         {
             var hashedPassword = PasswordHelper.HashPassword(loginDto.Password);
-            var user = await _authRepository.LoginUserAsync(loginDto.Email, hashedPassword);
 
-            if (user == null)
+            var user = await _authRepository
+                .LoginUserAsync(
+                    loginDto.Email,
+                    hashedPassword
+                );
+            if(user == null)
             {
                 return null;
             }
 
-            //Generate JWT token
+            // NEW
+            if(!user.IsActive)
+            {
+                throw new Exception(
+                    "Your account is inactive. Please contact administrator."
+                );
+            }
+
             var token = GenerateJwtToken(user);
+
             return new AuthResponseDto
             {
                 Token = token,
@@ -162,6 +174,50 @@ namespace TravelMgmtApi.Services
             await _authRepository.UpdateUserAsync(user);
 
             return "Password changed successfully";
+        }
+
+        public async Task<string> AdminUpdateUserAsync(int userId, AdminUpdateUserDto dto)
+        {
+            var user = await _authRepository.GetUserByIdAsync(userId);
+
+            if(user == null)
+            {
+                return "User not found";
+            }
+
+            user.UserName = dto.UserName;
+            user.Email = dto.Email;
+            user.RoleId = dto.RoleId;
+            user.DepartmentId = dto.DepartmentId;
+
+            // Change password only if admin entered one
+            if(!string.IsNullOrWhiteSpace(dto.Password))
+            {
+                user.PasswordHash = PasswordHelper.HashPassword(dto.Password);
+            }
+
+            // Employee + PM auto manager mapping
+            if(dto.RoleId == 2 || dto.RoleId == 5)
+            {
+                if(dto.DepartmentId.HasValue)
+                {
+                    var department =
+                        await _authRepository.GetDepartmentAsync(
+                            dto.DepartmentId.Value
+                        );
+
+                    user.ManagerId = department?.ManagerId;
+                }
+            }
+            else
+            {
+                // Manager / Finance / Admin
+                user.ManagerId = null;
+            }
+
+            await _authRepository.SaveChangesAsync();
+
+            return "User updated successfully";
         }
     }
 }
