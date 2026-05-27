@@ -92,4 +92,8 @@ export class AuthService {
   }): Observable<any> {
     return this.http.post(`${this.apiUrl}/policy`, data);
   }
+
+  getPolicyByDepartment(departmentId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/policy/department/${departmentId}`);
+  }
 }
