@@ -39,7 +39,7 @@ namespace TravelMgmtApi.Controllers
             });
         }
 
-        [Authorize(Roles = "Finance")]
+        [Authorize(Roles = "Finance, Admin")]
         [HttpGet("finance")]
         public async Task<IActionResult>GetFinanceRequests()
         {
