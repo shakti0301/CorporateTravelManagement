@@ -14,5 +14,9 @@ namespace TravelMgmtApi.Interfaces
         Task SaveChangesAsync();
         Task UpdateUserAsync(User user);
         
+        Task<TravelPolicy?> GetPolicyByDepartmentAsync(int departmentId);
+        Task SavePolicyAsync(TravelPolicy policy);
+        Task<List<PolicyResponseDto>> GetAllPoliciesAsync();
+        Task<TravelPolicy?> GetPolicyByIdAsync(int id);
     }
 }

@@ -91,5 +91,45 @@ namespace TravelMgmtApi.Repositories
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<TravelPolicy?> GetPolicyByDepartmentAsync(int departmentId)
+        {
+            return await _context.TravelPolicies
+                .FirstOrDefaultAsync(
+                    x => x.DepartmentId == departmentId
+                );
+        }
+
+        public async Task<List<PolicyResponseDto>>GetAllPoliciesAsync()
+        {
+            return await _context.TravelPolicies
+                .Include(x=>x.Department)
+
+                .Select(x=>new PolicyResponseDto
+                {
+                    TravelPolicyId=x.TravelPolicyId,
+                    DepartmentId=x.DepartmentId,
+                    DepartmentName=
+                        x.Department!.DepartmentName,
+                    MaxBudget=x.MaxBudget
+                })
+
+                .ToListAsync();
+        }
+
+        public async Task<TravelPolicy?>GetPolicyByIdAsync(int id)
+        {
+            return await _context.TravelPolicies
+                .FirstOrDefaultAsync(
+                    x=>x.TravelPolicyId==id
+                );
+        }
+
+        public async Task SavePolicyAsync(TravelPolicy policy)
+        {
+            _context.TravelPolicies.Add(policy);
+
+            await _context.SaveChangesAsync();
+        }
     }
 }
