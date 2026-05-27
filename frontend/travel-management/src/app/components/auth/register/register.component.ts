@@ -106,7 +106,7 @@ export class RegisterComponent {
         alert('Registration Successful');
         this.registerForm.reset();
         setTimeout(() => {
-          this.router.navigate(['/']);
+          this.router.navigate(['/admin/users']);
         }, 500);
       },
       error: (error) => {
