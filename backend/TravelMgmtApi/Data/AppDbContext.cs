@@ -22,6 +22,8 @@ namespace TravelMgmtApi.Data
         public DbSet<ItineraryDay> ItineraryDays { get; set; }
         public DbSet<Activity> Activities { get; set; }
 
+        public DbSet<TravelPolicy> TravelPolicies { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
         base.OnModelCreating(modelBuilder);
@@ -159,6 +161,12 @@ namespace TravelMgmtApi.Data
                 .WithMany(r => r.Expenses)
                 .HasForeignKey(e => e.ReimbursementId)
                 .OnDelete(DeleteBehavior.Cascade);
+            
+            modelBuilder.Entity<TravelPolicy>()
+                .HasOne(x=>x.Department)
+                .WithMany()
+                .HasForeignKey(x=>x.DepartmentId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
