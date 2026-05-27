@@ -166,19 +166,44 @@ export class UsersComponent implements OnInit {
 
   saveNewUser() {
     this.addSubmitted = true;
+
     if (
       !this.newUser.name ||
       !this.newUser.email ||
-      !this.newUser.role ||
-      !this.newUser.password
-    )
+      !this.newUser.password ||
+      !this.newUser.role
+    ) {
       return;
-    this.authService.createUser(this.newUser).subscribe({
+    }
+
+    const roleMap: any = {
+      employee: 2,
+      manager: 3,
+      finance: 4,
+      projectmanager: 5,
+      admin: 1,
+    };
+
+    const registerData = {
+      userName: this.newUser.name,
+      email: this.newUser.email,
+      password: this.newUser.password,
+      roleId: roleMap[this.newUser.role],
+      departmentId: Number(this.newUser.department) || 1,
+      managerId: null,
+    };
+
+    this.authService.register(registerData).subscribe({
       next: () => {
+        alert('User created successfully');
         this.closeAddModal();
-        this.load();
+        this.load(); // refresh users
       },
-      error: () => alert('Failed to create user.'),
+
+      error: (err) => {
+        console.log(err);
+        alert('Failed to create user');
+      },
     });
   }
 
