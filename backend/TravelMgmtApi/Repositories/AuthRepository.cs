@@ -63,10 +63,9 @@ namespace TravelMgmtApi.Repositories
                 UserId = x.UserId,
                 UserName = x.UserName,
                 Email = x.Email,
-                Role = x.Role!.Name,
-                Department = x.Department != null
-                    ? x.Department.DepartmentName
-                    : null
+                Role = x.Role != null ? x.Role.Name : "",
+                Department = x.Department!=null ? x.Department.DepartmentName : "",
+                Status = x.IsActive ? "Active" : "Inactive"
             })
             .OrderBy(x => x.UserName)
             .ToListAsync();
