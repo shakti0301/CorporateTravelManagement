@@ -58,10 +58,9 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/admin/create`, userData);
   }
 
-  updateUser(userId: number, userData: any) {
-    return this.http.put(`${this.apiUrl}/admin/users/${userId}`, userData);
+  updateUser(id: number, data: any) {
+    return this.http.put(`${this.apiUrl}/admin/update/${id}`, data);
   }
-
   // Logout
   logout() {
     localStorage.removeItem('token');
