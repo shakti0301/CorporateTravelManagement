@@ -391,43 +391,49 @@
         <label>Email</label>
         <input
           type="email"
-          class="form-ctrl disabled-input"
+          class="form-ctrl"
           [(ngModel)]="selectedUser.email"
-          disabled
         />
       </div>
       <div class="form-row">
         <div class="field-group">
           <label>Role</label>
-          <select class="form-ctrl" [(ngModel)]="selectedUser.role">
-            <option value="employee">Employee</option>
-            <option value="projectmanager">Project Manager</option>
-            <option value="manager">Manager</option>
-            <option value="finance">Finance</option>
+
+          <select class="form-ctrl" [(ngModel)]="selectedUser.roleId">
+            <option [value]="2">Employee</option>
+            <option [value]="5">Project Manager</option>
+            <option [value]="3">Manager</option>
+            <option [value]="4">Finance</option>
+            <option [value]="1">Admin</option>
           </select>
         </div>
+
         <div class="field-group">
           <label>Department</label>
-          <input
-            type="text"
-            class="form-ctrl"
-            [(ngModel)]="selectedUser.department"
-            placeholder="e.g. Engineering"
-          />
+
+          <select class="form-ctrl" [(ngModel)]="selectedUser.departmentId">
+            <option [value]="1">.NET</option>
+            <option [value]="2">Java</option>
+            <option [value]="3">QA</option>
+            <option [value]="4">AI</option>
+          </select>
         </div>
       </div>
+
       <div class="field-group">
-        <label>Status</label>
-        <select class="form-ctrl" [(ngModel)]="selectedUser.status">
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-          <option value="pending">Pending</option>
-        </select>
+        <label>New Password</label>
+
+        <input
+          type="password"
+          class="form-ctrl"
+          [(ngModel)]="selectedUser.password"
+          placeholder="Leave blank to keep old password"
+        />
       </div>
-    </div>
-    <div class="modal-foot">
-      <button class="btn-cancel" (click)="closeEditModal()">Cancel</button>
-      <button class="btn-save" (click)="saveEditUser()">Save Changes</button>
+      <div class="modal-foot">
+        <button class="btn-cancel" (click)="closeEditModal()">Cancel</button>
+        <button class="btn-save" (click)="saveEditUser()">Save Changes</button>
+      </div>
     </div>
   </div>
 </div>

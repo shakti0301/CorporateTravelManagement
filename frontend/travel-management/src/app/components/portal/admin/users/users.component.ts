@@ -209,8 +209,35 @@ export class UsersComponent implements OnInit {
 
   // EDIT USER MODAL
   openEditModal(user: any) {
-    this.selectedUser = { ...user };
-    this.editSubmitted = false;
+    const roleMap: any = {
+      admin: 1,
+      employee: 2,
+      manager: 3,
+      finance: 4,
+      projectmanager: 5,
+    };
+
+    const departmentMap: any = {
+      '.NET': 1,
+      Java: 2,
+      QA: 3,
+      AI: 4,
+    };
+
+    this.selectedUser = {
+      ...user,
+
+      name: user.userName || user.name,
+
+      roleId: roleMap[this.normalize(user.role)],
+
+      departmentId: departmentMap[user.department],
+
+      status: user.isActive ? 'active' : 'inactive',
+
+      password: '',
+    };
+
     this.showEditModal = true;
   }
 
@@ -223,29 +250,52 @@ export class UsersComponent implements OnInit {
   saveEditUser() {
     this.editSubmitted = true;
     if (!this.selectedUser?.name || !this.selectedUser?.email) return;
-    this.authService
-      .updateUser(
-        this.selectedUser.userId || this.selectedUser.id,
-        this.selectedUser,
-      )
-      .subscribe({
-        next: () => {
-          this.closeEditModal();
-          this.load();
-        },
-        error: () => alert('Failed to update user.'),
-      });
+
+    const payload = {
+      userName: this.selectedUser.name,
+      email: this.selectedUser.email,
+      password: this.selectedUser.password || null,
+      roleId: this.selectedUser.roleId,
+      departmentId: this.selectedUser.departmentId,
+      isActive: this.normalize(this.selectedUser.status) === 'active',
+    };
+
+    this.authService.updateUser(this.selectedUser.userId, payload).subscribe({
+      next: () => {
+        alert('Updated');
+        this.closeEditModal();
+        this.load();
+      },
+      error: (err) => {
+        console.log(err);
+      },
+    });
   }
 
   toggleStatus(user: any) {
-    const newStatus =
-      this.normalize(user.status) === 'active' ? 'inactive' : 'active';
-    this.authService
-      .updateUser(user.userId || user.id, { ...user, status: newStatus })
-      .subscribe({
-        next: () => this.load(),
-        error: () => alert('Failed to update status.'),
-      });
+    const isActive = this.normalize(user.status) !== 'active';
+
+    const payload = {
+      userName: user.userName,
+      email: user.email,
+      password: '', // keep old password
+      roleId: user.roleId,
+      departmentId: user.departmentId,
+      isActive: isActive,
+    };
+
+    this.authService.updateUser(user.userId, payload).subscribe({
+      next: () => {
+        alert(isActive ? 'User Activated' : 'User Deactivated');
+
+        this.load();
+      },
+
+      error: (err) => {
+        console.log(err);
+        alert('Failed to update status');
+      },
+    });
   }
 
   // HELPERS
