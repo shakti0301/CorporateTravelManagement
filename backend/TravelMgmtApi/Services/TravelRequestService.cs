@@ -430,9 +430,9 @@ Console.WriteLine("EMPLOYEE ID = " + request.EmployeeId);
         return "Action completed";
     }
 
-    public async Task<List<TravelRequestResponseDto>> GetAllRequestsAsync()
+    public async Task<List<AdminTravelRequestDto>> GetAllRequestsForAdminAsync()
     {
-        return await _travelRepository.GetAllRequestsAsync();
+        return await _travelRepository.GetAllRequestsForAdminAsync();
     }
 
     public async Task<string> SaveItineraryAsync(CreateItineraryDto dto)
