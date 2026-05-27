@@ -249,10 +249,9 @@ namespace TravelMgmtApi.Controllers
 
         [Authorize(Roles="Admin")]
         [HttpGet("admin/all")]
-        public async Task<IActionResult> GetAllRequestForAdmin()
+        public async Task<IActionResult> GetAllRequestsForAdmin()
         {
-            var result = await _travelService.GetAllRequestsAsync();
-
+            var result = await _travelService.GetAllRequestsForAdminAsync();
             return Ok(result);
         }
     }
