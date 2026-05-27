@@ -76,4 +76,20 @@ export class AuthService {
   }): Observable<any> {
     return this.http.post(`${this.apiUrl}/change-password`, data);
   }
+
+  // ── POLICY APIs ──
+  getAllPolicies(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/policy`);
+  }
+
+  updatePolicy(id: number, data: { maxBudget: number }): Observable<any> {
+    return this.http.put(`${this.apiUrl}/policy/${id}`, data);
+  }
+
+  createPolicy(data: {
+    departmentId: number;
+    maxBudget: number;
+  }): Observable<any> {
+    return this.http.post(`${this.apiUrl}/policy`, data);
+  }
 }
