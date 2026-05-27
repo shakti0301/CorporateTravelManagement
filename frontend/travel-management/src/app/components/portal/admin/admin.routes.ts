@@ -2,7 +2,7 @@ import { Route } from '@angular/router';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { UsersComponent } from './users/users.component';
 import { RequestsComponent } from './requests/requests.component';
-import { RegisterComponent } from '../../auth/register/register.component';
+import { RegisterComponent } from './register/register.component';
 
 export const adminRoutes: Route[] = [
   {
