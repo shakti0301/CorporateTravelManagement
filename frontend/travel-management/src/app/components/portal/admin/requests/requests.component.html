@@ -1,1 +1,306 @@
-<p>requests works!</p>
+<app-navbar></app-navbar>
+
+<div class="rq-page">
+  <!-- ── PAGE HEADER ── -->
+  <div class="rq-header">
+    <div>
+      <h1 class="rq-title">Total Travel Requests</h1>
+      <p class="rq-sub">
+        Review and manage all corporate travel applications across the
+        organization.
+      </p>
+    </div>
+  </div>
+
+  <!-- ── STAT CARDS ── -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-top">
+        <div class="stat-icon icon-blue">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="white"
+            stroke-width="2"
+          >
+            <rect x="3" y="4" width="18" height="16" rx="2" />
+            <line x1="16" y1="2" x2="16" y2="6" />
+            <line x1="8" y1="2" x2="8" y2="6" />
+            <line x1="3" y1="10" x2="21" y2="10" />
+          </svg>
+        </div>
+        <span class="stat-tag tag-green"> {{ newRequests }} New </span>
+      </div>
+      <div class="stat-label">Total Requests</div>
+      <div class="stat-number">{{ totalRequests.toLocaleString() }}</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-top">
+        <div class="stat-icon icon-orange">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="white"
+            stroke-width="2"
+          >
+            <path
+              d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+            />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="12" y1="18" x2="12" y2="12" />
+            <line x1="9" y1="15" x2="15" y2="15" />
+          </svg>
+        </div>
+        <span class="stat-tag tag-blue">Active Now</span>
+      </div>
+      <div class="stat-label">Pending Approval</div>
+      <div class="stat-number">{{ pendingApproval }}</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-top">
+        <div class="stat-icon icon-green">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="white"
+            stroke-width="2"
+          >
+            <rect x="2" y="5" width="20" height="14" rx="2" />
+            <line x1="2" y1="10" x2="22" y2="10" />
+          </svg>
+        </div>
+        <span class="stat-tag tag-green">✓ On Budget</span>
+      </div>
+      <div class="stat-label">Total Estimated Cost</div>
+      <div class="stat-number">{{ totalEstimatedCost }}</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-top">
+        <div class="stat-icon icon-red">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="white"
+            stroke-width="2"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <circle cx="12" cy="16" r="0.5" fill="white" />
+          </svg>
+        </div>
+        <span class="stat-tag tag-red">Requires Action</span>
+      </div>
+      <div class="stat-label">Total Reimbursements</div>
+      <div class="stat-number">
+        {{ totalReimbursements.toString().padStart(2, "0") }}
+      </div>
+    </div>
+  </div>
+
+  <!-- ── FILTERS ── -->
+  <div class="filters-row">
+    <div class="search-wrap">
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#9ca3af"
+        stroke-width="2"
+      >
+        <circle cx="11" cy="11" r="8" />
+        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+      </svg>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Search by Requester Name or Request ID..."
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="onFilterChange()"
+      />
+      <button
+        class="clear-search"
+        *ngIf="searchQuery"
+        (click)="searchQuery = ''; onFilterChange()"
+      >
+        ✕
+      </button>
+    </div>
+
+    <select
+      class="filter-select"
+      [(ngModel)]="selectedRole"
+      (ngModelChange)="onFilterChange()"
+    >
+      <option value="">All Roles</option>
+      <option value="employee">Employee</option>
+      <option value="manager">Manager</option>
+      <option value="projectmanager">Project Manager</option>
+      <option value="finance">Finance</option>
+    </select>
+
+    <select
+      class="filter-select"
+      [(ngModel)]="selectedStatus"
+      (ngModelChange)="onFilterChange()"
+    >
+      <option value="">All Statuses</option>
+      <option value="pending">Pending</option>
+      <option value="approved">Approved</option>
+      <option value="rejected">Rejected</option>
+      <option value="draft">Draft</option>
+    </select>
+  </div>
+
+  <!-- ── TABLE ── -->
+  <div class="table-card">
+    <!-- Loading -->
+    <div *ngIf="loading" class="tbl-empty">Loading requests...</div>
+
+    <!-- Empty -->
+    <div *ngIf="!loading && filteredList.length === 0" class="tbl-empty">
+      <div>No requests found</div>
+      <button
+        class="btn-clear-filters"
+        *ngIf="searchQuery || selectedRole || selectedStatus"
+        (click)="clearFilters()"
+      >
+        Clear filters
+      </button>
+    </div>
+
+    <!-- Table -->
+    <div *ngIf="!loading && paginatedList.length > 0" class="table-wrap">
+      <table class="rq-table">
+        <thead>
+          <tr>
+            <th>REQUEST ID</th>
+            <th>REQUESTER NAME</th>
+            <th>ROLE</th>
+            <th>DESTINATION</th>
+            <th>DATES</th>
+            <th>AMOUNT</th>
+            <th>STATUS</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let req of paginatedList">
+            <!-- Request ID -->
+            <td>
+              <span class="trip-id">{{ getTripId(req) }}</span>
+            </td>
+
+            <!-- Requester -->
+            <td>
+              <div class="emp-cell">
+                <div
+                  class="emp-avatar"
+                  [style.background]="getAvatarColor(getEmployeeName(req))"
+                >
+                  {{ getInitials(getEmployeeName(req)) }}
+                </div>
+                <div>
+                  <div class="emp-name">{{ getEmployeeName(req) }}</div>
+                  <div class="emp-email">{{ getEmail(req) }}</div>
+                </div>
+              </div>
+            </td>
+
+            <!-- Role -->
+            <td>
+              <span
+                class="role-pill"
+                [ngClass]="getRoleClass(getUserRole(req))"
+              >
+                {{ getRoleLabel(getUserRole(req)) }}
+              </span>
+            </td>
+
+            <!-- Destination -->
+            <td class="dest-cell">{{ getDestination(req) }}</td>
+
+            <!-- Dates -->
+            <td class="dates-cell">
+              {{ req.startDate || req.fromDate | date: "MMM dd" }} –
+              {{ req.endDate || req.toDate | date: "MMM dd, yyyy" }}
+            </td>
+
+            <!-- Amount -->
+            <td class="amount-cell">
+              {{ getAmount(req) | currency: "INR" : "symbol-narrow" : "1.2-2" }}
+            </td>
+
+            <!-- Status -->
+            <td>
+              <span
+                class="status-inline"
+                [ngClass]="getStatusClass(req.status)"
+              >
+                <span class="status-dot"></span>
+                {{ getStatusLabel(req.status) }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ── PAGINATION ── -->
+    <div class="tbl-footer" *ngIf="filteredList.length > 0">
+      <span class="showing-text" [innerHTML]="showingText"></span>
+
+      <div class="page-btns">
+        <button
+          class="page-btn"
+          (click)="prevPage()"
+          [disabled]="currentPage === 1"
+        >
+          ‹
+        </button>
+
+        <!-- First page if not in range -->
+        <ng-container *ngIf="pageNumbers[0] > 1">
+          <button class="page-btn" (click)="goToPage(1)">1</button>
+          <span class="ellipsis" *ngIf="pageNumbers[0] > 2">...</span>
+        </ng-container>
+
+        <!-- Page number buttons -->
+        <button
+          *ngFor="let p of pageNumbers"
+          class="page-btn"
+          [class.active-page]="currentPage === p"
+          (click)="goToPage(p)"
+        >
+          {{ p }}
+        </button>
+
+        <!-- Last pages -->
+        <ng-container *ngIf="showEndEllipsis">
+          <span class="ellipsis">...</span>
+          <button class="page-btn" (click)="goToPage(totalPages)">
+            {{ totalPages }}
+          </button>
+        </ng-container>
+
+        <button
+          class="page-btn"
+          (click)="nextPage()"
+          [disabled]="currentPage === totalPages"
+        >
+          ›
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

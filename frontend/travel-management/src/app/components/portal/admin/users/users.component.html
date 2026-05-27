@@ -1,1 +1,433 @@
-<p>users works!</p>
+<app-navbar></app-navbar>
+
+<div class="um-page">
+  <!-- PAGE HEADER -->
+  <div class="um-header">
+    <div>
+      <h1 class="um-title">User Management</h1>
+      <p class="um-sub">
+        Manage organization roles, permissions, and employee accounts.
+      </p>
+    </div>
+  </div>
+
+  <!-- STAT CARDS -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-top">
+        <span class="stat-label">TOTAL EMPLOYEES</span>
+        <div class="stat-icon icon-blue">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#1d4ed8"
+            stroke-width="2"
+          >
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+          </svg>
+        </div>
+      </div>
+      <div class="stat-number">{{ totalEmployees.toLocaleString() }}</div>
+      <div class="stat-sub green-sub">↗ +12 this month</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-top">
+        <span class="stat-label">PENDING APPROVALS</span>
+        <div class="stat-icon icon-orange">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#f97316"
+            stroke-width="2"
+          >
+            <path
+              d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+            />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="12" y1="18" x2="12" y2="12" />
+            <line x1="9" y1="15" x2="15" y2="15" />
+          </svg>
+        </div>
+      </div>
+      <div class="stat-number">{{ pendingApprovals }}</div>
+      <div class="stat-sub">Requires attention</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-top">
+        <span class="stat-label">ADMINS / MANAGERS</span>
+        <div class="stat-icon icon-violet">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#7c3aed"
+            stroke-width="2"
+          >
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+        </div>
+      </div>
+      <div class="stat-number">{{ adminsManagers }}</div>
+      <div class="stat-sub">Across 8 departments</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-top">
+        <span class="stat-label">ACTIVE ROLES</span>
+        <div class="stat-icon icon-green">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#16a34a"
+            stroke-width="2"
+          >
+            <rect x="3" y="3" width="7" height="7" />
+            <rect x="14" y="3" width="7" height="7" />
+            <rect x="14" y="14" width="7" height="7" />
+            <rect x="3" y="14" width="7" height="7" />
+          </svg>
+        </div>
+      </div>
+      <div class="stat-number">{{ activeRolesCount }}</div>
+      <div class="stat-sub">Configured tiers</div>
+    </div>
+  </div>
+
+  <!-- TABLE CARD -->
+  <div class="table-card">
+    <!-- Tabs + Search + Add -->
+    <div class="table-toolbar">
+      <div class="tabs">
+        <button
+          class="tab"
+          [class.active]="activeTab === 'employee'"
+          (click)="setTab('employee')"
+        >
+          Employees
+        </button>
+        <button
+          class="tab"
+          [class.active]="activeTab === 'projectmanager'"
+          (click)="setTab('projectmanager')"
+        >
+          Project Managers
+        </button>
+        <button
+          class="tab"
+          [class.active]="activeTab === 'manager'"
+          (click)="setTab('manager')"
+        >
+          Managers
+        </button>
+        <button
+          class="tab"
+          [class.active]="activeTab === 'finance'"
+          (click)="setTab('finance')"
+        >
+          Finance
+        </button>
+      </div>
+
+      <div class="toolbar-right">
+        <div class="search-wrap">
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#9ca3af"
+            stroke-width="2"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Search employees..."
+            [(ngModel)]="searchQuery"
+            (ngModelChange)="onSearch()"
+          />
+        </div>
+        <button class="btn-add" (click)="openAddModal()">+ Add User</button>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="tbl-empty">Loading users...</div>
+
+    <!-- Empty -->
+    <div *ngIf="!loading && filteredUsers.length === 0" class="tbl-empty">
+      No users found in this category.
+    </div>
+
+    <!-- Table -->
+    <div *ngIf="!loading && paginatedUsers.length > 0" class="table-wrap">
+      <table class="um-table">
+        <thead>
+          <tr>
+            <th>NAME</th>
+            <th>EMAIL</th>
+            <th>DEPARTMENT</th>
+            <th>STATUS</th>
+            <th>ACTIONS</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of paginatedUsers">
+            <!-- Name + Avatar -->
+            <td>
+              <div class="name-cell">
+                <div
+                  class="user-avatar"
+                  [style.background]="getAvatarColor(user.name || user.email)"
+                >
+                  {{ getInitials(user.name || user.email) }}
+                </div>
+                <span class="user-name">{{ user.name || user.email }}</span>
+              </div>
+            </td>
+
+            <!-- Email -->
+            <td class="email-cell">{{ user.email }}</td>
+
+            <!-- Department -->
+            <td>
+              <span class="dept-pill" *ngIf="user.department">{{
+                user.department
+              }}</span>
+              <span class="no-dept" *ngIf="!user.department">—</span>
+            </td>
+
+            <!-- Status -->
+            <td>
+              <span
+                class="status-inline"
+                [ngClass]="getStatusClass(user.status)"
+              >
+                <span class="status-dot"></span>
+                {{ getStatusLabel(user.status) }}
+              </span>
+            </td>
+
+            <!-- Actions -->
+            <td>
+              <div class="row-actions">
+                <button class="action-edit" (click)="openEditModal(user)">
+                  Edit
+                </button>
+                <button
+                  class="action-toggle"
+                  [class.btn-deactivate]="normalize(user.status) === 'active'"
+                  [class.btn-activate]="normalize(user.status) !== 'active'"
+                  (click)="toggleStatus(user)"
+                >
+                  {{
+                    normalize(user.status) === "active"
+                      ? "Deactivate"
+                      : "Activate"
+                  }}
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="tbl-footer" *ngIf="filteredUsers.length > 0">
+      <span class="showing-text">{{ showingText }}</span>
+      <div class="page-btns">
+        <button
+          class="page-btn"
+          (click)="prevPage()"
+          [disabled]="currentPage === 1"
+        >
+          ‹
+        </button>
+
+        <ng-container *ngIf="pageNumbers[0] > 1">
+          <button class="page-btn" (click)="goToPage(1)">1</button>
+          <span class="ellipsis" *ngIf="pageNumbers[0] > 2">...</span>
+        </ng-container>
+
+        <button
+          *ngFor="let p of pageNumbers"
+          class="page-btn"
+          [class.active-page]="currentPage === p"
+          (click)="goToPage(p)"
+        >
+          {{ p }}
+        </button>
+
+        <ng-container *ngIf="showEndEllipsis">
+          <span class="ellipsis">...</span>
+          <button class="page-btn" (click)="goToPage(totalPages)">
+            {{ totalPages }}
+          </button>
+        </ng-container>
+
+        <button
+          class="page-btn"
+          (click)="nextPage()"
+          [disabled]="currentPage === totalPages"
+        >
+          ›
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD USER MODAL -->
+<div class="modal-overlay" *ngIf="showAddModal" (click)="closeAddModal()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <div class="modal-head">
+      <h3 class="modal-title">Add New User</h3>
+      <button class="modal-close" (click)="closeAddModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field-group">
+        <label>Full Name <span class="req">*</span></label>
+        <input
+          type="text"
+          class="form-ctrl"
+          [(ngModel)]="newUser.name"
+          placeholder="Enter full name"
+          [class.invalid]="addSubmitted && !newUser.name"
+        />
+        <span class="field-error" *ngIf="addSubmitted && !newUser.name"
+          >Name is required</span
+        >
+      </div>
+      <div class="field-group">
+        <label>Email <span class="req">*</span></label>
+        <input
+          type="email"
+          class="form-ctrl"
+          [(ngModel)]="newUser.email"
+          placeholder="name@company.com"
+          [class.invalid]="addSubmitted && !newUser.email"
+        />
+        <span class="field-error" *ngIf="addSubmitted && !newUser.email"
+          >Email is required</span
+        >
+      </div>
+      <div class="field-group">
+        <label>Password <span class="req">*</span></label>
+        <input
+          type="password"
+          class="form-ctrl"
+          [(ngModel)]="newUser.password"
+          placeholder="Min 8 characters"
+          [class.invalid]="addSubmitted && !newUser.password"
+        />
+        <span class="field-error" *ngIf="addSubmitted && !newUser.password"
+          >Password is required</span
+        >
+      </div>
+      <div class="form-row">
+        <div class="field-group">
+          <label>Role <span class="req">*</span></label>
+          <select class="form-ctrl" [(ngModel)]="newUser.role">
+            <option value="employee">Employee</option>
+            <option value="projectmanager">Project Manager</option>
+            <option value="manager">Manager</option>
+            <option value="finance">Finance</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label>Department</label>
+          <input
+            type="text"
+            class="form-ctrl"
+            [(ngModel)]="newUser.department"
+            placeholder="e.g. Engineering"
+          />
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" (click)="closeAddModal()">Cancel</button>
+      <button class="btn-save" (click)="saveNewUser()">Create User</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT USER MODAL -->
+<div class="modal-overlay" *ngIf="showEditModal" (click)="closeEditModal()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <div class="modal-head">
+      <h3 class="modal-title">Edit User</h3>
+      <button class="modal-close" (click)="closeEditModal()">✕</button>
+    </div>
+    <div class="modal-body" *ngIf="selectedUser">
+      <div class="field-group">
+        <label>Full Name <span class="req">*</span></label>
+        <input
+          type="text"
+          class="form-ctrl"
+          [(ngModel)]="selectedUser.name"
+          [class.invalid]="editSubmitted && !selectedUser.name"
+        />
+        <span class="field-error" *ngIf="editSubmitted && !selectedUser.name"
+          >Name is required</span
+        >
+      </div>
+      <div class="field-group">
+        <label>Email</label>
+        <input
+          type="email"
+          class="form-ctrl disabled-input"
+          [(ngModel)]="selectedUser.email"
+          disabled
+        />
+      </div>
+      <div class="form-row">
+        <div class="field-group">
+          <label>Role</label>
+          <select class="form-ctrl" [(ngModel)]="selectedUser.role">
+            <option value="employee">Employee</option>
+            <option value="projectmanager">Project Manager</option>
+            <option value="manager">Manager</option>
+            <option value="finance">Finance</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label>Department</label>
+          <input
+            type="text"
+            class="form-ctrl"
+            [(ngModel)]="selectedUser.department"
+            placeholder="e.g. Engineering"
+          />
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Status</label>
+        <select class="form-ctrl" [(ngModel)]="selectedUser.status">
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+          <option value="pending">Pending</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" (click)="closeEditModal()">Cancel</button>
+      <button class="btn-save" (click)="saveEditUser()">Save Changes</button>
+    </div>
+  </div>
+</div>
