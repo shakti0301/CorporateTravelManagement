@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using TravelMgmtApi.DTOs;
 using TravelMgmtApi.Interfaces;
 
@@ -48,6 +49,33 @@ namespace TravelMgmtApi.Controllers
         {
             var result = await _authService.GetAllUsersAsync();
             return Ok(result);
+        }
+
+        //Change Password Api
+        [Authorize]
+        [HttpPost("change-password")]
+        public async Task<IActionResult> ChangePassword(ChangePasswordDto changePasswordDto)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                return Unauthorized(new { message = "Invalid token" });
+            }
+
+            var userId = int.Parse(userIdClaim.Value);
+            var result = await _authService.ChangePasswordAsync(userId, changePasswordDto);
+
+            if (result == "Current password is incorrect")
+            {
+                return BadRequest(new { message = result });
+            }
+
+            if (result == "User not found")
+            {
+                return NotFound(new { message = result });
+            }
+
+            return Ok(new { message = result });
         }
     }
 }
