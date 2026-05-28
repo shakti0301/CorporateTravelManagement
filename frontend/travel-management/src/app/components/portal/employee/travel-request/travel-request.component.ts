@@ -166,6 +166,7 @@ export class TravelRequestComponent {
           console.log(res);
 
           this.maxBudget = res.maxBudget || res.MaxBudget || 0;
+          this.checkBudget();
         },
 
         error: (err) => {
@@ -200,6 +201,7 @@ export class TravelRequestComponent {
 
   onSubmit() {
     this.submitted = true;
+    this.checkBudget();
 
     if (this.requestForm.invalid) {
       this.requestForm.markAllAsTouched();
@@ -242,6 +244,8 @@ export class TravelRequestComponent {
   }
 
   saveDraft() {
+    this.checkBudget();
+
     const requestData = {
       source: this.requestForm.value.source || null,
       destination: this.requestForm.value.destination || null,
