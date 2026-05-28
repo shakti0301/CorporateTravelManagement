@@ -10,6 +10,10 @@
     sans-serif;
 }
 
+.exp-page--has-bottom-bar {
+  padding-bottom: 148px;
+}
+
 .exp-back-row {
   margin-bottom: 1rem;
 }
@@ -508,6 +512,10 @@
 
 /* Responsive */
 @media (max-width: 768px) {
+  .exp-page--has-bottom-bar {
+    padding-bottom: 168px;
+  }
+
   .exp-overview-row {
     grid-template-columns: 1fr;
   }
