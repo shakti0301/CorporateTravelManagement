@@ -10,6 +10,10 @@
     sans-serif;
 }
 
+.exp-page.with-bottom-bar {
+  padding-bottom: 132px;
+}
+
 .exp-back-row {
   margin-bottom: 1rem;
 }
